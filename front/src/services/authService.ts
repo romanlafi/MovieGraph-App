@@ -1,0 +1,18 @@
+import axios from "axios";
+import {API_ENDPOINTS} from "../data/apiConstants.ts";
+
+const API_USERS = API_ENDPOINTS.USERS;
+
+export const loginUser = async (email: string, password: string): Promise<string> => {
+    const params = new URLSearchParams();
+    params.append("username", email);
+    params.append("password", password);
+
+    const res = await axios.post(`${API_USERS}/login`, params, {
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    });
+
+    return res.data.access_token;
+};
