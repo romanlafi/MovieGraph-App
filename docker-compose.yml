@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:5.20
+    container_name: moviegraph-db
+    restart: always
+    environment:
+      NEO4J_AUTH: neo4j/test
+    volumes:
+      - neo4j_data:/data
+    ports:
+      - "7474:7474" 
+      - "7687:7687" 
+  
+  backend:
+    build: ./back
+    container_name: moviegraph-backend
+    restart: always
+    env_file:
+      - ./back/.env
+    depends_on:
+      - neo4j
+    ports:
+      - "8001:8001"
+
+  frontend:
+    build: ./front
+    container_name: moviegraph-frontend
+    restart: always
+    ports:
+      - "3001:80"
+
+volumes:
+  neo4j_data:
