@@ -1,10 +1,7 @@
-import os
-import httpx
 from typing import Optional, List
+import httpx
+from app.core.config import TMDB_BASE_URL, TMDB_API_KEY
 
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
-TMDB_BASE_URL = os.getenv("TMDB_BASE_URL", "https://api.themoviedb.org/3")
-TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500"
 
 def search_movies_tmdb(query: str, page: int = 1) -> List[dict]:
     url = f"{TMDB_BASE_URL}/search/movie"
@@ -13,7 +10,6 @@ def search_movies_tmdb(query: str, page: int = 1) -> List[dict]:
     return response.json().get("results", []) if response.status_code == 200 else []
 
 def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
-    import httpx
     movie_url = f"{TMDB_BASE_URL}/movie/{tmdb_id}"
     credits_url = f"{TMDB_BASE_URL}/movie/{tmdb_id}/credits"
     videos_url = f"{TMDB_BASE_URL}/movie/{tmdb_id}/videos"

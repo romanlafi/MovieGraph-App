@@ -2,7 +2,6 @@ import { Movie } from "../../types/movie";
 import {
     FaStar,
     FaCalendarAlt,
-    FaUserAlt,
     FaClock
 } from "react-icons/fa";
 import GenreBadge from "../common/GenreBadge.tsx";
@@ -52,10 +51,8 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                 <h1 className="text-3xl font-bold">{movie.title}</h1>
 
                 <div className="flex flex-wrap gap-4 text-sm text-white/80">
-                    <span className="flex items-center gap-2"><FaCalendarAlt className="text-purple-400" />{movie.year}</span>
-                    <span className="flex items-center gap-2"><FaUserAlt className="text-purple-400" />{movie.director}</span>
-                    <span className="flex items-center gap-2"><FaClock className="text-purple-400" />{movie.runtime}</span>
                     <span className="flex items-center gap-2"><FaCalendarAlt className="text-purple-400" />{movie.released}</span>
+                    <span className="flex items-center gap-2"><FaClock className="text-purple-400" />{movie.runtime}</span>
                 </div>
 
                 {movie.rating && (

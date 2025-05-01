@@ -1,18 +1,20 @@
-from neo4j.graph import Node
-from pydantic import BaseModel
 from typing import Optional, List
+
+from pydantic import BaseModel
+
+from app.models.movie import Movie
+from app.schemas.genre import GenreResponse, genre_to_response
 
 
 class MovieBase(BaseModel):
-    title: str
     tmdb_id: int
+    title: str
     year: Optional[int] = None
-    genres: Optional[List[str]] = []
+    genres: Optional[List[str]] = None
     poster_url: Optional[str] = None
     rated: Optional[str] = None
     released: Optional[str] = None
     runtime: Optional[str] = None
-    director: Optional[str] = None
     box_office: Optional[str] = None
     production: Optional[str] = None
     website: Optional[str] = None
@@ -28,43 +30,39 @@ class MovieResponse(MovieBase):
     id: str
 
 class MovieListResponse(BaseModel):
+    id: int
     tmdb_id: int
     title: str
     poster_url: Optional[str] = None
-    # year: Optional[int] = None
-    #director: Optional[str] = None
     rating: Optional[float] = None
     type: Optional[str] = None
 
-def movie_node_to_response(node: Node) -> MovieResponse:
+def movie_to_response(movie: Movie) -> MovieResponse:
     return MovieResponse(
-        id=str(node.id),
-        tmdb_id=node.get("tmdb_id"),
-        title=node.get("title"),
-        year=node.get("year"),
-        genres=node.get("genres", []),
-        poster_url=node.get("poster_url"),
-        rated=node.get("rated"),
-        released=node.get("released"),
-        runtime=node.get("runtime"),
-        director=node.get("director"),
-        box_office=node.get("box_office"),
-        production=node.get("production"),
-        website=node.get("website"),
-        type=node.get("type"),
-        plot=node.get("plot"),
-        rating=node.get("rating"),
-        trailer_url=node.get("trailer_url")
+        id=str(movie.id),
+        tmdb_id=movie.tmdb_id,
+        title=movie.title,
+        year=movie.year,
+        genres=[g.name for g in movie.genres],
+        poster_url=movie.poster_url,
+        rated=movie.rated,
+        released=movie.released,
+        runtime=movie.runtime,
+        box_office=movie.box_office,
+        production=movie.production,
+        website=movie.website,
+        type=movie.type,
+        plot=movie.plot,
+        rating=movie.rating,
+        trailer_url=movie.trailer_url,
     )
 
-
-def movie_node_to_list_response(node: Node) -> MovieListResponse:
+def movie_to_list_response(movie: Movie) -> MovieListResponse:
     return MovieListResponse(
-        tmdb_id=node.get("tmdb_id"),
-        title=node.get("title"),
-        poster_url=node.get("poster_url"),
-        # year=node.get("year"),
-        # director=node.get("director"),
-        rating=node.get("rating"),
-        type=node.get("type")
+        id=movie.id,
+        tmdb_id=movie.tmdb_id,
+        title=movie.title,
+        poster_url=movie.poster_url,
+        rating=movie.rating,
+        type=movie.type,
     )

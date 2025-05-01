@@ -26,12 +26,12 @@ export function useMovieDetail(id: string) {
                 const movieData = await getMovieById(id);
                 const castData = await getPeopleForMovie(id);
                 const relatedData = await getRelatedMovies(id);
-                const commentData = await getCommentsByMovie(id);
+                //const commentData = await getCommentsByMovie(id);
 
                 setMovie(movieData);
                 setCast(castData);
                 setRelatedMovies(relatedData);
-                setComments(commentData);
+                //setComments(commentData);
             } catch (error) {
                 console.error("Error loading movie data", error);
                 setMovie(null);

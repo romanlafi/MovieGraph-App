@@ -81,15 +81,15 @@ tokens = {}
 
 def register_and_login_users():
     for user in users:
-        # register_resp = httpx.post(
-        #     f"{BASE_URL}/users/",
-        #     headers={"Content-Type": "application/json"},
-        #     json=user
-        # )
-        # if register_resp.status_code == 200:
-        #     print(f"Register completed {user['email']}")
-        # else:
-        #     print(f"Failed to register {user['email']}: {register_resp.text}")
+        register_resp = httpx.post(
+            f"{BASE_URL}/users/",
+            headers={"Content-Type": "application/json"},
+            json=user
+        )
+        if register_resp.status_code == 200:
+            print(f"Register completed {user['email']}")
+        else:
+            print(f"Failed to register {user['email']}: {register_resp.text}")
 
 
         login_resp = httpx.post(f"{BASE_URL}/users/login", data={
@@ -131,10 +131,10 @@ def search_and_like():
             if res.status_code == 200 and res.json():
                 print(f"Successfully searched movie {title}")
                 movie = res.json()[0]
-                tmdb_id = movie["tmdb_id"]
+                id = movie["id"]
                 httpx.post(
                     f"{BASE_URL}/movies/like",
-                    params={"tmdb_id": tmdb_id},
+                    params={"movie_id": id},
                     headers={"Authorization": f"Bearer {token}"}
                 )
 
@@ -166,7 +166,7 @@ def insert_comments():
                 "Content-Type": "application/json"
             },
             json={  # Ahora usamos JSON, no data
-                "tmdb_id": 577922,
+                "movie_id": 577922,
                 "text": comment_text
             }
         )
@@ -178,8 +178,8 @@ def insert_comments():
 
 if __name__ == "__main__":
     register_and_login_users()
-    # create_friendships()
-    # search_and_like()
-    # search_movies_only()
+    create_friendships()
+    search_movies_only()
+    search_and_like()
     insert_comments()
     print("\nPoblamiento vía API completado.")
