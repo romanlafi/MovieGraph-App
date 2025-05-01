@@ -15,11 +15,11 @@ services:
       - moviegraph-net
 
   backend:
-    build: ./backend
-    container_name: moviegraph-backend
+    build: ./back
+    container_name: moviegraph-back
     restart: always
     env_file:
-      - ./backend/.env
+      - ./back/.env
     depends_on:
       - db
     ports:
@@ -28,8 +28,8 @@ services:
       - moviegraph-net
 
   frontend:
-    build: ./frontend
-    container_name: moviegraph-frontend
+    build: ./front
+    container_name: moviegraph-front
     restart: always
     ports:
       - "3001:80"
