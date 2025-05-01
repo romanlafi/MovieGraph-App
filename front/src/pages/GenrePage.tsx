@@ -64,7 +64,6 @@ export default function GenrePage() {
         <Container className="py-10 space-y-6" >
             <section className="bg-neutral-800 rounded-xl p-8 shadow space-y-6">
                 <Title title={genre} size="lg" className="capitalize"/>
-                <h1 className="text-3xl font-bold capitalize text-white">{genre}</h1>
                 {description && (
                     <p className="text-white/70 text-sm">
                         {description}
