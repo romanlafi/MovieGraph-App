@@ -27,6 +27,16 @@ services:
     networks:
       - moviegraph-net
 
+  db-init:
+    build:
+      context: ./back
+      dockerfile: Dockerfile.init
+    depends_on:
+      - db
+    command: ["python", "resources/create_tables.py"]
+    networks:
+      - moviegraph-net
+
   frontend:
     build: ./front
     container_name: moviegraph-front
