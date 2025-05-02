@@ -63,7 +63,7 @@ def like_movie(
         db: Session = Depends(get_db),
         current_user=Depends(get_current_user)
 ):
-    user = db.query(User).filter(User.email == current_user["email"]).first()
+    user = db.query(User).filter(User.email == current_user.email).first()
     movie = db.query(Movie).filter(Movie.id == movie_id).first()
     if movie not in user.likes:
         user.likes.append(movie)
@@ -76,7 +76,7 @@ def unlike_movie(
         db: Session = Depends(get_db),
         current_user=Depends(get_current_user)
 ):
-    user = db.query(User).filter(User.email == current_user["email"]).first()
+    user = db.query(User).filter(User.email == current_user.email).first()
     movie = db.query(Movie).filter(Movie.id == movie_id).first()
     if movie in user.likes:
         user.likes.remove(movie)
@@ -88,7 +88,7 @@ def get_user_likes(
         db: Session = Depends(get_db),
         current_user=Depends(get_current_user)
 ):
-    user = db.query(User).filter(User.email == current_user["email"]).first()
+    user = db.query(User).filter(User.email == current_user.email).first()
     return [movie_to_list_response(m) for m in user.likes]
 
 @router.get("/genres", response_model=List[GenreResponse])
