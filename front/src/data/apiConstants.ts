@@ -1,4 +1,5 @@
 export const BASE_URL = "http://192.168.1.250:8000/api/v1";
+//const BASE_URL = "http://192.168.1.175:8001/api/v1";
 
 export const API_ENDPOINTS = {
     USERS: `${BASE_URL}/users`,

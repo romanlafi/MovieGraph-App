@@ -2,7 +2,7 @@ import httpx
 import random
 from datetime import date
 
-BASE_URL = "http://localhost:8000/api/v1"
+BASE_URL = "http://192.1.1.175:8001/api/v1"
 
 users = [
     {

@@ -10,13 +10,12 @@ services:
       POSTGRES_PASSWORD: moviepass
       POSTGRES_DB: moviedb
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
     networks:
       - moviegraph-net
 
   backend:
     build: ./back
-    image: moviegraph-app_backend
     container_name: moviegraph-back
     restart: always
     env_file:
@@ -24,15 +23,7 @@ services:
     depends_on:
       - db
     ports:
-      - "8001:8001"
-    networks:
-      - moviegraph-net
-
-  db-init:
-    image: moviegraph-app_backend  # Reutiliza imagen del backend
-    command: ["python", "resources/create_tables.py"]
-    depends_on:
-      - db
+      - "8001:8000"
     networks:
       - moviegraph-net
 
@@ -46,7 +37,7 @@ services:
       - moviegraph-net
 
 volumes:
-  db_data:
+  pg_data:
 
 networks:
   moviegraph-net:
