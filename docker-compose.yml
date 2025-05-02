@@ -16,6 +16,7 @@ services:
 
   backend:
     build: ./back
+    image: moviegraph-app_backend
     container_name: moviegraph-back
     restart: always
     env_file:
@@ -23,17 +24,15 @@ services:
     depends_on:
       - db
     ports:
-      - "8001:8000"
+      - "8001:8001"
     networks:
       - moviegraph-net
 
   db-init:
-    build:
-      context: ./back
-      dockerfile: Dockerfile.init
+    image: moviegraph-app_backend  # Reutiliza imagen del backend
+    command: ["python", "resources/create_tables.py"]
     depends_on:
       - db
-    command: ["python", "resources/create_tables.py"]
     networks:
       - moviegraph-net
 
