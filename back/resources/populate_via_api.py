@@ -181,5 +181,5 @@ if __name__ == "__main__":
     create_friendships()
     search_movies_only()
     search_and_like()
-    insert_comments()
+    # insert_comments()
     print("\nPoblamiento vía API completado.")
