@@ -19,5 +19,7 @@ COPY . .
 # Exponer el puerto
 EXPOSE 8001
 
+RUN python resources/create_tables.py || echo "Saltando errores al crear tablas durante build"
+
 # Comando por defecto
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
