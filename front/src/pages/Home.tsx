@@ -1,12 +1,16 @@
 import {useEffect, useState} from "react";
 import {getGenres, getMoviesByGenre} from "../services/moviesService.ts";
+
 import {Movie} from "../types/movie.ts";
-import {genreDescriptions} from "../data/genreDescriptions.ts";
+import {Genre} from "../types/genre.ts";
+
 import MovieCarousel from "../components/movie/MovieCarousel.tsx";
 import LoadingSpinner from "../components/layout/LoadingSpinner.tsx";
 import Container from "../components/common/Container.tsx";
 import Button from "../components/common/Button.tsx";
-import {Genre} from "../types/genre.ts";
+
+import {genreDescriptions} from "../data/genreDescriptions.ts";
+
 
 export default function Home() {
     const [allGenres, setAllGenres] = useState<Genre[]>([]);
@@ -30,7 +34,7 @@ export default function Home() {
         };
 
         void fetchGenres();
-    }, []);
+    }, [visibleCount]);
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -39,8 +43,7 @@ export default function Home() {
             for (const genre of visibleGenres) {
                 if (!genreMovies[genre.id]) {
                     try {
-                        const movies = await getMoviesByGenre(genre.name, 1, 10);
-                        result[genre.id] = movies;
+                        result[genre.id] = await getMoviesByGenre(genre.name);
                     } catch (err) {
                         console.error(`Error loading movies for genre ${genre.name}`, err);
                     }
@@ -53,7 +56,7 @@ export default function Home() {
         };
 
         void fetchMovies();
-    }, [visibleGenres]);
+    }, [genreMovies, visibleGenres]);
 
     const loadMoreGenres = () => {
         const next = visibleCount + 5;
@@ -68,7 +71,7 @@ export default function Home() {
     if (loading) return <LoadingSpinner />;
 
     return (
-        <Container className="space-y-10 pb-10 mt-5">
+        <Container className="space-y-10 pb-10 mt-10">
             {visibleGenres.map((genre) => (
                 <MovieCarousel
                     key={genre.id}
@@ -80,7 +83,7 @@ export default function Home() {
             ))}
 
             {visibleCount < allGenres.length && (
-                <div className="flex justify-center pt-8">
+                <div className="flex justify-center">
                     <Button onClick={loadMoreGenres} disabled={loadingMore}>
                         {loadingMore ? "Loading..." : "Load More Genres"}
                     </Button>

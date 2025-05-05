@@ -23,6 +23,12 @@
   background: #888;
 }
 
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 :root {
   /*font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;*/
   line-height: 1.5;

@@ -8,7 +8,7 @@ interface Props {
 
 export default function MovieCard({ movie }: Props) {
     return (
-        <Link to={`/movie/${movie.id}`} className="block">
+        <Link to={`/movie/${movie.tmdb_id}`} className="block">
             <div className="w-[140px] shrink-0 bg-neutral-900 p-2 rounded hover:scale-98 hover:bg-neutral-950 transition-transform duration-200 ease-out shadow hover:shadow-xl">
                 <img
                     src={movie.poster_url}

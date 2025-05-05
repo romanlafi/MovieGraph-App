@@ -2,6 +2,7 @@ from typing import List
 
 from sqlalchemy.orm import Session
 
+from app.exceptions import MovieNotFoundError
 from app.models.genre import Genre
 from app.models.movie import Movie
 from app.models.movie_person import MoviePerson
@@ -171,3 +172,15 @@ def get_related_movies_by_people_and_genres(movie_id: int, db: Session) -> List[
     all_related = {m.id: m for m in related_by_people + related_by_genres}.values()
 
     return list(all_related)[:20]
+
+def get_or_fetch_movie_by_tmdb_id(tmdb_id: int, db: Session) -> MovieResponse:
+    movie = db.query(Movie).filter_by(tmdb_id=tmdb_id).first()
+    if movie:
+        return movie_to_response(movie)
+
+    data = fetch_movie_data_by_tmdb(tmdb_id)
+    if not data:
+        raise MovieNotFoundError()
+
+    movie = register_movie_from_data(data, db)
+    return movie_to_response(movie)

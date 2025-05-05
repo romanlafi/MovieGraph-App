@@ -10,7 +10,11 @@ export const getGenres = async (): Promise<Genre[]> => {
     return res.data;
 }
 
-export const getMoviesByGenre = async (genre_name: string, page = 1, limit = 10): Promise<Movie[]> => {
+export const getMoviesByGenre = async (
+    genre_name: string,
+    page = 1,
+    limit = 10
+): Promise<Movie[]> => {
     const res = await axios.get<Movie[]>(`${API_MOVIES}/by_genre`, {
         params: {
             genre_name,
@@ -28,6 +32,13 @@ export const getMovieById = async (movie_id: string): Promise<Movie> => {
     return res.data;
 }
 
+export const getMovieByTmdbId = async (tmdb_id: string): Promise<Movie> => {
+    const res = await axios.get(`${API_MOVIES}/detail`, {
+        params: { tmdb_id },
+    });
+    return res.data;
+};
+
 export const getRelatedMovies = async (movie_id: string): Promise<Movie[]> => {
     const res = await axios.get<Movie[]>(`${API_MOVIES}/related`, {
         params: { movie_id },
@@ -35,4 +46,9 @@ export const getRelatedMovies = async (movie_id: string): Promise<Movie[]> => {
     return res.data;
 };
 
-
+export const searchTmdbMovies = async (query: string): Promise<Movie[]> => {
+    const res = await axios.get(`${API_MOVIES}/tmdb_search`, {
+        params: { query },
+    });
+    return res.data;
+};

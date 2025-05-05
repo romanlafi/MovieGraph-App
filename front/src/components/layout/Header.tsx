@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import LoginForm from "../auth/LoginForm.tsx";
 import {useAuth} from "../../contexts/AuthContext.tsx";
 import UserMenu from "../auth/UserMenu.tsx";
+import SearchBarWrapper from "../search/SearchBarWrapper.tsx";
 
 
 export default function Header() {
@@ -14,17 +15,17 @@ export default function Header() {
         <header className="fixed top-0 left-0 right-0 h-16 bg-purple-800 border-b border-neutral-800 z-50 shadow-md">
             <div className="max-w-[1100px] mx-auto h-full flex items-center justify-between px-4 sm:px-6 md:px-8 relative">
 
-                {/* Logo MovieGraph */}
                 <Link to="/" className="flex items-center gap-2 text-lg font-bold text-white">
                     <FaFilm className="text-xl" />
-                    <span className="hidden sm:inline">MovieGraph</span>
+                    <span className="sm:inline">MovieGraph</span>
                 </Link>
 
-                {/* Navegación */}
+                <SearchBarWrapper />
+
                 <nav className="flex items-center gap-6 text-sm text-white relative">
 
                     <a href="#" className="flex items-center gap-2 hover:text-black transition">
-                        <FaThumbsUp />
+                        <FaThumbsUp className="text-xl"/>
                         <span className="hidden sm:inline">Recommendations</span>
                     </a>
 
@@ -36,7 +37,7 @@ export default function Header() {
                                 onClick={() => setShowLogin((prev) => !prev)}
                                 className="flex items-center gap-2 hover:text-black transition relative"
                             >
-                                <FaSignInAlt />
+                                <FaSignInAlt className="text-xl"/>
                                 <span className="hidden sm:inline">Login</span>
                             </button>
 

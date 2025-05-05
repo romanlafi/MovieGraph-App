@@ -1,6 +1,7 @@
 from typing import Optional, List
 import httpx
 from app.core.config import TMDB_BASE_URL, TMDB_API_KEY
+from app.schemas.movie import MovieSearchResponse
 
 
 def search_movies_tmdb(query: str, page: int = 1) -> List[dict]:
@@ -8,6 +9,19 @@ def search_movies_tmdb(query: str, page: int = 1) -> List[dict]:
     params = {"api_key": TMDB_API_KEY, "query": query, "page": page, "include_adult": False}
     response = httpx.get(url, params=params, timeout=10.0)
     return response.json().get("results", []) if response.status_code == 200 else []
+
+def search_tmdb_only(query: str) -> List[MovieSearchResponse]:
+    results = search_movies_tmdb(query)[:5]
+    return [
+        MovieSearchResponse(
+            tmdb_id=m["id"],
+            title=m["title"],
+            rating=m["vote_average"],
+            year=int(m["release_date"].split("-")[0]) if m.get("release_date") else None,
+            poster_url=f"https://image.tmdb.org/t/p/w500{m['poster_path']}" if m.get("poster_path") else None
+        )
+        for m in results
+    ]
 
 def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
     movie_url = f"{TMDB_BASE_URL}/movie/{tmdb_id}"

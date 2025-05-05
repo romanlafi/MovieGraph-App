@@ -37,6 +37,13 @@ class MovieListResponse(BaseModel):
     rating: Optional[float] = None
     type: Optional[str] = None
 
+class MovieSearchResponse(BaseModel):
+    tmdb_id: int
+    title: str
+    rating: Optional[float] = None
+    year: Optional[int] = None
+    poster_url: Optional[str] = None
+
 def movie_to_response(movie: Movie) -> MovieResponse:
     return MovieResponse(
         id=str(movie.id),

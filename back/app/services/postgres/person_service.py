@@ -55,14 +55,27 @@ def list_people_by_movie_id(movie_id: int, db: Session) -> List[PersonWithRoleRe
     if not movie:
         return []
 
-    result = []
-    for mp in movie.movie_persons:
-        result.append(PersonWithRoleResponse(
-            id=mp.person.id,
-            tmdb_id=mp.person.tmdb_id,
-            name=mp.person.name,
-            photo_url=f"https://image.tmdb.org/t/p/w500{mp.person.photo_url}" if mp.person.photo_url else None,
-            role=mp.role
-        ))
+    people_dict = {}
 
-    return result
+    for mp in movie.movie_persons:
+        pid = mp.person.id
+        if pid not in people_dict:
+            people_dict[pid] = {
+                "id": pid,
+                "tmdb_id": mp.person.tmdb_id,
+                "name": mp.person.name,
+                "photo_url": f"https://image.tmdb.org/t/p/w500{mp.person.photo_url}" if mp.person.photo_url else None,
+                "roles": set()
+            }
+        people_dict[pid]["roles"].add(mp.role)
+
+    return [
+        PersonWithRoleResponse(
+            id=p["id"],
+            tmdb_id=p["tmdb_id"],
+            name=p["name"],
+            photo_url=p["photo_url"],
+            role=", ".join(sorted(p["roles"]))
+        )
+        for p in people_dict.values()
+    ]

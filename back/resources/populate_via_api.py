@@ -2,7 +2,7 @@ import httpx
 import random
 from datetime import date
 
-BASE_URL = "http://192.1.1.175:8001/api/v1"
+BASE_URL = "http://192.168.1.175:8001/api/v1"
 
 users = [
     {
@@ -81,15 +81,15 @@ tokens = {}
 
 def register_and_login_users():
     for user in users:
-        register_resp = httpx.post(
-            f"{BASE_URL}/users/",
-            headers={"Content-Type": "application/json"},
-            json=user
-        )
-        if register_resp.status_code == 200:
-            print(f"Register completed {user['email']}")
-        else:
-            print(f"Failed to register {user['email']}: {register_resp.text}")
+        # register_resp = httpx.post(
+        #     f"{BASE_URL}/users/",
+        #     headers={"Content-Type": "application/json"},
+        #     json=user
+        # )
+        # if register_resp.status_code == 200:
+        #     print(f"Register completed {user['email']}")
+        # else:
+        #     print(f"Failed to register {user['email']}: {register_resp.text}")
 
 
         login_resp = httpx.post(f"{BASE_URL}/users/login", data={
@@ -178,8 +178,8 @@ def insert_comments():
 
 if __name__ == "__main__":
     register_and_login_users()
-    create_friendships()
-    search_movies_only()
+    # create_friendships()
+    # search_movies_only()
     search_and_like()
     # insert_comments()
     print("\nPoblamiento vía API completado.")

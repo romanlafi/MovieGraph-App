@@ -19,7 +19,7 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
     const embedUrl = toEmbedUrl(movie.trailer_url);
 
     return (
-        <div className="bg-neutral-800 rounded-xl shadow-lg p-6 space-y-6">
+        <section className="bg-neutral-800 rounded-xl p-6 shadow space-y-4">
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-start mt-2">
                 <div className="w-full max-w-xs mx-auto lg:mx-0 h-[420px] flex items-center justify-center rounded overflow-hidden">
                     <img
@@ -51,7 +51,7 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                 <h1 className="text-3xl font-bold">{movie.title}</h1>
 
                 <div className="flex flex-wrap gap-4 text-sm text-white/80">
-                    <span className="flex items-center gap-2"><FaCalendarAlt className="text-purple-400" />{movie.released}</span>
+                    <span className="flex items-center gap-2"><FaCalendarAlt className="text-purple-400" />{movie.year}</span>
                     <span className="flex items-center gap-2"><FaClock className="text-purple-400" />{movie.runtime}</span>
                 </div>
 
@@ -72,6 +72,6 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                     {movie.plot || "Plot not available"}
                 </p>
             </div>
-        </div>
+        </section>
     );
 }

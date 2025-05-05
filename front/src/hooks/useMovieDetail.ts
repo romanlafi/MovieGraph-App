@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 
 import { Movie } from "../types/movie";
-import {getMovieById, getRelatedMovies} from "../services/moviesService.ts";
+import {getMovieByTmdbId, getRelatedMovies} from "../services/moviesService.ts";
 
 import {Person} from "../types/person.ts";
 import {getPeopleForMovie} from "../services/peopleService.ts";
@@ -23,15 +23,22 @@ export function useMovieDetail(id: string) {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const movieData = await getMovieById(id);
-                const castData = await getPeopleForMovie(id);
-                const relatedData = await getRelatedMovies(id);
-                const commentData = await getCommentsByMovie(id);
 
+                const movieData = await getMovieByTmdbId(id);
+                console.log(movieData);
                 setMovie(movieData);
-                setCast(castData);
-                setRelatedMovies(relatedData);
-                setComments(commentData);
+
+                if (movieData) {
+                    const [castData, relatedData, commentData] = await Promise.all([
+                        getPeopleForMovie(movieData.id),
+                        getRelatedMovies(movieData.id),
+                        getCommentsByMovie(movieData.id)
+                    ]);
+
+                    setCast(castData);
+                    setRelatedMovies(relatedData);
+                    setComments(commentData);
+                }
             } catch (error) {
                 console.error("Error loading movie data", error);
                 setMovie(null);
@@ -44,11 +51,23 @@ export function useMovieDetail(id: string) {
     }, [id]);
 
     const handleCommentSubmit = async (text: string) => {
-        if (!id) return;
-        await postComment(id, text);
-        const updatedComments = await getCommentsByMovie(id);
-        setComments(updatedComments);
+        if (!movie?.id) return;
+
+        try {
+            await postComment(movie.id, text);
+            const updatedComments = await getCommentsByMovie(movie.id);
+            setComments(updatedComments);
+        } catch (error) {
+            console.error("Error submitting comment", error);
+        }
     };
 
-    return { movie, cast, relatedMovies, comments, loading, handleCommentSubmit };
+    return {
+        movie,
+        cast,
+        relatedMovies,
+        comments,
+        loading,
+        handleCommentSubmit
+    };
 }

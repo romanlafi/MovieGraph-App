@@ -1,6 +1,6 @@
 export interface Movie {
     id: string;
-    tmdb_id: string;
+    tmdb_id: number;
     title: string;
     poster_url: string;
     year?: string;

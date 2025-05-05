@@ -23,9 +23,9 @@ from app.services.postgres.movie_service import (
     search_movies,
     search_movies_by_genre,
     get_movie_by_id,
-    get_related_movies_by_people_and_genres
+    get_related_movies_by_people_and_genres, get_or_fetch_movie_by_tmdb_id
 )
-
+from app.services.tmdb_service import search_movies_tmdb, search_tmdb_only
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
@@ -102,3 +102,14 @@ def related_movies(
 ):
     movies = get_related_movies_by_people_and_genres(movie_id, db)
     return [movie_to_list_response(m) for m in movies]
+
+@router.get("/tmdb_search")
+def search_tmdb_movies(query: str = Query(..., min_length=2)):
+    return search_tmdb_only(query)
+
+@router.get("/detail", response_model=MovieResponse)
+def get_movie_by_tmdb_id(
+    tmdb_id: int = Query(...),
+    db: Session = Depends(get_db)
+):
+    return get_or_fetch_movie_by_tmdb_id(tmdb_id, db)

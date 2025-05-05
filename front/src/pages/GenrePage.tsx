@@ -1,13 +1,18 @@
 import {useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
+
 import {Movie} from "../types/movie.ts";
-import {getMoviesByGenre} from "../services/moviesService.ts";
 import MovieGrid from "../components/movie/MovieGrid.tsx";
+import {getMoviesByGenre} from "../services/moviesService.ts";
+
 import LoadingSpinner from "../components/layout/LoadingSpinner.tsx";
-import {genreDescriptions} from "../data/genreDescriptions.ts";
+
 import Button from "../components/common/Button.tsx";
 import Container from "../components/common/Container.tsx";
 import Title from "../components/common/Title.tsx";
+
+import {genreDescriptions} from "../data/genreDescriptions.ts";
+
 
 export default function GenrePage() {
     const { genre } = useParams<{ genre: string }>();
@@ -62,7 +67,7 @@ export default function GenrePage() {
 
     return (
         <Container className="py-10 space-y-6" >
-            <section className="bg-neutral-800 rounded-xl p-8 shadow space-y-6">
+            <section className="bg-neutral-800 rounded-xl p-6 shadow space-y-4">
                 <Title title={genre} size="lg" className="capitalize"/>
                 {description && (
                     <p className="text-white/70 text-sm">
