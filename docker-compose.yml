@@ -32,7 +32,7 @@ services:
     container_name: moviegraph-front
     restart: always
     ports:
-      - "80:80"
+      - "3001:80"
     networks:
       - moviegraph-net
 
