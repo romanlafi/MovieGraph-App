@@ -3,7 +3,11 @@ from starlette import status
 
 class UserConflictError(HTTPException):
     def __init__(self):
-        super().__init__(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+        super().__init__(status_code=409, detail={"error": "user_conflict", "message": "Username already registered"})
+
+class EmailConflictError(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail={"error": "email_conflict", "message": "Email already registered"})
 
 class UserNotFoundError(HTTPException):
     def __init__(self):

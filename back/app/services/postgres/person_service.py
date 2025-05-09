@@ -58,6 +58,10 @@ def list_people_by_movie_id(movie_id: int, db: Session) -> List[PersonWithRoleRe
     people_dict = {}
 
     for mp in movie.movie_persons:
+        person = mp.person
+        if not person:
+            continue
+
         pid = mp.person.id
         if pid not in people_dict:
             people_dict[pid] = {
@@ -65,9 +69,13 @@ def list_people_by_movie_id(movie_id: int, db: Session) -> List[PersonWithRoleRe
                 "tmdb_id": mp.person.tmdb_id,
                 "name": mp.person.name,
                 "photo_url": f"https://image.tmdb.org/t/p/w500{mp.person.photo_url}" if mp.person.photo_url else None,
-                "roles": set()
+                "roles": set(),
+                "character": None
             }
         people_dict[pid]["roles"].add(mp.role)
+
+        if mp.role == "ACTOR" and mp.character:
+            people_dict[pid]["character"] = mp.character
 
     return [
         PersonWithRoleResponse(
@@ -75,7 +83,8 @@ def list_people_by_movie_id(movie_id: int, db: Session) -> List[PersonWithRoleRe
             tmdb_id=p["tmdb_id"],
             name=p["name"],
             photo_url=p["photo_url"],
-            role=", ".join(sorted(p["roles"]))
+            role=", ".join(sorted(p["roles"])),
+            character=p["character"] if p["character"] else None
         )
         for p in people_dict.values()
     ]

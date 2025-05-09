@@ -4,7 +4,7 @@ import {
     FaCalendarAlt,
     FaClock
 } from "react-icons/fa";
-import GenreBadge from "../common/GenreBadge.tsx";
+import GenreBadge from "../genre/GenreBadge.tsx";
 
 function toEmbedUrl(url?: string): string | null {
     if (!url) return null;

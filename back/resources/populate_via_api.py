@@ -2,7 +2,7 @@ import httpx
 import random
 from datetime import date
 
-BASE_URL = "http://192.168.1.175:8001/api/v1"
+BASE_URL = "http://192.168.1.250:8000/api/v1"
 
 users = [
     {
@@ -139,15 +139,23 @@ def search_and_like():
                 )
 
 def search_movies_only():
+    seen_tmdb_ids = set()
     for title in movie_pool:
-        res = httpx.get(
-            f"{BASE_URL}/movies/search",
-            params={"query": title, "limit": 1}
-        )
+        res = httpx.get(f"{BASE_URL}/movies/tmdb_search", params={"query": title})
         if res.status_code == 200:
-            print(f"Searched and registered movie: {title}")
+            results = res.json()
+            for result in results:
+                tmdb_id = result.get("tmdb_id")
+                if tmdb_id and tmdb_id not in seen_tmdb_ids:
+                    detail_resp = httpx.get(f"{BASE_URL}/movies/detail", params={"tmdb_id": tmdb_id})
+                    if detail_resp.status_code == 200:
+                        print(f"Fetched and saved: {result['title']}")
+                        seen_tmdb_ids.add(tmdb_id)
+                        break
+                else:
+                    print(f"Already saved or missing tmdb_id for: {title}")
         else:
-            print(f"Failed to search movie {title}: {res.text}")
+            print(f"Search failed for {title}: {res.status_code}")
 
 def insert_comments():
     selected_users = random.sample(users, 15)  # Escogemos 15 usuarios distintos
@@ -177,9 +185,9 @@ def insert_comments():
             print(f"Failed to insert comment from {user['email']}: {resp.status_code} - {resp.text}")
 
 if __name__ == "__main__":
-    register_and_login_users()
+    # register_and_login_users()
     # create_friendships()
-    # search_movies_only()
-    search_and_like()
+    search_movies_only()
+    # search_and_like()
     # insert_comments()
     print("\nPoblamiento vía API completado.")

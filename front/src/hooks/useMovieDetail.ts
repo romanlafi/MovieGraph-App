@@ -25,19 +25,21 @@ export function useMovieDetail(id: string) {
                 setLoading(true);
 
                 const movieData = await getMovieByTmdbId(id);
-                console.log(movieData);
                 setMovie(movieData);
 
                 if (movieData) {
-                    const [castData, relatedData, commentData] = await Promise.all([
+                    const [castData,
+                        relatedData,
+                        //commentData
+                    ] = await Promise.all([
                         getPeopleForMovie(movieData.id),
                         getRelatedMovies(movieData.id),
-                        getCommentsByMovie(movieData.id)
+                        getCommentsByMovie(movieData.id).then(setComments).catch(console.error)
                     ]);
 
                     setCast(castData);
                     setRelatedMovies(relatedData);
-                    setComments(commentData);
+                    //setComments(commentData);
                 }
             } catch (error) {
                 console.error("Error loading movie data", error);

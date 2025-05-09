@@ -11,6 +11,7 @@ class MoviePerson(Base):
     movie_id = Column(Integer, ForeignKey("movies.id"))
     person_id = Column(Integer, ForeignKey("persons.id"))
     role = Column(String)
+    character = Column(String)
 
     movie = relationship("Movie", back_populates="movie_persons")
     person = relationship("Person", back_populates="movie_roles")

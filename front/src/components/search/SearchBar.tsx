@@ -2,11 +2,13 @@ import {useEffect, useRef, useState} from "react";
 import {Movie} from "../../types/movie.ts";
 import {searchTmdbMovies} from "../../services/moviesService.ts";
 import {useNavigate} from "react-router-dom";
+import TextInput from "../common/TextInput.tsx";
 
 export default function SearchBar() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<Movie[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
+
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -19,7 +21,6 @@ export default function SearchBar() {
         const timeout = setTimeout(async () => {
             try {
                 const res = await searchTmdbMovies(query);
-                console.log(res);
                 setResults(res);
                 setShowDropdown(true);
             } catch (err) {
@@ -34,7 +35,6 @@ export default function SearchBar() {
         navigate(`/movie/${tmdb_id}`);
         setShowDropdown(false);
         setQuery("");
-
     };
 
     useEffect(() => {
@@ -50,12 +50,11 @@ export default function SearchBar() {
 
     return (
         <div className="relative flex-1 mx-4 md:flex" ref={dropdownRef}>
-            <input
+            <TextInput
                 type="text"
                 placeholder="Search movies..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded bg-neutral-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
 
             {showDropdown && results.length > 0 && (
@@ -77,7 +76,7 @@ export default function SearchBar() {
                                     <span>{movie.year}</span>
                                     {movie.rating && (
                                         <span className="text-yellow-400 font-medium">
-                                            ★ {movie.rating}
+                                            ★ {movie.rating.toPrecision(3)}
                                         </span>
                                     )}
                                 </div>

@@ -47,7 +47,4 @@ def get_people_for_movie(
         movie_id: int = Query(...),
         db: Session = Depends(get_db)
 ):
-    people = list_people_by_movie_id(movie_id, db)
-    if not people:
-        raise PeopleNotFoundError()
-    return people
+    return list_people_by_movie_id(movie_id, db)

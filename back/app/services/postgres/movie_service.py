@@ -109,7 +109,8 @@ def register_movie_from_data(data: dict, db: Session) -> Movie:
         movie_person = MoviePerson(
             person_id=person.id,
             movie_id=movie.id,
-            role="ACTOR"
+            role="ACTOR",
+            character=actor["character"]
         )
         db.add(movie_person)
 

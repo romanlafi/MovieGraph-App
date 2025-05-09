@@ -11,16 +11,22 @@ def search_movies_tmdb(query: str, page: int = 1) -> List[dict]:
     return response.json().get("results", []) if response.status_code == 200 else []
 
 def search_tmdb_only(query: str) -> List[MovieSearchResponse]:
-    results = search_movies_tmdb(query)[:5]
+    results = search_movies_tmdb(query)
+
+    filtered = [
+        m for m in results
+        if m.get("poster_path") and m.get("vote_average") and m.get("overview") is not None
+    ][:5]
+
     return [
         MovieSearchResponse(
             tmdb_id=m["id"],
             title=m["title"],
             rating=m["vote_average"],
             year=int(m["release_date"].split("-")[0]) if m.get("release_date") else None,
-            poster_url=f"https://image.tmdb.org/t/p/w500{m['poster_path']}" if m.get("poster_path") else None
+            poster_url=f"https://image.tmdb.org/t/p/w500{m['poster_path']}"
         )
-        for m in results
+        for m in filtered
     ]
 
 def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
@@ -52,7 +58,8 @@ def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
         actors.append({
             "tmdb_id": cast.get("id"),
             "name": cast.get("name"),
-            "profile_path": cast.get("profile_path")
+            "profile_path": cast.get("profile_path"),
+            "character": cast.get("character")
         })
 
     # Director (solo uno principal)

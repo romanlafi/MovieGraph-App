@@ -26,13 +26,7 @@ export default function SearchBarWrapper() {
 
     return (
         <div className="relative" ref={containerRef}>
-            {/* Desktop view */}
-            <div className="hidden md:flex">
-                <SearchBar />
-            </div>
-
-            {/* Mobile view */}
-            <div className="flex md:hidden items-center justify-end">
+            <div className="flex md:hidden justify-end">
                 <button
                     onClick={() => setShowSearch(!showSearch)}
                     className="text-white text-xl p-2"
@@ -41,7 +35,6 @@ export default function SearchBarWrapper() {
                 </button>
             </div>
 
-            {/* Mobile dropdown search */}
             {showSearch && (
                 <div className="fixed top-16 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 md:hidden">
                     <SearchBar />

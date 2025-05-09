@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.deps.auth import get_current_user
-from app.exceptions import UserConflictError, InvalidCredentialsError
+from app.exceptions import UserConflictError, InvalidCredentialsError, EmailConflictError
 from app.models.user import User
 from app.schemas.user import UserCreate, Token
 from app.services.postgres.auth_service import authenticate_user, create_access_token
@@ -15,6 +15,10 @@ router = APIRouter(prefix="/users", tags=["Users"])
 @router.post("/")
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user_data.email).first()
+    if existing_user:
+        raise EmailConflictError()
+
+    existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise UserConflictError()
 

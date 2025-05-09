@@ -3,6 +3,8 @@ import {useState} from "react";
 import {loginUser} from "../../services/authService.ts";
 import * as React from "react";
 import Button from "../common/Button.tsx";
+import {Link} from "react-router-dom";
+import TextInput from "../common/TextInput.tsx";
 
 export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     const { login } = useAuth();
@@ -27,25 +29,30 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             {error && (
                 <p className="text-red-400 text-sm">{error}</p>
             )}
-            <input
+            <TextInput
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="p-2 rounded bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                 required
             />
-            <input
+            <TextInput
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="p-2 rounded bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                 required
             />
-            <Button type="submit" variant="primary">
-                Log in
-            </Button>
+            <div className="flex justify-between items-center gap-4 w-full mt-2">
+                <Link to="register" className="w-full">
+                    <Button type="button" variant="secondary" className="w-full">
+                        Register
+                    </Button>
+                </Link>
+                <Button type="submit" variant="primary" className="w-full">
+                    Log in
+                </Button>
+            </div>
         </form>
     );
 }

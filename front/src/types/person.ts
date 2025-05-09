@@ -3,4 +3,5 @@ export interface Person {
     name: string;
     role?: string;
     photo_url: string;
+    character?: string;
 }

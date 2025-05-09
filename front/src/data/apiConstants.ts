@@ -1,5 +1,5 @@
-export const BASE_URL = "http://192.168.1.250:8000/api/v1";
-//const BASE_URL = "http://192.168.1.175:8001/api/v1";
+const BASE_URL = "http://192.168.1.250:8000/api/v1";
+//const BASE_URL = "https://api.romanlafi.org/api/v1";
 //const BASE_URL = "http://moviegraph-back:8001/api/v1";
 
 export const API_ENDPOINTS = {

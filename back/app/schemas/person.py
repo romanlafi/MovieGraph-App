@@ -12,3 +12,4 @@ class PersonResponse(PersonBase):
 
 class PersonWithRoleResponse(PersonResponse):
     role: str
+    character: Optional[str] = None
