@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {getGenres, getMoviesByGenre} from "../services/moviesService.ts";
+import {getGenres, getMoviesByGenre, getUserLikes} from "../services/moviesService.ts";
 
 import {Movie} from "../types/movie.ts";
 import {Genre} from "../types/genre.ts";
@@ -9,13 +9,18 @@ import LoadingSpinner from "../components/layout/LoadingSpinner.tsx";
 import Container from "../components/common/Container.tsx";
 import Button from "../components/common/Button.tsx";
 
+import {useAuth} from "../hooks/useAuth.tsx";
 import {genreDescriptions} from "../data/genreDescriptions.ts";
 
 
 export default function Home() {
+    const { token } = useAuth();
+
     const [allGenres, setAllGenres] = useState<Genre[]>([]);
     const [visibleGenres, setVisibleGenres] = useState<Genre[]>([]);
     const [genreMovies, setGenreMovies] = useState<Record<string, Movie[]>>({});
+    const [userLikes, setUserLikes] = useState<Movie[]>([]);
+
     const [visibleCount, setVisibleCount] = useState(5);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -58,6 +63,20 @@ export default function Home() {
         void fetchMovies();
     }, [genreMovies, visibleGenres]);
 
+    const loadUserLikes = async () => {
+        if (!token) return;
+        try {
+            const likes = await getUserLikes();
+            setUserLikes(likes);
+        } catch (error) {
+            console.error("Error loading user likes", error);
+        }
+    };
+
+    useEffect(() => {
+        void loadUserLikes();
+    }, [token]);
+
     const loadMoreGenres = () => {
         const next = visibleCount + 5;
         setLoadingMore(true);
@@ -79,6 +98,8 @@ export default function Home() {
                     subtitle={genreDescriptions[genre.name] ?? ""}
                     genreLink
                     movies={genreMovies[genre.id] ?? []}
+                    userLikes={userLikes}
+                    onLikeChange={loadUserLikes}
                 />
             ))}
 

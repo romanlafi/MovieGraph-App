@@ -1,4 +1,4 @@
-import {useAuth} from "../../contexts/AuthContext.tsx";
+import {useAuth} from "../../hooks/useAuth.tsx";
 
 export default function UserMenu() {
     const { token, logout } = useAuth();

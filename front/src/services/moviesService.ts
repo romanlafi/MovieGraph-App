@@ -52,3 +52,63 @@ export const searchTmdbMovies = async (query: string): Promise<Movie[]> => {
     });
     return res.data;
 };
+
+export const getUserLikes = async () => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+        throw new Error("No authorization token");
+    }
+
+    const res = await axios.get(
+        `${API_MOVIES}/likes`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        }
+    );
+    return Array.isArray(res.data) ? res.data : [];
+};
+
+export const likeMovie = async (movieId: string) => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+        throw new Error("No authorization token");
+    }
+
+    const res = await axios.post(
+        `${API_MOVIES}/like`,
+        null,
+        {
+            params: { movie_id: movieId },
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        }
+    );
+    return res.data;
+};
+
+export const unlikeMovie = async (movieId: string) => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+        throw new Error("No authorization token");
+    }
+
+    const res = await axios.delete(
+        `${API_MOVIES}/like`,
+        {
+            params: { movie_id: movieId },
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        }
+    );
+    return res.data;
+};

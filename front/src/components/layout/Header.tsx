@@ -2,10 +2,10 @@ import {FaSignInAlt, FaThumbsUp, FaUserCircle} from "react-icons/fa";
 import {useEffect, useRef, useState} from "react";
 import { Link } from "react-router-dom";
 import LoginForm from "../auth/LoginForm.tsx";
-import {useAuth} from "../../contexts/AuthContext.tsx";
 import SearchBarWrapper from "../search/SearchBarWrapper.tsx";
 import SearchBar from "../search/SearchBar.tsx";
 import NavItem from "../common/NavItem.tsx";
+import {useAuth} from "../../hooks/useAuth.tsx";
 
 
 export default function Header() {
@@ -14,45 +14,44 @@ export default function Header() {
     const loginRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
+        const handleClickOutside = (event: MouseEvent) => {
             if (loginRef.current && !loginRef.current.contains(event.target as Node)) {
                 setShowLogin(false);
             }
-        }
-
-        if (showLogin) {
-            document.addEventListener("mousedown", handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
         };
+
+        if (showLogin) document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [showLogin]);
 
     return (
         <header className="fixed top-0 left-0 right-0 h-16 bg-purple-800 border-b border-neutral-800 z-50 shadow-md">
             <div className="max-w-[1100px] mx-auto h-full flex items-center justify-between px-4 sm:px-6 md:px-8 relative">
-
-                <Link to="/" className="flex items-center gap-2 text-lg font-bold text-white hover:text-black transition-colors">
-                    <img src="/public/logo_white.svg" alt="Logo" className="w-6 h-6" />
+                {/* Logo */}
+                <Link to="/" className="flex items-center gap-2 text-lg font-bold text-white">
+                    <img src="/logo_white.svg" alt="Logo" className="w-6 h-6" />
                     <span className="sm:inline">MovieGraph</span>
                 </Link>
 
+                {/* Search desktop */}
                 <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-full max-w-md">
                     <SearchBar />
                 </div>
 
-                {/* Right: Nav icons + search (mobile) */}
+                {/* Right side nav */}
                 <nav className="flex items-center gap-4 text-sm text-white relative">
+                    {/* Search mobile */}
                     <div className="md:hidden">
                         <SearchBarWrapper />
                     </div>
 
+                    {/* Recommendations */}
                     <NavItem to="#">
                         <FaThumbsUp className="text-xl" />
                         <span className="hidden sm:inline">Recommendations</span>
                     </NavItem>
 
+                    {/* User logged in */}
                     {token && user ? (
                         <NavItem to="/user/profile">
                             <FaUserCircle className="text-xl" />

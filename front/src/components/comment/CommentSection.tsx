@@ -1,7 +1,7 @@
 import CommentForm from "./CommentForm.tsx";
 import CommentCarousel from "./CommentCarousel.tsx";
-import {useAuth} from "../../contexts/AuthContext.tsx";
 import { Comment } from "../../types/comment.ts";
+import {useAuth} from "../../hooks/useAuth.tsx";
 
 interface CommentSectionProps {
     comments: Comment[];

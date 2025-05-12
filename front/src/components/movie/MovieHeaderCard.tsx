@@ -1,10 +1,10 @@
 import { Movie } from "../../types/movie";
 import {
-    FaStar,
     FaCalendarAlt,
     FaClock
 } from "react-icons/fa";
 import GenreBadge from "../genre/GenreBadge.tsx";
+import RatingDisplay from "../common/RatingDisplay.tsx";
 
 function toEmbedUrl(url?: string): string | null {
     if (!url) return null;
@@ -55,12 +55,7 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                     <span className="flex items-center gap-2"><FaClock className="text-purple-400" />{movie.runtime}</span>
                 </div>
 
-                {movie.rating && (
-                    <div className="flex items-center gap-2 text-yellow-400">
-                        <FaStar className="text-sm" />
-                        <span className="text-md font-medium">{movie.rating.toPrecision(3)}</span>
-                    </div>
-                )}
+                {movie.rating && <RatingDisplay rating={movie.rating} className="mt-2" iconSize={14}/>}
 
                 <div className="flex flex-wrap gap-2 ">
                     {movie.genres?.map((genre) => (

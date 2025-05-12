@@ -3,6 +3,7 @@ import {Movie} from "../../types/movie.ts";
 import {searchTmdbMovies} from "../../services/moviesService.ts";
 import {useNavigate} from "react-router-dom";
 import TextInput from "../common/TextInput.tsx";
+import RatingDisplay from "../common/RatingDisplay.tsx";
 
 export default function SearchBar() {
     const [query, setQuery] = useState("");
@@ -21,6 +22,7 @@ export default function SearchBar() {
         const timeout = setTimeout(async () => {
             try {
                 const res = await searchTmdbMovies(query);
+                console.log(res);
                 setResults(res);
                 setShowDropdown(true);
             } catch (err) {
@@ -74,11 +76,7 @@ export default function SearchBar() {
                                 <p className="font-semibold truncate">{movie.title}</p>
                                 <div className="flex items-center justify-between text-xs text-white/60">
                                     <span>{movie.year}</span>
-                                    {movie.rating && (
-                                        <span className="text-yellow-400 font-medium">
-                                            ★ {movie.rating.toPrecision(3)}
-                                        </span>
-                                    )}
+                                    {movie.rating && <RatingDisplay rating={movie.rating} />}
                                 </div>
                             </div>
                         </button>
