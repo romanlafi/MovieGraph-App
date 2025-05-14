@@ -1,44 +1,27 @@
-import axios from "axios";
-import {API_ENDPOINTS} from "../data/apiConstants.ts";
+import {api} from "./api.ts";
+import {API_AUTH} from "../data/apiConstants.ts";
+import {RegisterUserData} from "../types/auth.ts";
 import {User} from "../types/user.ts";
 
-const API_USERS = API_ENDPOINTS.USERS;
-
-export const registerUser = async (data: unknown) => {
-    const res = await axios.post(`${API_USERS}/`, data);
+export const registerUser = async (data: RegisterUserData) => {
+    const res = await api.post(`${API_AUTH}/register`, data);
     return res.data;
-};
+}
 
 export const loginUser = async (email: string, password: string): Promise<string> => {
-    const params = new URLSearchParams();
-    params.append("username", email);
-    params.append("password", password);
+    const formData = new URLSearchParams();
+    formData.append("username", email);
+    formData.append("password", password);
 
-    const res = await axios.post(`${API_USERS}/login`, params, {
+    const res = await api.post(`${API_AUTH}/login`, formData, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
         },
     });
-
     return res.data.access_token;
 };
 
 export const fetchUser = async (): Promise<User> => {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-        throw new Error("No authorization token");
-    }
-
-    const res = await axios.get(
-        `${API_USERS}/me`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        }
-    );
-
+    const res = await api.get(`${API_AUTH}/me`);
     return res.data;
 }

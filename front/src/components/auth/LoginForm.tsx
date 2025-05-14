@@ -20,7 +20,7 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             onSuccess();
         } catch (err) {
             console.error(err);
-            setError("Email o contraseña incorrectos.");
+            setError("Wrong email or password");
         }
     };
 

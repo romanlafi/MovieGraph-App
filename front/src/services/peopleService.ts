@@ -1,15 +1,8 @@
+import {api} from "./api.ts";
+import {API_PEOPLE} from "../data/apiConstants.ts";
 import { Person } from "../types/person";
-import axios from "axios";
-import {API_ENDPOINTS} from "../data/apiConstants.ts";
 
-const API_PEOPLE = API_ENDPOINTS.PEOPLE;
-
-export const getPeopleForMovie = async (movie_id: string): Promise<Person[]> => {
-    const res = await axios.get<Person[]>(
-        `${API_PEOPLE}/movie`,
-        {
-            params: { movie_id }
-        }
-    );
+export const getPeopleForMovie = async (movieId: string): Promise<Person[]> => {
+    const res = await api.get(`${API_PEOPLE}/movie/`, { params: { movie_id: movieId } });
     return res.data;
-};
+}
