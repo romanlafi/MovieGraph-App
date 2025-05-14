@@ -16,4 +16,5 @@ export interface Movie {
     plot?: string;
     rated?: string;
     trailer_url?: string;
+    backdrop_url?: string;
 }

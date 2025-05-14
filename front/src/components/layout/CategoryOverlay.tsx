@@ -1,34 +1,60 @@
-import {FaTimes} from "react-icons/fa";
+import {FaCalendarAlt, FaFilm, FaStar, FaTimes, FaTrophy} from "react-icons/fa";
 import {Link} from "react-router-dom";
 import {useEffect} from "react";
 
-export default function CategoryOverlay({ open, onClose }: { open: boolean, onClose: () => void }) {
-
+export default function CategoryOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
     useEffect(() => {
-        if (open) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
+        document.body.style.overflow = open ? "hidden" : "";
         return () => {
             document.body.style.overflow = "";
         };
     }, [open]);
 
     return (
-        <div className={`fixed top-0 left-0 w-full h-full bg-purple-800 z-50 transition-transform duration-300 ${open ? 'translate-y-0' : '-translate-y-full'}`}>
-            <div className="flex justify-between items-center p-4 text-white">
-                <h2 className="text-2xl font-bold">Categories</h2>
-                <button onClick={onClose}>
-                    <FaTimes className="text-2xl" />
+        <div
+            className={`fixed top-0 left-0 w-full h-full bg-purple-800 z-50 transition-transform duration-300 ${
+                open ? "translate-y-0" : "-translate-y-full"
+            }`}
+        >
+            <div className="flex justify-between items-center py-6 px-6 text-white border-b border-white/20 max-w-screen-md mx-auto">
+                <h2 className="text-3xl font-bold tracking-wide">Categories</h2>
+                <button
+                    onClick={onClose}
+                    className="bg-white rounded-full p-2 hover:bg-neutral-400 transition-colors duration-200"
+                >
+                    <FaTimes className="text-purple-800 text-xl" />
                 </button>
             </div>
 
-            <nav className="flex flex-col gap-4 p-8 text-xl text-white overflow-y-auto h-[calc(100%-4rem)]">
-                <Link to="/genres" onClick={onClose}>Genres</Link>
-                <Link to="/recommendations" onClick={onClose}>Recommended for You</Link>
-                <Link to="/top-rated" onClick={onClose}>Top Rated</Link>
-                <Link to="/latest" onClick={onClose}>Latest Releases</Link>
+            <nav className="flex flex-col gap-8 pt-12 pb-10 px-6 text-white text-xl font-medium max-w-screen-md mx-auto">
+                <Link
+                    to="/genres"
+                    onClick={onClose}
+                    className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
+                >
+                    <FaFilm /> Genres
+                </Link>
+                <Link
+                    to="/recommendations"
+                    onClick={onClose}
+                    className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
+                >
+                    <FaStar /> Recommended for You
+                </Link>
+                <Link
+                    to="/top-rated"
+                    onClick={onClose}
+                    className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
+                >
+                    <FaTrophy /> Top Rated
+                </Link>
+                <Link
+                    to="/latest"
+                    onClick={onClose}
+                    className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
+                >
+                    <FaCalendarAlt /> Latest Releases
+                </Link>
             </nav>
         </div>
     );
