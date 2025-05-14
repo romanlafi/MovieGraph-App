@@ -22,7 +22,6 @@ export default function SearchBar() {
         const timeout = setTimeout(async () => {
             try {
                 const res = await searchTmdbMovies(query);
-                console.log(res);
                 setResults(res);
                 setShowDropdown(true);
             } catch (err) {

@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     MOVIES: `${BASE_URL}/movies`,
     PEOPLE: `${BASE_URL}/people`,
     COMMENTS: `${BASE_URL}/comments`,
+    FRIENDS: `${BASE_URL}/friends`,
 };
 
 export const HTTP_STATUS = {

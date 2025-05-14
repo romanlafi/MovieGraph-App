@@ -1,4 +1,4 @@
-import {FaSignInAlt, FaThumbsUp, FaUserCircle} from "react-icons/fa";
+import {FaBars, FaSignInAlt, FaUser, FaUsers} from "react-icons/fa";
 import {useEffect, useRef, useState} from "react";
 import { Link } from "react-router-dom";
 import LoginForm from "../auth/LoginForm.tsx";
@@ -6,10 +6,12 @@ import SearchBarWrapper from "../search/SearchBarWrapper.tsx";
 import SearchBar from "../search/SearchBar.tsx";
 import NavItem from "../common/NavItem.tsx";
 import {useAuth} from "../../hooks/useAuth.tsx";
+import CategoryOverlay from "./CategoryOverlay.tsx";
 
 
 export default function Header() {
     const { token, user } = useAuth();
+    const [showCategories, setShowCategories] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const loginRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +31,7 @@ export default function Header() {
             <div className="max-w-[1100px] mx-auto h-full flex items-center justify-between px-4 sm:px-6 md:px-8 relative">
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 text-lg font-bold text-white">
-                    <img src="/logo_white.svg" alt="Logo" className="w-6 h-6" />
+                    <img src="/logo_bold.svg" alt="Logo" className="w-6 h-6" />
                     <span className="sm:inline">MovieGraph</span>
                 </Link>
 
@@ -39,29 +41,37 @@ export default function Header() {
                 </div>
 
                 {/* Right side nav */}
-                <nav className="flex items-center gap-4 text-sm text-white relative">
+                <nav className="flex items-center gap-1 text-sm text-white relative">
                     {/* Search mobile */}
                     <div className="md:hidden">
                         <SearchBarWrapper />
                     </div>
 
-                    {/* Recommendations */}
-                    <NavItem to="#">
-                        <FaThumbsUp className="text-xl" />
-                        <span className="hidden sm:inline">Recommendations</span>
+                    <NavItem onClick={() => setShowCategories(true)}>
+                        <FaBars className="text-xl" />
+                        <span className="hidden md:inline">Categories</span>
                     </NavItem>
+
+                    <CategoryOverlay open={showCategories} onClose={() => setShowCategories(false)} />
+
+                    {token &&
+                        <NavItem to="/social">
+                            <FaUsers className="text-xl" />
+                            <span className="hidden md:inline">Social</span>
+                        </NavItem>
+                    }
 
                     {/* User logged in */}
                     {token && user ? (
                         <NavItem to="/user/profile">
-                            <FaUserCircle className="text-xl" />
-                            <span className="hidden sm:inline">{user.username}</span>
+                            <FaUser className="text-xl" />
+                            <span className="hidden md:inline">{user.username}</span>
                         </NavItem>
                     ) : (
                         <>
                             <NavItem onClick={() => setShowLogin((prev) => !prev)}>
                                 <FaSignInAlt className="text-xl" />
-                                <span className="hidden sm:inline">Login</span>
+                                <span className="hidden md:inline bold">Login</span>
                             </NavItem>
 
                             {showLogin && (

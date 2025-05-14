@@ -18,7 +18,7 @@ export default function Button({
                                    className = "",
                                }: ButtonProps) {
     const baseClasses =
-        "font-semibold py-2 px-4 rounded transition duration-200";
+        "font-semibold py-1 px-4 rounded transition duration-200";
 
     const variants = {
         primary: "bg-purple-600 hover:bg-purple-700 text-white",

@@ -10,7 +10,7 @@ interface NavItemProps {
 
 export default function NavItem({ children, className = "", onClick, to }: NavItemProps) {
     const baseStyles =
-        "flex items-center gap-2 px-3 py-3 rounded-md hover:bg-white/10 transition text-white cursor-pointer";
+        "flex flex-col items-center gap-2 px-2 py-1 rounded-md hover:bg-white/10 transition text-white cursor-pointer";
 
     if (to) {
         return (

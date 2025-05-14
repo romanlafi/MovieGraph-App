@@ -9,7 +9,7 @@ export interface Movie {
     released?: string;
     runtime?: string;
     director?: string;
-    box_office?: string;
+    box_office?: number;
     production?: string;
     website?: string;
     type?: string;
