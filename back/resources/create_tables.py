@@ -1,5 +1,6 @@
 from app.db.database import Base, engine
 
+from app.models.collection import Collection
 from app.models.comment import Comment
 from app.models.genre import Genre
 from app.models.like import Like

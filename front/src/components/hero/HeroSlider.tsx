@@ -13,7 +13,7 @@ export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps)
     const [showUI, setShowUI] = useState(true);
     const navigate = useNavigate();
     const sliderRef = useRef<HTMLDivElement>(null);
-    const uiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const uiTimeoutRef = useRef<number | null>(null);
 
     const handleTrailerClick = () => {
         navigate(`/movie/${movies[currentIndex].tmdb_id}`);
@@ -44,15 +44,12 @@ export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps)
 
     useEffect(() => {
         const handleMouseMove = () => resetUITimeout();
-        const slider = sliderRef.current;
-        if (slider) {
-            slider.addEventListener("mousemove", handleMouseMove);
-        }
+
+        window.addEventListener("mousemove", handleMouseMove);
         resetUITimeout();
+
         return () => {
-            if (slider) {
-                slider.removeEventListener("mousemove", handleMouseMove);
-            }
+            window.removeEventListener("mousemove", handleMouseMove);
             if (uiTimeoutRef.current) clearTimeout(uiTimeoutRef.current);
         };
     }, []);
@@ -86,7 +83,7 @@ export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps)
 
                         <div className="relative z-10 h-full flex flex-col justify-end p-8 text-white max-w-[1100px] mx-auto ml-[160px]">
                             <h2 className="text-3xl md:text-5xl font-bold">{movie.title}</h2>
-                            <p className="mt-2 text-white/80 line-clamp-3">{movie.plot}</p>
+                            <p className="mt-2 text-white/80 line-clamp-3">{movie.tagline}</p>
                             <button
                                 className="mt-4 flex items-center gap-3 bg-neutral-700 text-white px-3 py-2 rounded hover:bg-purple-800 transition text-sm md:text-lg md:px-6 md:py-3 md:w-[250px]"
                                 onClick={handleTrailerClick}
@@ -100,7 +97,6 @@ export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps)
                 ))}
             </div>
 
-            {/* Indicadores arriba centrados */}
             <div
                 className={`absolute top-4 left-1/2 transform -translate-x-1/2 flex gap-3 z-20 transition-opacity duration-500 ${
                     showUI ? "opacity-100" : "opacity-0"
@@ -120,7 +116,6 @@ export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps)
                 ))}
             </div>
 
-            {/* Botón Anterior */}
             <button
                 onClick={handlePrev}
                 className={`absolute left-8 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full z-20 backdrop-blur-sm hidden md:flex transition-opacity duration-500 ${
@@ -130,7 +125,6 @@ export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps)
                 <FaChevronLeft className="text-white text-2xl" />
             </button>
 
-            {/* Botón Siguiente */}
             <button
                 onClick={handleNext}
                 className={`absolute right-8 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full z-20 backdrop-blur-sm hidden md:flex transition-opacity duration-500 ${

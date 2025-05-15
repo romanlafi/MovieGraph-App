@@ -5,6 +5,12 @@ from pydantic import BaseModel
 from app.models.movie import Movie
 from app.schemas.genre import GenreResponse, genre_to_response
 
+class CollectionResponse(BaseModel):
+    id: int
+    tmdb_id: int
+    name: str
+    poster_url: Optional[str] = None
+    backdrop_url: Optional[str] = None
 
 class MovieBase(BaseModel):
     tmdb_id: int
@@ -22,6 +28,10 @@ class MovieBase(BaseModel):
     plot: Optional[str] = None
     rating: Optional[float] = None
     trailer_url: Optional[str] = None
+    tagline: Optional[str]
+    backdrop_url: Optional[str]
+    origin_country: Optional[str]
+    collection: Optional[CollectionResponse] = None
 
 class MovieCreate(MovieBase):
     pass
@@ -33,9 +43,10 @@ class MovieListResponse(BaseModel):
     id: int
     tmdb_id: int
     title: str
+    tagline: Optional[str] = None
     poster_url: Optional[str] = None
+    backdrop_url: Optional[str] = None
     rating: Optional[float] = None
-    type: Optional[str] = None
 
 class MovieSearchResponse(BaseModel):
     tmdb_id: int
@@ -52,16 +63,23 @@ def movie_to_response(movie: Movie) -> MovieResponse:
         year=movie.year,
         genres=[g.name for g in movie.genres],
         poster_url=movie.poster_url,
-        rated=movie.rated,
         released=movie.released,
         runtime=movie.runtime,
         box_office=movie.box_office,
-        production=movie.production,
         website=movie.website,
-        type=movie.type,
         plot=movie.plot,
         rating=movie.rating,
         trailer_url=movie.trailer_url,
+        tagline=movie.tagline,
+        backdrop_url=movie.backdrop_url,
+        origin_country=movie.origin_country,
+        collection=CollectionResponse(
+            id=movie.collection.id,
+            tmdb_id=movie.collection.tmdb_id,
+            name=movie.collection.name,
+            poster_url=movie.collection.poster_url,
+            backdrop_url=movie.collection.backdrop_url
+        ) if movie.collection else None
     )
 
 def movie_to_list_response(movie: Movie) -> MovieListResponse:
@@ -69,7 +87,9 @@ def movie_to_list_response(movie: Movie) -> MovieListResponse:
         id=movie.id,
         tmdb_id=movie.tmdb_id,
         title=movie.title,
+        tagline=movie.tagline,
         poster_url=movie.poster_url,
+        backdrop_url=movie.backdrop_url,
         rating=movie.rating,
-        type=movie.type,
     )
+

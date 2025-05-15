@@ -1,8 +1,10 @@
 from typing import List
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.exceptions import MovieNotFoundError
+from app.models.collection import Collection
 from app.models.genre import Genre
 from app.models.movie import Movie
 from app.models.movie_person import MoviePerson
@@ -63,22 +65,36 @@ def register_movie_from_data(data: dict, db: Session) -> Movie:
     if existing:
         return existing
 
+    collection = None
+    if data.get("collection"):
+        collection = db.query(Collection).filter_by(tmdb_id=data["collection"]["tmdb_id"]).first()
+        if not collection:
+            collection = Collection(
+                tmdb_id=data["collection"]["tmdb_id"],
+                name=data["collection"]["name"],
+                poster_url=data["collection"]["poster_url"],
+                backdrop_url=data["collection"]["backdrop_url"]
+            )
+            db.add(collection)
+            db.flush()
+
     # Crear objeto Movie
     movie = Movie(
         tmdb_id=data["tmdb_id"],
         title=data["title"],
         year=data.get("year"),
         poster_url=data.get("poster_url"),
-        rated=data.get("rated"),
         released=data.get("released"),
         runtime=data.get("runtime"),
         box_office=data.get("box_office"),
-        production=data.get("production"),
         website=data.get("website"),
-        type=data.get("type"),
         plot=data.get("plot"),
         rating=data.get("rating"),
         trailer_url=data.get("trailer_url"),
+        tagline=data.get("tagline"),
+        backdrop_url=data.get("backdrop_url"),
+        origin_country=data.get("origin_country"),
+        collection_id=collection.id if collection else None
     )
     db.add(movie)
     db.flush()
@@ -132,12 +148,13 @@ def _get_or_create_person(db: Session, person_data: dict) -> Person:
     db.flush()
     return person
 
-def search_movies_by_genre(genre_id: int, db: Session, page: int, limit: int) -> list[MovieListResponse]:
+def search_movies_by_genre(genre_id: int, db: Session, page: int, limit: int) -> List[MovieListResponse]:
     offset = (page - 1) * limit
     movies = (
         db.query(Movie)
         .join(Movie.genres)
         .filter(Genre.id == genre_id)
+        .order_by(Movie.title)
         .offset(offset)
         .limit(limit)
         .all()
@@ -185,3 +202,12 @@ def get_or_fetch_movie_by_tmdb_id(tmdb_id: int, db: Session) -> MovieResponse:
 
     movie = register_movie_from_data(data, db)
     return movie_to_response(movie)
+
+def get_random_movies(db: Session, limit: int = 5) -> list[MovieListResponse]:
+    movies = (
+        db.query(Movie)
+        .order_by(func.random())
+        .limit(limit)
+        .all()
+    )
+    return [movie_to_list_response(m) for m in movies]

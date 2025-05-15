@@ -64,6 +64,7 @@ def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
 
     # Director (solo uno principal)
     director_data = next((c for c in credits.get("crew", []) if c.get("job") == "Director"), None)
+    collection = movie.get("belongs_to_collection")
 
     return {
         "tmdb_id": movie.get("id"),
@@ -71,7 +72,6 @@ def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
         "year": int(movie.get("release_date", "0000")[:4]) if movie.get("release_date") else None,
         "genres": [g["name"] for g in movie.get("genres", [])],
         "poster_url": f"https://image.tmdb.org/t/p/w500{movie['poster_path']}" if movie.get("poster_path") else None,
-        "rated": None,
         "released": movie.get("release_date"),
         "runtime": f"{movie.get('runtime')} min" if movie.get("runtime") else None,
         "director": {
@@ -80,11 +80,21 @@ def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
             "profile_path": director_data.get("profile_path") if director_data else None,
         } if director_data else None,
         "box_office": movie.get("revenue") if movie.get("revenue") else None,
-        "production": None,
         "website": movie.get("homepage") if movie.get("homepage") else None,
         "type": "movie",
         "plot": movie.get("overview"),
         "rating": movie.get("vote_average"),
+        "tagline": movie.get("tagline"),
+        "backdrop_url": f"https://image.tmdb.org/t/p/original{movie['backdrop_path']}" if movie.get("backdrop_path") else None,
+        "origin_country": ",".join(movie.get("origin_country", [])),
         "trailer_url": trailer_url,
-        "actors": actors
+        "actors": actors,
+        "collection": {
+            "tmdb_id": collection["id"],
+            "name": collection["name"],
+            "poster_url": f"https://image.tmdb.org/t/p/w500{collection['poster_path']}" if collection.get(
+                "poster_path") else None,
+            "backdrop_url": f"https://image.tmdb.org/t/p/original{collection['backdrop_path']}" if collection.get(
+                "backdrop_path") else None,
+        } if collection else None
     }

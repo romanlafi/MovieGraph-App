@@ -23,7 +23,7 @@ from app.services.postgres.movie_service import (
     search_movies,
     search_movies_by_genre,
     get_movie_by_id,
-    get_related_movies_by_people_and_genres, get_or_fetch_movie_by_tmdb_id
+    get_related_movies_by_people_and_genres, get_or_fetch_movie_by_tmdb_id, get_random_movies
 )
 from app.services.tmdb_service import search_movies_tmdb, search_tmdb_only
 
@@ -113,3 +113,10 @@ def get_movie_by_tmdb_id(
     db: Session = Depends(get_db)
 ):
     return get_or_fetch_movie_by_tmdb_id(tmdb_id, db)
+
+@router.get("/random", response_model=List[MovieListResponse])
+def get_random_movies_endpoint(
+    limit: int = Query(5, ge=1, le=20),
+    db: Session = Depends(get_db)
+):
+    return get_random_movies(db, limit)

@@ -185,9 +185,9 @@ def insert_comments():
             print(f"Failed to insert comment from {user['email']}: {resp.status_code} - {resp.text}")
 
 if __name__ == "__main__":
-    register_and_login_users()
-    create_friendships()
-    # search_movies_only()
+    # register_and_login_users()
+    # create_friendships()
+    search_movies_only()
     # search_and_like()
     # insert_comments()
     print("\nPoblamiento vía API completado.")
