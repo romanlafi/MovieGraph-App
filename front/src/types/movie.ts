@@ -1,3 +1,5 @@
+import {Collection} from "./collection.ts";
+
 export interface Movie {
     id: string;
     tmdb_id: number;
@@ -10,11 +12,11 @@ export interface Movie {
     runtime?: string;
     director?: string;
     box_office?: number;
-    production?: string;
     website?: string;
-    type?: string;
     plot?: string;
-    rated?: string;
     trailer_url?: string;
     backdrop_url?: string;
+    tagline?: string;
+    origin_country?: string;
+    collection?: Collection
 }

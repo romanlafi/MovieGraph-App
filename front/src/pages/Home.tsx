@@ -1,31 +1,58 @@
-import Container from "../components/common/Container.tsx";
-import HeroSlider from "../components/hero/HeroSlider.tsx";
-import {Movie} from "../types/movie.ts";
+import HeroMovieSlider from "../components/hero/HeroMovieSlider.tsx";
 import MovieCarousel from "../components/movie/MovieCarousel.tsx";
-import {useEffect, useState} from "react";
-import {getRandomMovies} from "../services/moviesService.ts";
+import HeroCollection from "../components/hero/HeroCollection.tsx";
+import PersonCarousel from "../components/person/PersonCarousel.tsx";
+
+import LoadingSpinner from "../components/layout/LoadingSpinner.tsx";
+import Container from "../components/layout/Container.tsx";
+
+import {useHomeData} from "../hooks/useHomeData.ts";
+
+import {explorePeople, latestMovies, topMovies} from "../data/carouselCategories.ts";
+
 
 export default function Home() {
+    const {
+        randomFeaturedMovies,
+        latestReleases,
+        topRated,
+        featuredCollection,
+        featuredPeople,
+        loading,
+    } = useHomeData();
 
-    const [featuredMovies, setFeaturedMovies] = useState<Movie[]>([]);
-
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const movies = await getRandomMovies(5);
-                console.log(movies);
-                setFeaturedMovies(movies);
-            } catch (error) {
-                console.error("Failed to load movies:", error);
-            }
-        };
-        void fetchMovies();
-    }, []);
+    if (loading) return <LoadingSpinner />;
 
     return (
         <Container className="space-y-10 pb-10 mt-10">
-            <HeroSlider movies={featuredMovies} />
-            <MovieCarousel movies={featuredMovies} title="Placeholder" subtitle="Placeholder" />
+            <HeroMovieSlider movies={randomFeaturedMovies} />
+
+            <MovieCarousel
+                movies={latestReleases}
+                title={latestMovies.title}
+                subtitle={latestMovies.subtitle}
+                genreLink={false}
+            />
+
+            <PersonCarousel
+                people={featuredPeople}
+                title={explorePeople.title}
+                subtitle={explorePeople.subtitle}
+            />
+
+            {featuredCollection?.movies && (
+                <HeroCollection
+                    collection={featuredCollection}
+                    movies={featuredCollection.movies}
+                />
+            )}
+
+            <MovieCarousel
+                movies={topRated}
+                title={topMovies.title}
+                subtitle={topMovies.subtitle}
+                genreLink={false}
+            />
         </Container>
     );
 }

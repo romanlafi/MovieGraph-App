@@ -1,18 +1,19 @@
 import {useEffect, useState} from "react";
 
-import { Movie } from "../types/movie";
-import {getMovieByTmdbId, getRelatedMovies} from "../services/moviesService.ts";
+import { Movie } from "../../types/movie.ts";
+import {getMovieByTmdbId, getMoviesByCollection, getRelatedMovies} from "../../services/moviesService.ts";
 
-import {Person} from "../types/person.ts";
-import {getPeopleForMovie} from "../services/peopleService.ts";
+import {Person} from "../../types/person.ts";
+import {getPeopleForMovie} from "../../services/peopleService.ts";
 
-import {Comment} from "../types/comment.ts";
-import {getCommentsByMovie, postComment} from "../services/commentService.ts";
+import {Comment} from "../../types/comment.ts";
+import {getCommentsByMovie, postComment} from "../../services/commentService.ts";
 
 
 export function useMovieDetail(id: string) {
     const [movie, setMovie] = useState<Movie | null>(null);
     const [cast, setCast] = useState<Person[]>([]);
+    const [collectionMovies, setCollectionMovies] = useState<Movie[]>([]);
     const [relatedMovies, setRelatedMovies] = useState<Movie[]>([]);
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
@@ -28,18 +29,26 @@ export function useMovieDetail(id: string) {
                 setMovie(movieData);
 
                 if (movieData) {
-                    const [castData,
+                    const [
+                        castData,
                         relatedData,
-                        //commentData
+                        commentData
                     ] = await Promise.all([
                         getPeopleForMovie(movieData.id),
                         getRelatedMovies(movieData.id),
-                        getCommentsByMovie(movieData.id).then(setComments).catch(console.error)
+                        getCommentsByMovie(movieData.id)
                     ]);
 
                     setCast(castData);
                     setRelatedMovies(relatedData);
-                    //setComments(commentData);
+                    setComments(commentData);
+
+                    if (movieData.collection?.id) {
+                        const collectionData = await getMoviesByCollection(movieData.collection.id);
+                        setCollectionMovies(collectionData);
+                    } else {
+                        setCollectionMovies([]);
+                    }
                 }
             } catch (error) {
                 console.error("Error loading movie data", error);
@@ -67,6 +76,7 @@ export function useMovieDetail(id: string) {
     return {
         movie,
         cast,
+        collectionMovies,
         relatedMovies,
         comments,
         loading,

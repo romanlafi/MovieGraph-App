@@ -5,7 +5,7 @@ import LoginForm from "../auth/LoginForm.tsx";
 import SearchBarWrapper from "../search/SearchBarWrapper.tsx";
 import SearchBar from "../search/SearchBar.tsx";
 import NavItem from "../common/NavItem.tsx";
-import {useAuth} from "../../hooks/useAuth.tsx";
+import {useAuth} from "../../hooks/auth/useAuth.ts";
 import CategoryOverlay from "./CategoryOverlay.tsx";
 
 
@@ -48,30 +48,37 @@ export default function Header() {
                     </div>
 
                     <NavItem onClick={() => setShowCategories(true)}>
-                        <FaBars className="text-xl" />
-                        <span className="hidden md:inline">Categories</span>
+                        <div className="flex items-center gap-2">
+                            <FaBars className="text-xl" />
+                            <span className="hidden md:inline">Menu</span>
+                        </div>
                     </NavItem>
 
                     <CategoryOverlay open={showCategories} onClose={() => setShowCategories(false)} />
 
-                    {token &&
+                    {token && (
                         <NavItem to="/social">
-                            <FaUsers className="text-xl" />
-                            <span className="hidden md:inline">Social</span>
+                            <div className="flex items-center gap-2">
+                                <FaUsers className="text-2xl" />
+                                <span className="hidden md:inline">Social</span>
+                            </div>
                         </NavItem>
-                    }
+                    )}
 
-                    {/* User logged in */}
                     {token && user ? (
-                        <NavItem to="/user/profile">
-                            <FaUser className="text-xl" />
-                            <span className="hidden md:inline">{user.username}</span>
+                        <NavItem to={`/user/${user.email}`}>
+                            <div className="flex items-center gap-2">
+                                <FaUser className="text-xl" />
+                                <span className="hidden md:inline">{user.username}</span>
+                            </div>
                         </NavItem>
                     ) : (
                         <>
                             <NavItem onClick={() => setShowLogin((prev) => !prev)}>
-                                <FaSignInAlt className="text-xl" />
-                                <span className="hidden md:inline bold">Login</span>
+                                <div className="flex items-center gap-2">
+                                    <FaSignInAlt className="text-xl" />
+                                    <span className="hidden md:inline">Login</span>
+                                </div>
                             </NavItem>
 
                             {showLogin && (

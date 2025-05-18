@@ -44,7 +44,7 @@ body {
   background-color: #131313;
   color: white;
   overflow-x: hidden;
-  @apply font-sans;
+  font-family: 'Outfit', sans-serif;
 }
 
 a {

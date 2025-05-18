@@ -1,3 +1,4 @@
+from random import choice
 from typing import List
 
 from sqlalchemy import func
@@ -9,7 +10,8 @@ from app.models.genre import Genre
 from app.models.movie import Movie
 from app.models.movie_person import MoviePerson
 from app.models.person import Person
-from app.schemas.movie import MovieListResponse, movie_to_list_response, MovieResponse, movie_to_response
+from app.schemas.movie import MovieListResponse, movie_to_list_response, MovieResponse, movie_to_response, \
+    CollectionResponse
 from app.services.tmdb_service import fetch_movie_data_by_tmdb, search_movies_tmdb
 
 
@@ -174,18 +176,37 @@ def get_related_movies_by_people_and_genres(movie_id: int, db: Session) -> List[
         return []
 
     people_ids = [mp.person_id for mp in movie.movie_persons]
+    genre_ids = [g.id for g in movie.genres]
+    collection_id = movie.collection_id
 
-    related_by_people = db.query(Movie).join(Movie.movie_persons).filter(
+    filters_people = [
         MoviePerson.person_id.in_(people_ids),
         Movie.id != movie.id
-    ).distinct().all()
-
-    genre_ids = [genre.id for genre in movie.genres]
-
-    related_by_genres = db.query(Movie).join(Movie.genres).filter(
+    ]
+    filters_genres = [
         Genre.id.in_(genre_ids),
         Movie.id != movie.id
-    ).distinct().all()
+    ]
+
+    if collection_id:
+        filters_people.append(Movie.collection_id != collection_id)
+        filters_genres.append(Movie.collection_id != collection_id)
+
+    related_by_people = (
+        db.query(Movie)
+        .join(Movie.movie_persons)
+        .filter(*filters_people)
+        .distinct()
+        .all()
+    )
+
+    related_by_genres = (
+        db.query(Movie)
+        .join(Movie.genres)
+        .filter(*filters_genres)
+        .distinct()
+        .all()
+    )
 
     all_related = {m.id: m for m in related_by_people + related_by_genres}.values()
 
@@ -206,7 +227,55 @@ def get_or_fetch_movie_by_tmdb_id(tmdb_id: int, db: Session) -> MovieResponse:
 def get_random_movies(db: Session, limit: int = 5) -> list[MovieListResponse]:
     movies = (
         db.query(Movie)
+        .filter(Movie.backdrop_url.isnot(None), Movie.backdrop_url != "")
+        .filter(Movie.tagline.isnot(None), Movie.tagline != "")
         .order_by(func.random())
+        .limit(limit)
+        .all()
+    )
+    return [movie_to_list_response(m) for m in movies]
+
+def get_random_collection_with_movies(db: Session) -> CollectionResponse:
+    collections = (
+        db.query(Collection)
+        .join(Collection.movies)
+        .group_by(Collection.id)
+        .having(func.count(Movie.id) >= 2)
+        .filter(Collection.movies.any())
+        .all())
+    if not collections:
+        raise ValueError("No collections found with movies")
+
+    selected = choice(collections)
+
+    return CollectionResponse(
+        id=selected.id,
+        tmdb_id=selected.tmdb_id,
+        name=selected.name,
+        poster_url=selected.poster_url,
+        backdrop_url=selected.backdrop_url,
+        movies=[movie_to_list_response(m) for m in selected.movies]
+    )
+
+
+def get_top_rated_movies(db: Session, page: int = 1, limit: int = 10) -> List[MovieListResponse]:
+    offset = (page - 1) * limit
+    movies = (
+        db.query(Movie)
+        .order_by(Movie.rating.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return [movie_to_list_response(m) for m in movies]
+
+def get_latest_movies(db: Session, page: int = 1, limit: int = 10) -> List[MovieListResponse]:
+    offset = (page - 1) * limit
+    movies = (
+        db.query(Movie)
+        .filter(Movie.released.isnot(None))
+        .order_by(Movie.released.desc())
+        .offset(offset)
         .limit(limit)
         .all()
     )

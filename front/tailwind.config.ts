@@ -8,7 +8,11 @@ const config: Config = {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Poppins", "system-ui", "sans-serif"],
+                outfit: ['Outfit', 'sans-serif'],
+                inter: ['Inter', 'sans-serif'],
+                playfair: ['"Playfair Display"', 'serif'],
+                poppins: ['Poppins', 'sans-serif'],
+                bebas: ['"Bebas Neue"', 'cursive'],
             }
         },
     },

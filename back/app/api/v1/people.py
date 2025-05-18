@@ -14,7 +14,9 @@ from app.services.postgres.person_service import (
     get_person_detail,
     get_person_filmography,
     get_filmography_as_actor,
-    get_filmography_as_director
+    get_filmography_as_director,
+    get_or_fetch_person_by_tmdb_id,
+    get_related_people_by_person_id, get_random_people_list
 )
 
 router = APIRouter(prefix="/people", tags=["People"])
@@ -48,3 +50,23 @@ def get_people_for_movie(
         db: Session = Depends(get_db)
 ):
     return list_people_by_movie_id(movie_id, db)
+
+@router.get("/by_tmdb", response_model=PersonResponse)
+def get_person_by_tmdb_id(
+    tmdb_id: int = Query(...),
+    db: Session = Depends(get_db)
+):
+    return get_or_fetch_person_by_tmdb_id(tmdb_id, db)
+
+@router.get("/related", response_model=List[PersonResponse])
+def related_people(
+    person_id: int = Query(...),
+    db: Session = Depends(get_db)
+):
+    return get_related_people_by_person_id(person_id, db)
+
+@router.get("/random", response_model=List[PersonResponse])
+def get_random_people(
+    db: Session = Depends(get_db)
+):
+    return get_random_people_list(db)

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -11,5 +11,8 @@ class Person(Base):
     tmdb_id = Column(Integer, unique=True, index=True)
     name = Column(String, nullable=False)
     photo_url = Column(String)
+    biography = Column(Text)
+    birthday = Column(String)
+    place_of_birth = Column(String)
 
     movie_roles = relationship("MoviePerson", back_populates="person")

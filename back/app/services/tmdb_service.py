@@ -24,7 +24,7 @@ def search_tmdb_only(query: str) -> List[MovieSearchResponse]:
             title=m["title"],
             rating=m["vote_average"],
             year=int(m["release_date"].split("-")[0]) if m.get("release_date") else None,
-            poster_url=f"https://image.tmdb.org/t/p/w500{m['poster_path']}"
+            poster_url=m['poster_path']
         )
         for m in filtered
     ]
@@ -49,7 +49,7 @@ def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
     trailer_url = None
     for v in videos:
         if v["site"] == "YouTube" and v["type"] == "Trailer":
-            trailer_url = f"https://www.youtube.com/watch?v={v['key']}"
+            trailer_url = v['key']
             break
 
     # Actores principales
@@ -71,7 +71,7 @@ def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
         "title": movie.get("title"),
         "year": int(movie.get("release_date", "0000")[:4]) if movie.get("release_date") else None,
         "genres": [g["name"] for g in movie.get("genres", [])],
-        "poster_url": f"https://image.tmdb.org/t/p/w500{movie['poster_path']}" if movie.get("poster_path") else None,
+        "poster_url": movie['poster_path'] if movie.get("poster_path") else None,
         "released": movie.get("release_date"),
         "runtime": f"{movie.get('runtime')} min" if movie.get("runtime") else None,
         "director": {
@@ -85,16 +85,33 @@ def fetch_movie_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
         "plot": movie.get("overview"),
         "rating": movie.get("vote_average"),
         "tagline": movie.get("tagline"),
-        "backdrop_url": f"https://image.tmdb.org/t/p/original{movie['backdrop_path']}" if movie.get("backdrop_path") else None,
+        "backdrop_url": movie['backdrop_path'] if movie.get("backdrop_path") else None,
         "origin_country": ",".join(movie.get("origin_country", [])),
         "trailer_url": trailer_url,
         "actors": actors,
         "collection": {
             "tmdb_id": collection["id"],
             "name": collection["name"],
-            "poster_url": f"https://image.tmdb.org/t/p/w500{collection['poster_path']}" if collection.get(
-                "poster_path") else None,
-            "backdrop_url": f"https://image.tmdb.org/t/p/original{collection['backdrop_path']}" if collection.get(
-                "backdrop_path") else None,
+            "poster_url": collection['poster_path'] if collection.get("poster_path") else None,
+            "backdrop_url": collection['backdrop_path'] if collection.get("backdrop_path") else None,
         } if collection else None
+    }
+
+def fetch_person_data_by_tmdb(tmdb_id: int) -> Optional[dict]:
+    url = f"{TMDB_BASE_URL}/person/{tmdb_id}"
+    params = {"api_key": TMDB_API_KEY}
+    response = httpx.get(url, params=params, timeout=10.0)
+
+    if response.status_code != 200:
+        return None
+
+    p = response.json()
+
+    return {
+        "tmdb_id": p.get("id"),
+        "name": p.get("name"),
+        "photo_url": p.get("profile_path"),
+        "biography": p.get("biography"),
+        "birthday": p.get("birthday"),
+        "place_of_birth": p.get("place_of_birth"),
     }

@@ -46,4 +46,3 @@ def get_me(current_user: User = Depends(get_current_user)):
         "bio": current_user.bio,
         "favorite_genres": current_user.favorite_genres
     }
-

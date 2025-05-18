@@ -1,6 +1,6 @@
 import {useState} from "react";
 import * as React from "react";
-import Button from "../common/Button.tsx";
+import Button from "../ui/Button.tsx";
 
 interface CommentFormProps {
     onSubmit: (text: string) => Promise<void>;

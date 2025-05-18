@@ -1,6 +1,4 @@
-export const BASE_URL = "http://192.168.1.250:8000/api/v1";
-//const BASE_URL = "https://api.romanlafi.org/api/v1";
-//const BASE_URL = "http://moviegraph-back:8001/api/v1";
+export const BASE_URL = import.meta.env.VITE_API_PROD_URL;
 
 export const API_ENDPOINTS = {
     USERS: `${BASE_URL}/users`,
@@ -14,15 +12,5 @@ export const API_MOVIES = "/movies";
 export const API_AUTH = "/users";
 export const API_COMMENTS = "/comments";
 export const API_PEOPLE = "/people";
-export const API_FRIENDS = "/friends";
-
-export const HTTP_STATUS = {
-    SUCCESS: 200,
-    CREATED: 201,
-    BAD_REQUEST: 400,
-    UNAUTHORIZED: 401,
-    FORBIDDEN: 403,
-    NOT_FOUND: 404,
-    CONFLICT: 409,
-    INTERNAL_SERVER_ERROR: 500,
-};
+export const API_FOLLOWS = "/follows";
+export const API_RECOMMENDATIONS = "/recommendations";

@@ -1,13 +1,13 @@
-import LoadingSpinner from "../components/layout/LoadingSpinner.tsx";
-import Button from "../components/common/Button.tsx";
-import Container from "../components/common/Container.tsx";
-import MovieCarousel from "../components/movie/MovieCarousel.tsx";
+import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
+import Button from "../../components/ui/Button.tsx";
+import Container from "../../components/layout/Container.tsx";
+import MovieCarousel from "../../components/movie/MovieCarousel.tsx";
 
-import {genreDescriptions} from "../data/genreDescriptions.ts";
-import {useExploreGenres} from "../hooks/useExploreGenres.ts";
+import {genreDescriptions} from "../../data/genreDescriptions.ts";
+import {useExploreGenres} from "../../hooks/genre/useExploreGenres.ts";
 
 export default function ExploreGenresPage() {
-    const { visibleGenres, genreMovies, loading, loadMoreGenres, loadingMore } = useExploreGenres();
+    const { visibleGenres, genreMovies, loading, loadMoreGenres, loadingMore, hasMoreGenres } = useExploreGenres();
 
     if (loading) return <LoadingSpinner />;
 
@@ -23,7 +23,7 @@ export default function ExploreGenresPage() {
                 />
             ))}
 
-            {visibleGenres.length < Object.keys(genreMovies).length && (
+            {hasMoreGenres && (
                 <div className="flex justify-center">
                     <Button onClick={loadMoreGenres} disabled={loadingMore}>
                         {loadingMore ? "Loading..." : "Load More Genres"}

@@ -2,8 +2,10 @@ import {useEffect, useRef, useState} from "react";
 import {Movie} from "../../types/movie.ts";
 import {searchTmdbMovies} from "../../services/moviesService.ts";
 import {useNavigate} from "react-router-dom";
-import TextInput from "../common/TextInput.tsx";
+import TextInput from "../ui/inputs/TextInput.tsx";
 import RatingDisplay from "../common/RatingDisplay.tsx";
+import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
+import Text from "../ui/Text.tsx";
 
 export default function SearchBar() {
     const [query, setQuery] = useState("");
@@ -67,12 +69,12 @@ export default function SearchBar() {
                             className="flex items-center w-full text-left gap-3 p-2 hover:bg-neutral-700 transition"
                         >
                             <img
-                                src={movie.poster_url}
+                                src={getTmdbImageUrl(movie.poster_url, "w342")}
                                 alt={movie.title}
                                 className="w-9 h-13 object-cover rounded"
                             />
                             <div className="text-sm text-white flex-1 overflow-hidden">
-                                <p className="font-semibold truncate">{movie.title}</p>
+                                <Text text={movie.title} className="font-semibold" truncate={true}/>
                                 <div className="flex items-center justify-between text-xs text-white/60">
                                     <span>{movie.year}</span>
                                     {movie.rating && <RatingDisplay rating={movie.rating} />}

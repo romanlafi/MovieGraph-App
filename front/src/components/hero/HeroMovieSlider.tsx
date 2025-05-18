@@ -2,13 +2,17 @@ import { Movie } from "../../types/movie.ts";
 import {useEffect, useRef, useState} from "react";
 import {FaChevronLeft, FaChevronRight, FaPlay} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
+import Title from "../ui/Title.tsx";
+import Text from "../ui/Text.tsx";
+
 
 interface HeroSliderProps {
     movies: Movie[];
     interval?: number;
 }
 
-export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps) {
+export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showUI, setShowUI] = useState(true);
     const navigate = useNavigate();
@@ -69,21 +73,21 @@ export default function HeroSlider({ movies, interval = 5000 }: HeroSliderProps)
                     <div
                         key={movie.tmdb_id}
                         className="relative min-w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${movie.backdrop_url || movie.poster_url})` }}
+                        style={{ backgroundImage: `url(${getTmdbImageUrl(movie.backdrop_url, "original")})` }}
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-black/70"></div>
 
                         {movie.poster_url && (
                             <img
-                                src={movie.poster_url}
+                                src={getTmdbImageUrl(movie.poster_url)}
                                 alt={movie.title}
                                 className="absolute left-8 bottom-8 w-[100px] md:w-[140px] rounded-lg shadow-lg border border-white/10"
                             />
                         )}
 
                         <div className="relative z-10 h-full flex flex-col justify-end p-8 text-white max-w-[1100px] mx-auto ml-[160px]">
-                            <h2 className="text-3xl md:text-5xl font-bold">{movie.title}</h2>
-                            <p className="mt-2 text-white/80 line-clamp-3">{movie.tagline}</p>
+                            <Title title={movie.title} as="h2" className="text-3xl md:text-5xl"/>
+                            <Text text={movie.tagline} size="base" className="mt-2 text-white/80 line-clamp-3"/>
                             <button
                                 className="mt-4 flex items-center gap-3 bg-neutral-700 text-white px-3 py-2 rounded hover:bg-purple-800 transition text-sm md:text-lg md:px-6 md:py-3 md:w-[250px]"
                                 onClick={handleTrailerClick}

@@ -5,11 +5,11 @@ from app.db.database import Base
 from app.models.genre import user_genres
 
 
-friend_association = Table(
-    "user_friends",
+user_follows = Table(
+    "user_follows",
     Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("friend_id", Integer, ForeignKey("users.id"), primary_key=True)
+    Column("follower_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("followed_id", Integer, ForeignKey("users.id"), primary_key=True),
 )
 
 user_likes = Table(
@@ -46,11 +46,11 @@ class User(Base):
         back_populates="liked_by"
     )
 
-    friends = relationship(
+    following = relationship(
         "User",
-        secondary=friend_association,
-        primaryjoin=id == friend_association.c.user_id,
-        secondaryjoin=id == friend_association.c.friend_id,
-        backref="friend_of"
+        secondary=user_follows,
+        primaryjoin=id == user_follows.c.follower_id,
+        secondaryjoin=id == user_follows.c.followed_id,
+        backref="followers"
     )
 

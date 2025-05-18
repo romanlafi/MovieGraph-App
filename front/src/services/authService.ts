@@ -4,7 +4,7 @@ import {RegisterUserData} from "../types/auth.ts";
 import {User} from "../types/user.ts";
 
 export const registerUser = async (data: RegisterUserData) => {
-    const res = await api.post(`${API_AUTH}/register`, data);
+    const res = await api.post(API_AUTH, data);
     return res.data;
 }
 

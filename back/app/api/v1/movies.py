@@ -1,31 +1,32 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.deps.auth import get_current_user
-
 from app.exceptions import MovieNotFoundError
-
+from app.models.collection import Collection
 from app.models.genre import Genre
 from app.models.movie import Movie
 from app.models.user import User
-
 from app.schemas.genre import GenreResponse
 from app.schemas.movie import (
     MovieListResponse,
     MovieResponse,
+    CollectionResponse,
     movie_to_list_response
 )
-
 from app.services.postgres.movie_service import (
     search_movies,
     search_movies_by_genre,
     get_movie_by_id,
-    get_related_movies_by_people_and_genres, get_or_fetch_movie_by_tmdb_id, get_random_movies
+    get_related_movies_by_people_and_genres,
+    get_or_fetch_movie_by_tmdb_id,
+    get_random_movies, get_top_rated_movies, get_latest_movies, get_random_collection_with_movies
 )
-from app.services.tmdb_service import search_movies_tmdb, search_tmdb_only
+from app.services.tmdb_service import search_tmdb_only
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
@@ -120,3 +121,56 @@ def get_random_movies_endpoint(
     db: Session = Depends(get_db)
 ):
     return get_random_movies(db, limit)
+
+@router.get("/random_collection", response_model=CollectionResponse)
+def get_random_collection(
+    db: Session = Depends(get_db)
+):
+    return get_random_collection_with_movies(db)
+
+@router.get("/collections", response_model=List[CollectionResponse])
+def get_collections(db: Session = Depends(get_db)):
+    return (
+        db.query(Collection)
+        .join(Collection.movies)
+        .group_by(Collection.id)
+        .having(func.count(Movie.id) >= 2)
+        .order_by(Collection.name)
+        .all()
+    )
+
+@router.get("/by_collection", response_model=List[MovieListResponse])
+def get_movies_by_collection(
+    collection_id: int = Query(..., description="ID of the collection"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db)
+):
+    offset = (page - 1) * limit
+    movies = (
+        db.query(Movie)
+        .filter(Movie.collection_id == collection_id)
+        .order_by(Movie.year)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    if not movies:
+        raise MovieNotFoundError()
+    return [movie_to_list_response(m) for m in movies]
+
+@router.get("/top_rated", response_model=List[MovieListResponse])
+def get_top_rated(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db)
+):
+    return get_top_rated_movies(db=db, page=page, limit=limit)
+
+@router.get("/latest", response_model=List[MovieListResponse])
+def get_latest(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db)
+):
+    return get_latest_movies(db=db, page=page, limit=limit)

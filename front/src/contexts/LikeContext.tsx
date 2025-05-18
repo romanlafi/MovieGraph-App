@@ -1,6 +1,6 @@
 import {Movie} from "../types/movie.ts";
 import {createContext, useContext, useEffect, useState} from "react";
-import {useAuth} from "../hooks/useAuth.tsx";
+import {useAuth} from "../hooks/auth/useAuth.ts";
 import * as React from "react";
 import {getUserLikes, likeMovie, unlikeMovie} from "../services/moviesService.ts";
 

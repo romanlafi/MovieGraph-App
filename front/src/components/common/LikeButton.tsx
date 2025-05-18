@@ -1,6 +1,6 @@
 import {FaHeart, FaRegHeart} from "react-icons/fa";
 import {useLikes} from "../../contexts/LikeContext.tsx";
-import {useAuth} from "../../hooks/useAuth.tsx";
+import {useAuth} from "../../hooks/auth/useAuth.ts";
 
 interface LikeButtonProps {
     movieId: string;

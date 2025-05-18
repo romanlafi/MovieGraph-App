@@ -1,8 +1,19 @@
-import {FaCalendarAlt, FaFilm, FaStar, FaTimes, FaTrophy} from "react-icons/fa";
+import {
+    FaCalendarAlt,
+    FaFilm,
+    FaFolderOpen,
+    FaHome,
+    FaStar,
+    FaTimes,
+    FaTrophy
+} from "react-icons/fa";
 import {Link} from "react-router-dom";
 import {useEffect} from "react";
+import {useAuth} from "../../hooks/auth/useAuth.ts";
+import Title from "../ui/Title.tsx";
 
 export default function CategoryOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
+    const { user }  = useAuth();
     useEffect(() => {
         document.body.style.overflow = open ? "hidden" : "";
         return () => {
@@ -17,7 +28,7 @@ export default function CategoryOverlay({ open, onClose }: { open: boolean; onCl
             }`}
         >
             <div className="flex justify-between items-center py-6 px-6 text-white border-b border-white/20 max-w-screen-md mx-auto">
-                <h2 className="text-3xl font-bold tracking-wide">Categories</h2>
+                <Title title="Categories" as="h2" />
                 <button
                     onClick={onClose}
                     className="bg-white rounded-full p-2 hover:bg-neutral-400 transition-colors duration-200"
@@ -28,6 +39,13 @@ export default function CategoryOverlay({ open, onClose }: { open: boolean; onCl
 
             <nav className="flex flex-col gap-8 pt-12 pb-10 px-6 text-white text-xl font-medium max-w-screen-md mx-auto">
                 <Link
+                    to="/"
+                    onClick={onClose}
+                    className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
+                >
+                    <FaHome /> Home
+                </Link>
+                <Link
                     to="/genres"
                     onClick={onClose}
                     className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
@@ -35,12 +53,21 @@ export default function CategoryOverlay({ open, onClose }: { open: boolean; onCl
                     <FaFilm /> Genres
                 </Link>
                 <Link
-                    to="/recommendations"
+                    to="/collections"
                     onClick={onClose}
                     className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
                 >
-                    <FaStar /> Recommended for You
+                    <FaFolderOpen /> Collections
                 </Link>
+                { user &&
+                    <Link
+                        to="/recommendations"
+                        onClick={onClose}
+                        className="flex items-center gap-3 hover:text-purple-300 hover:scale-105 transition-all duration-200"
+                    >
+                        <FaStar/> Recommended for You
+                    </Link>
+                }
                 <Link
                     to="/top-rated"
                     onClick={onClose}

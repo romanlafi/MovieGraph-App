@@ -1,7 +1,8 @@
 import CommentForm from "./CommentForm.tsx";
 import CommentCarousel from "./CommentCarousel.tsx";
 import { Comment } from "../../types/comment.ts";
-import {useAuth} from "../../hooks/useAuth.tsx";
+import {useAuth} from "../../hooks/auth/useAuth.ts";
+import Title from "../ui/Title.tsx";
 
 interface CommentSectionProps {
     comments: Comment[];
@@ -13,7 +14,7 @@ export default function CommentSection({ comments, onSubmit }: CommentSectionPro
 
     return (
         <div className="bg-neutral-800 p-4 rounded-lg space-y-4">
-            <h2 className="text-xl font-semibold text-white">Comments</h2>
+            <Title title="Comments" size="sm" />
             <div className="flex flex-col md:flex-row gap-4">
                 {token && (
                     <div className="md:w-1/3">

@@ -1,10 +1,10 @@
 import {useState} from "react";
 import {loginUser} from "../../services/authService.ts";
 import * as React from "react";
-import Button from "../common/Button.tsx";
+import Button from "../ui/Button.tsx";
 import {Link} from "react-router-dom";
-import TextInput from "../common/TextInput.tsx";
-import {useAuth} from "../../hooks/useAuth.tsx";
+import TextInput from "../ui/inputs/TextInput.tsx";
+import {useAuth} from "../../hooks/auth/useAuth.ts";
 
 export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     const { login } = useAuth();

@@ -5,12 +5,23 @@ from pydantic import BaseModel
 from app.models.movie import Movie
 from app.schemas.genre import GenreResponse, genre_to_response
 
+class MovieListResponse(BaseModel):
+    id: int
+    tmdb_id: int
+    title: str
+    tagline: Optional[str] = None
+    poster_url: Optional[str] = None
+    backdrop_url: Optional[str] = None
+    rating: Optional[float] = None
+    year: Optional[int] = None
+
 class CollectionResponse(BaseModel):
     id: int
     tmdb_id: int
     name: str
     poster_url: Optional[str] = None
     backdrop_url: Optional[str] = None
+    movies: Optional[List[MovieListResponse]] = None
 
 class MovieBase(BaseModel):
     tmdb_id: int
@@ -38,15 +49,6 @@ class MovieCreate(MovieBase):
 
 class MovieResponse(MovieBase):
     id: str
-
-class MovieListResponse(BaseModel):
-    id: int
-    tmdb_id: int
-    title: str
-    tagline: Optional[str] = None
-    poster_url: Optional[str] = None
-    backdrop_url: Optional[str] = None
-    rating: Optional[float] = None
 
 class MovieSearchResponse(BaseModel):
     tmdb_id: int
@@ -91,5 +93,6 @@ def movie_to_list_response(movie: Movie) -> MovieListResponse:
         poster_url=movie.poster_url,
         backdrop_url=movie.backdrop_url,
         rating=movie.rating,
+        year=movie.year,
     )
 

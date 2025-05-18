@@ -1,26 +1,26 @@
 import {User} from "../../types/user.ts";
-import {FaUserFriends} from "react-icons/fa";
-import FriendButton from "../common/FriendButton.tsx";
+import {useAuth} from "../../hooks/auth/useAuth.ts";
+import Button from "../ui/Button.tsx";
+import FollowButton from "./FollowButton.tsx";
+import Title from "../ui/Title.tsx";
+import Text from "../ui/Text.tsx";
 
-interface Props {
-    user: User | any;
-    isOwnProfile?: boolean;
-    showAddFriend?: boolean;
-}
+export default function UserProfileCard({ user }: { user: User }) {
+    const { user: authUser } = useAuth();
+    const isCurrentUser = authUser?.email === user.email;
 
-export default function UserProfileCard({ user, isOwnProfile = false, showAddFriend = false }: Props) {
     return (
-        <div className="bg-neutral-800 p-6 rounded-lg shadow space-y-2 flex flex-col items-center text-center">
-            <FaUserFriends className="text-4xl text-purple-400" />
-            <h3 className="text-xl font-bold text-white">{user.username}</h3>
-            <p className="text-white/70 text-sm">{user.email}</p>
+        <div className="bg-neutral-800 p-6 rounded-xl shadow text-white space-y-3">
+            <Title title={user.username} size="md" />
+            <Text text={user.email} size="sm" color="white/60" />
+            <Text  text={user.bio} color="white/70" size="base" />
 
-            {user.bio && (
-                <p className="text-white/60 text-sm italic">{user.bio}</p>
-            )}
-
-            {!isOwnProfile && showAddFriend && (
-                <FriendButton email={user.email} />
+            {isCurrentUser ? (
+                <Button>
+                    Edit Profile
+                </Button>
+            ) : (
+                <FollowButton user={user} />
             )}
         </div>
     );

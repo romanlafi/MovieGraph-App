@@ -6,33 +6,27 @@ import {
 } from "react-icons/fa";
 import GenreBadge from "../genre/GenreBadge.tsx";
 import RatingDisplay from "../common/RatingDisplay.tsx";
+import CountryFlag from "../common/CountryFlag.tsx";
+import {parseCountryCodes} from "../../utils/parseCountryCodes.ts";
+import {formatCurrency} from "../../utils/formatters.ts";
+import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
+import {getYoutubeEmbedUrl} from "../../utils/youtubeHelpers.ts";
+import Title from "../ui/Title.tsx";
+import Text from "../ui/Text.tsx";
 
-function toEmbedUrl(url?: string): string | null {
-    if (!url) return null;
-    const match = url.match(/(?:\?v=|\/embed\/|\.be\/)([\w-]{11})/);
-    const videoId = match?.[1];
-    return videoId
-        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&showinfo=0`
-        : null;
-}
-
-const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0,
-    }).format(amount);
-};
 
 export default function MovieHeaderCard({ movie }: { movie: Movie }) {
-    const embedUrl = toEmbedUrl(movie.trailer_url);
+    const embedUrl = getYoutubeEmbedUrl(movie.trailer_url);
+    const countries = parseCountryCodes(movie.origin_country);
+
+    if (!movie) return null;
 
     return (
         <section className="bg-neutral-800 rounded-xl p-6 shadow space-y-4">
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-start mt-2">
                 <div className="w-full max-w-xs mx-auto lg:mx-0 h-[420px] flex items-center justify-center rounded overflow-hidden">
                     <img
-                        src={movie.poster_url}
+                        src={getTmdbImageUrl(movie.poster_url, "original")}
                         alt={movie.title}
                         className="h-full w-auto rounded"
                     />
@@ -48,23 +42,33 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                             className="w-full aspect-video md:aspect-auto h-full rounded"
                         />
                     ) : (
-                        <div className="flex items-center justify-center w-full h-full bg-neutral-800 text-white/50 text-sm">
-                            Trailer not available
-                        </div>
+                        <img
+                            src={getTmdbImageUrl(movie.backdrop_url, "original")}
+                            alt={movie.title}
+                            className="h-full w-auto rounded"
+                        />
                     )}
                 </div>
             </div>
 
 
             <div className="space-y-4 text-white">
-                <h1 className="text-3xl font-bold">{movie.title}</h1>
+                <Title title={movie.title} as="h1" size="lg"/>
 
                 <div className="flex flex-wrap gap-4 text-sm text-white/80">
                     <span className="flex items-center gap-2"><FaCalendarAlt className="text-purple-400" />{movie.year}</span>
                     <span className="flex items-center gap-2"><FaClock className="text-purple-400" />{movie.runtime}</span>
                     {movie.box_office && <span className="flex items-center gap-2"><FaCoins className="text-purple-400"/>{formatCurrency(movie.box_office)}</span>}
-                    <a className="flex items-center gap-2" href={movie.website}  target="_blank"><FaGlobe className="text-purple-400" />Website</a>
+                    {movie.website && <a className="flex items-center gap-2" href={movie.website} target="_blank"><FaGlobe className="text-purple-400"/>Website</a>}
                 </div>
+
+                {countries.length > 0 && (
+                    <span className="flex items-center gap-2">
+                            {countries.map((cc) => (
+                                <CountryFlag key={cc} code={cc} />
+                            ))}
+                        </span>
+                )}
 
                 {movie.rating && <RatingDisplay rating={movie.rating} className="mt-2" iconSize={14}/>}
 
@@ -74,9 +78,7 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                     ))}
                 </div>
 
-                <p className="text-white/70 leading-relaxed">
-                    {movie.plot || "Plot not available"}
-                </p>
+                <Text text={movie.plot} size="base" className="text-white/70 leading-relaxed" />
             </div>
         </section>
     );
