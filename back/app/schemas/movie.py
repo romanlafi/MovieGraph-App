@@ -14,6 +14,7 @@ class MovieListResponse(BaseModel):
     backdrop_url: Optional[str] = None
     rating: Optional[float] = None
     year: Optional[int] = None
+    director: Optional[str] = None
 
 class CollectionResponse(BaseModel):
     id: int
@@ -94,5 +95,6 @@ def movie_to_list_response(movie: Movie) -> MovieListResponse:
         backdrop_url=movie.backdrop_url,
         rating=movie.rating,
         year=movie.year,
+        director=movie.movie_persons[0].person.name if movie.movie_persons[0] else None,
     )
 

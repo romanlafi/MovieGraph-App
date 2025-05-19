@@ -1,4 +1,4 @@
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const BASE_URL = import.meta.env.VITE_API_PROD_URL;
 
 export const API_MOVIES = "/movies/";
 export const API_AUTH = "/users/";
