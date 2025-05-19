@@ -92,18 +92,6 @@ Interactive documentation is available at `/docs` (Swagger UI).
 
 ---
 
-## 🧪 Testing
-
-HTTP request samples can be found in:
-
-```
-back/test_main.http
-```
-
-Use tools like **Insomnia** or **Postman** for testing APIs manually.
-
----
-
 ## 📌 Notes
 
 - CORS is enabled for all origins in development.
