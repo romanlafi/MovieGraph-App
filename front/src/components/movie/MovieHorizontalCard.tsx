@@ -45,7 +45,7 @@ export default function MovieHorizontalCard({ movie, ranking, position }: Props)
 
             <div className="flex flex-col justify-between h-full space-y-1 text-white overflow-hidden">
                 <Title title={movie.title} size="sm" as="h3"/>
-                <Text text={movie.tagline} size="sm" color="white/60" italic={true} truncate={true}/>
+                <Text text={movie.director} size="sm" color="white/60" italic={true} truncate={true}/>
                 <Text text={movie.year} size="sm" color="white/60"/>
                 {movie.rating && (
                     <RatingDisplay rating={movie.rating} iconSize={14} />

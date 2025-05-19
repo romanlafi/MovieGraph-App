@@ -85,9 +85,13 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
                             />
                         )}
 
-                        <div className="relative z-10 h-full flex flex-col justify-end p-8 text-white max-w-[1100px] mx-auto ml-[160px]">
-                            <Title title={movie.title} as="h2" className="text-3xl md:text-5xl"/>
-                            <Text text={movie.tagline} size="base" className="mt-2 text-white/80 line-clamp-3"/>
+                        <div className="relative z-10 h-full flex flex-col justify-end p-8 text-white max-w-[1100px] mx-auto ml-[110px] md:ml-[160px]">
+                            <Title
+                                title={movie.title}
+                                as="h2"
+                                className="text-3xl md:text-5xl max-w-full"
+                            />
+                            <Text text={movie.tagline} size="base" className="mt-2 text-white/80 line-clamp-3 max-w-full"/>
                             <button
                                 className="mt-4 flex items-center gap-3 bg-neutral-700 text-white px-3 py-2 rounded hover:bg-purple-800 transition text-sm md:text-lg md:px-6 md:py-3 md:w-[250px]"
                                 onClick={handleTrailerClick}

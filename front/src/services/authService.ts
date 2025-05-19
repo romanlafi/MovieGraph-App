@@ -13,7 +13,7 @@ export const loginUser = async (email: string, password: string): Promise<string
     formData.append("username", email);
     formData.append("password", password);
 
-    const res = await api.post(`${API_AUTH}/login`, formData, {
+    const res = await api.post(`${API_AUTH}login`, formData, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -22,6 +22,6 @@ export const loginUser = async (email: string, password: string): Promise<string
 };
 
 export const fetchUser = async (): Promise<User> => {
-    const res = await api.get(`${API_AUTH}/me`);
+    const res = await api.get(`${API_AUTH}me`);
     return res.data;
 }

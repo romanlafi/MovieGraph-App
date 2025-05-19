@@ -5,6 +5,7 @@ export type TmdbImageSize =
     | "w342"
     | "w500"
     | "w780"
+    | "w1920"
     | "original";
 
 export function getTmdbImageUrl(

@@ -7,7 +7,7 @@ import HeroCollection from "../../components/hero/HeroCollection.tsx";
 import Container from "../../components/layout/Container.tsx";
 import Button from "../../components/ui/Button.tsx";
 
-const COLLECTIONS_PAGE_SIZE = 3;
+const COLLECTIONS_PAGE_SIZE = 5;
 
 export default function ExploreCollectionsPage() {
     const [collections, setCollections] = useState<Collection[]>([]);

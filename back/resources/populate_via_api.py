@@ -2,7 +2,7 @@ import httpx
 import random
 from datetime import date
 
-BASE_URL = "http://192.168.1.250:8000/api/v1"
+BASE_URL = "http://192.168.1.175:8001/api/v1"
 
 users = [
     {
@@ -265,9 +265,9 @@ def insert_comments():
             print(f"Failed to insert comment from {user['email']}: {resp.status_code} - {resp.text}")
 
 if __name__ == "__main__":
-    register_and_login_users()
-    create_follows()
-    # search_movies_only()
+    # register_and_login_users()
+    # create_follows()
+    search_movies_only()
     # search_and_like()
     # insert_comments()
     print("\nPoblamiento vía API completado.")

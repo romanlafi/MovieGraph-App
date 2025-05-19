@@ -3,17 +3,17 @@ import {User} from "../types/user.ts";
 import {API_FOLLOWS} from "../data/apiConstants.ts";
 
 export const searchUsers = async (query: string): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}/search`, { params: { query } });
+    const res = await api.get(`${API_FOLLOWS}search`, { params: { query } });
     return res.data;
 };
 
 export const getMyFollowing = async (): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}/following`);
+    const res = await api.get(`${API_FOLLOWS}following`);
     return res.data;
 };
 
 export const getMyFollowers = async (): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}/followers`);
+    const res = await api.get(`${API_FOLLOWS}followers`);
     return res.data;
 };
 
@@ -26,11 +26,11 @@ export const unfollowUser = async (email: string): Promise<void> => {
 };
 
 export const getUserByEmail = async (email: string): Promise<User> => {
-    const res = await api.get(`${API_FOLLOWS}/by_email`, { params: { email } });
+    const res = await api.get(`${API_FOLLOWS}by_email`, { params: { email } });
     return res.data;
 };
 
 export const getAllUsers = async (): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}/list`);
+    const res = await api.get(`${API_FOLLOWS}list`);
     return res.data;
 };
