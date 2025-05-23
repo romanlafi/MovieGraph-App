@@ -86,6 +86,12 @@ def movie_to_response(movie: Movie) -> MovieResponse:
     )
 
 def movie_to_list_response(movie: Movie) -> MovieListResponse:
+    director_name = None
+    if movie.movie_persons:
+        first_person = movie.movie_persons[0]
+        if first_person and first_person.person:
+            director_name = first_person.person.name
+
     return MovieListResponse(
         id=movie.id,
         tmdb_id=movie.tmdb_id,
@@ -95,6 +101,6 @@ def movie_to_list_response(movie: Movie) -> MovieListResponse:
         backdrop_url=movie.backdrop_url,
         rating=movie.rating,
         year=movie.year,
-        director=movie.movie_persons[0].person.name if movie.movie_persons[0] else None,
+        director=director_name,
     )
 
