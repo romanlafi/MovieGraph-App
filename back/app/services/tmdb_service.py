@@ -1,3 +1,8 @@
+"""Legacy synchronous importer helpers. Retain until social IDs are migrated.
+
+New catalogue routes use app.catalogue and never import this module.
+"""
+
 from typing import Optional, List
 import httpx
 from app.core.config import TMDB_BASE_URL, TMDB_API_KEY

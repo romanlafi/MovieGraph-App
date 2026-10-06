@@ -1,0 +1,11 @@
+# Worker health needs no secrets. /api/tmdb reads these bindings per request.
+# Copy to .dev.vars locally; use Worker secrets in Cloudflare.
+# Prefer the TMDB read access token; API key remains supported as an alternative.
+# TMDB_READ_ACCESS_TOKEN=replace-with-your-tmdb-read-access-token
+# TMDB_API_KEY=replace-with-your-tmdb-api-key
+# TMDB_BASE_URL=https://api.themoviedb.org/3
+# SECRET_KEY=replace-with-a-generated-secret
+# Hyperdrive will supply database bindings; never put DB credentials in VITE_*.
+# Only for wrangler.db-probe.jsonc on a confirmed development database:
+# DB_PROBE_TOKEN=replace-with-a-random-development-probe-secret
+# The normal Worker has no diagnostic routes. See docs/DATABASE_RUNTIME.md.

@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
-import {Movie} from "../../types/movie.ts";
-import {searchTmdbMovies} from "../../services/moviesService.ts";
+import type {TmdbMovieSearchResult} from "../../types/tmdb.ts";
+import {searchTmdbMovies} from "../../services/tmdbService.ts";
 import {useNavigate} from "react-router-dom";
 import TextInput from "../ui/inputs/TextInput.tsx";
 import RatingDisplay from "../common/RatingDisplay.tsx";
@@ -9,7 +9,7 @@ import Text from "../ui/Text.tsx";
 
 export default function SearchBar() {
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<Movie[]>([]);
+    const [results, setResults] = useState<TmdbMovieSearchResult[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
 
     const dropdownRef = useRef<HTMLDivElement>(null);

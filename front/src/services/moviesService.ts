@@ -56,13 +56,6 @@ export const getCollections = async (): Promise<Collection[]> => {
     return res.data;
 };
 
-export const searchTmdbMovies = async (query: string): Promise<Movie[]> => {
-    const res = await api.get(`${API_MOVIES}tmdb_search`, {
-        params: { query },
-    });
-    return res.data;
-};
-
 export const getUserLikes = async (): Promise<Movie[]> => {
     const res = await api.get(`${API_MOVIES}likes`);
     return res.data;

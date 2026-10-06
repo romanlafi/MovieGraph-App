@@ -1,0 +1,9 @@
+.venv/
+**/.venv/
+.venv-workers/
+python_modules/
+.wrangler/
+**/.wrangler/
+**/.dev.vars
+**/.dev.vars.*
+!**/.dev.vars.example

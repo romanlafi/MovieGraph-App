@@ -1,0 +1,15 @@
+{
+  "name": "moviegraph-db-probe-dev",
+  "main": "back/app/db_probe_worker.py",
+  "compatibility_date": "2026-10-02",
+  "compatibility_flags": ["python_workers"],
+  "dev": { "port": 8789 },
+  "vars": {
+    "APP_ENV": "development",
+    "DB_PROBE_ENABLED": "true",
+    "DB_PROBE_DEVELOPMENT_DATABASE": "true"
+  }
+  // Add ONLY a REAL Hyperdrive ID targeting a Neon DEVELOPMENT branch:
+  // , "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<REAL_DEV_HYPERDRIVE_ID>" }]
+  // No placeholder binding is active. See docs/DATABASE_RUNTIME.md.
+}

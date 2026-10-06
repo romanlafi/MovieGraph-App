@@ -1,11 +1,16 @@
 fastapi~=0.115.12
 uvicorn~=0.34.0
 sqlalchemy~=2.0.40
+# Retained legacy local driver; not installed as a Worker dependency.
 psycopg2-binary~=2.9.10
+# Matches Worker driver for binding/engine tests and optional dev probes.
+pg8000~=1.31.5
 python-jose~=3.4.0
 passlib[bcrypt]~=1.7.4
 python-dotenv~=1.1.0
 python-multipart~=0.0.20
-bcrypt
+# Passlib 1.7.4 backend probes are incompatible with bcrypt 5's length check.
+# Local legacy dependency only; native bcrypt is not verified in Workers.
+bcrypt==4.0.1
 email-validator
 httpx

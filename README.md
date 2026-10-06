@@ -1,5 +1,7 @@
 # 🎬 MovieGraph
 
+Migration status: the existing application still runs locally on FastAPI/PostgreSQL. The Cloudflare Python Worker exposes health and an isolated `/api/tmdb` gateway for movie search, movie detail and person detail. SearchBar uses the new gateway; detail/social screens retain the legacy API. Lazy SQLAlchemy/pg8000 database infrastructure and a separate protected development probe are prepared; real Hyperdrive/Neon connectivity is pending a development binding. No application schema or data migration has run. See the [database runtime setup](docs/DATABASE_RUNTIME.md), [database validation report](docs/DATABASE_RUNTIME_REPORT.md) and accepted [TMDB phase report](docs/TMDB_GATEWAY_REPORT.md). Read the [migration audit](docs/MIGRATION_AUDIT.md) and [current local/Worker setup](docs/LOCAL_DEVELOPMENT.md) first. Docker instructions below describe the legacy local stack, not the target production runtime.
+
 MovieGraph is a full-stack web application that allows users to discover, follow, and interact with movies and other users. It's built using **FastAPI** (Python) for the backend, **React + TypeScript** for the frontend, and **PostgreSQL** for data storage — all orchestrated with Docker.
 
 ---

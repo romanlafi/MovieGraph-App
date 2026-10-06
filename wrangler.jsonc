@@ -1,0 +1,9 @@
+{
+  "name": "moviegraph-api",
+  "main": "back/app/worker.py",
+  "compatibility_date": "2026-10-02",
+  "compatibility_flags": ["python_workers"]
+  // Add once a real configuration exists; never commit origin credentials:
+  // , "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<REAL_HYPERDRIVE_ID>" }]
+  // Normal Worker exposes no database diagnostic routes.
+}
