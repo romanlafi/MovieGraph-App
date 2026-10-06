@@ -4,13 +4,12 @@ import { Movie } from "../../types/movie.ts";
 import {getMovieByTmdbId, getMoviesByCollection, getRelatedMovies} from "../../services/moviesService.ts";
 
 import {Person} from "../../types/person.ts";
-import {getPeopleForMovie} from "../../services/peopleService.ts";
 
 import {Comment} from "../../types/comment.ts";
 import {getCommentsByMovie, postComment} from "../../services/commentService.ts";
 
 
-export function useMovieDetail(id: string) {
+export function useMovieDetail(tmdbMovieId: string) {
     const [movie, setMovie] = useState<Movie | null>(null);
     const [cast, setCast] = useState<Person[]>([]);
     const [collectionMovies, setCollectionMovies] = useState<Movie[]>([]);
@@ -19,32 +18,37 @@ export function useMovieDetail(id: string) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!id) return;
+        if (!tmdbMovieId) return;
+        let active = true;
 
         const fetchData = async () => {
             try {
                 setLoading(true);
+                setComments([]);
+                setRelatedMovies([]);
+                setCollectionMovies([]);
 
-                const movieData = await getMovieByTmdbId(id);
+                const movieData = await getMovieByTmdbId(tmdbMovieId);
+                if (!active) return;
                 setMovie(movieData);
+                setCast(movieData.cast ?? []);
 
                 if (movieData) {
                     const [
-                        castData,
                         relatedData,
                         commentData
-                    ] = await Promise.all([
-                        getPeopleForMovie(movieData.id),
-                        getRelatedMovies(movieData.id),
+                    ] = await Promise.allSettled([
+                        getRelatedMovies(movieData.tmdb_id),
                         getCommentsByMovie(movieData.tmdb_id)
                     ]);
+                    if (!active) return;
 
-                    setCast(castData);
-                    setRelatedMovies(relatedData);
-                    setComments(commentData);
+                    setRelatedMovies(relatedData.status === "fulfilled" ? relatedData.value : []);
+                    setComments(commentData.status === "fulfilled" ? commentData.value : []);
 
-                    if (movieData.collection?.id) {
-                        const collectionData = await getMoviesByCollection(movieData.collection.id);
+                    if (movieData.collection?.tmdb_id) {
+                        const collectionData = await getMoviesByCollection(movieData.collection.tmdb_id).catch(() => []);
+                        if (!active) return;
                         setCollectionMovies(collectionData);
                     } else {
                         setCollectionMovies([]);
@@ -52,14 +56,15 @@ export function useMovieDetail(id: string) {
                 }
             } catch (error) {
                 console.error("Error loading movie data", error);
-                setMovie(null);
+                if (active) setMovie(null);
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
 
         void fetchData();
-    }, [id]);
+        return () => { active = false; };
+    }, [tmdbMovieId]);
 
     const handleCommentSubmit = async (text: string) => {
         if (!movie?.tmdb_id) return;

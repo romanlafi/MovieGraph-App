@@ -95,7 +95,7 @@ def main() -> int:
         processes.append(frontend)
         wait_for_port(frontend, FRONTEND_PORT, "Frontend")
         print("MovieGraph preview is ready at http://127.0.0.1:5173/", flush=True)
-        print("TMDB search is enabled; database-backed features are not mounted in this preview.", flush=True)
+        print("TMDB catalogue is enabled; database-backed features are not mounted in this preview.", flush=True)
 
         while True:
             for process in processes:

@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {Collection} from "../../types/collection.ts";
 import {Movie} from "../../types/movie.ts";
 import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
-import {getCollections, getMoviesByCollection} from "../../services/moviesService.ts";
+import {getCollections} from "../../services/moviesService.ts";
 import HeroCollection from "../../components/hero/HeroCollection.tsx";
 import Container from "../../components/layout/Container.tsx";
 import Button from "../../components/ui/Button.tsx";
@@ -21,6 +21,7 @@ export default function ExploreCollectionsPage() {
             try {
                 const collectionsData = await getCollections();
                 setCollections(collectionsData);
+                setCollectionMovies(Object.fromEntries(collectionsData.map(collection => [collection.id, collection.movies ?? []])));
             } catch (error) {
                 console.error("Error loading collections", error);
             } finally {
@@ -30,27 +31,6 @@ export default function ExploreCollectionsPage() {
 
         void fetchCollections();
     }, []);
-
-    useEffect(() => {
-        const fetchMoviesForVisibleCollections = async () => {
-            const toLoad = collections.slice(0, visibleCount).filter(c => !collectionMovies[c.id]);
-            const updatedMovies: Record<string, Movie[]> = { ...collectionMovies };
-
-            for (const collection of toLoad) {
-                try {
-                    updatedMovies[collection.id] = await getMoviesByCollection(String(collection.id), 1, 20);
-                } catch (error) {
-                    console.error(`Error loading movies for collection ${collection.name}`, error);
-                }
-            }
-
-            setCollectionMovies(updatedMovies);
-        };
-
-        if (collections.length > 0) {
-            void fetchMoviesForVisibleCollections();
-        }
-    }, [visibleCount, collections]);
 
     const handleLoadMore = () => {
         setLoadingMore(true);

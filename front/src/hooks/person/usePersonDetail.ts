@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react";
 import {Person} from "../../types/person.ts";
 import {Movie} from "../../types/movie.ts";
-import {getActedMovies, getDirectedMovies, getPersonByTmdbId, getRelatedPeople} from "../../services/peopleService.ts";
+import {getPersonFilmography, getPersonByTmdbId, getRelatedPeople} from "../../services/peopleService.ts";
 
-export function usePersonDetail(tmdbId?: string) {
+export function usePersonDetail(tmdbPersonId?: string) {
     const [person, setPerson] = useState<Person | null>(null);
     const [acted, setActed] = useState<Movie[]>([]);
     const [directed, setDirected] = useState<Movie[]>([]);
@@ -11,35 +11,39 @@ export function usePersonDetail(tmdbId?: string) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let active = true;
         const fetch = async () => {
-            if (!tmdbId) return;
+            if (!tmdbPersonId) return;
 
             try {
                 setLoading(true);
-                const personData = await getPersonByTmdbId(tmdbId);
-
-                if (!personData.id) return;
-
-                const [actedRes, directedRes, relatedRes] = await Promise.all([
-                    getActedMovies(personData.id),
-                    getDirectedMovies(personData.id),
-                    getRelatedPeople(personData.id),
-                ]);
+                setActed([]);
+                setDirected([]);
+                setRelatedPeople([]);
+                const personData = await getPersonByTmdbId(tmdbPersonId);
+                if (!active) return;
 
                 setPerson(personData);
-                setActed(actedRes);
-                setDirected(directedRes);
-                setRelatedPeople(relatedRes);
+                const [filmography, relatedRes] = await Promise.allSettled([
+                    getPersonFilmography(personData.tmdb_id),
+                    getRelatedPeople(personData.tmdb_id),
+                ]);
+
+                if (!active) return;
+                setActed(filmography.status === "fulfilled" ? filmography.value.acted : []);
+                setDirected(filmography.status === "fulfilled" ? filmography.value.directed : []);
+                setRelatedPeople(relatedRes.status === "fulfilled" ? relatedRes.value : []);
             } catch (err) {
                 console.error("Failed to load person detail", err);
-                setPerson(null);
+                if (active) setPerson(null);
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
 
         void fetch();
-    }, [tmdbId]);
+        return () => { active = false; };
+    }, [tmdbPersonId]);
 
     return { person, acted, directed, relatedPeople, loading };
 }

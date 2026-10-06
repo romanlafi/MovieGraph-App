@@ -1,4 +1,5 @@
 import {Collection} from "./collection.ts";
+import type {Person} from "./person.ts";
 
 export interface Movie {
     id: string;
@@ -19,4 +20,5 @@ export interface Movie {
     tagline?: string;
     origin_country?: string;
     collection?: Collection
+    cast?: Person[];
 }

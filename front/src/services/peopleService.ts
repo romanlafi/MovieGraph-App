@@ -1,34 +1,27 @@
-import {api} from "./api.ts";
-import {API_PEOPLE} from "../data/apiConstants.ts";
-import { Person } from "../types/person";
-import {Movie} from "../types/movie.ts";
+import type {Person} from "../types/person.ts";
+import {getTmdbCatalogue} from "./tmdbService.ts";
+import {CatalogueMovie, CataloguePerson, toMovie, toPerson} from "./catalogueAdapters.ts";
 
-export const getPeopleForMovie = async (movieId: string): Promise<Person[]> => {
-    const res = await api.get(`${API_PEOPLE}movie`, { params: { movie_id: movieId } });
-    return res.data;
-}
+export const getPeopleForMovie = async (tmdbMovieId: number): Promise<Person[]> => {
+    const movie = await getTmdbCatalogue<{cast: CataloguePerson[]}>(`movie/${tmdbMovieId}`);
+    return movie.cast.map(toPerson);
+};
 
-export const getPersonByTmdbId = async (personId: string): Promise<Person> => {
-    const res = await api.get(`${API_PEOPLE}by_tmdb`, { params: { tmdb_id: personId } });
-    return res.data;
-}
+export const getPersonByTmdbId = async (tmdbPersonId: string): Promise<Person> => {
+    return toPerson(await getTmdbCatalogue<CataloguePerson>(`person/${tmdbPersonId}`));
+};
 
-export const getActedMovies = async (personId: string): Promise<Movie[]> => {
-    const res = await api.get(`${API_PEOPLE}acted`, { params: { person_id: personId } });
-    return res.data;
-}
+export const getPersonFilmography = async (tmdbPersonId: string) => {
+    const filmography = await getTmdbCatalogue<{acted: CatalogueMovie[]; directed: CatalogueMovie[]}>(
+        `person/${tmdbPersonId}/filmography`,
+    );
+    return {acted: filmography.acted.map(toMovie), directed: filmography.directed.map(toMovie)};
+};
 
-export const getDirectedMovies = async (personId: string): Promise<Movie[]> => {
-    const res = await api.get(`${API_PEOPLE}directed`, { params: { person_id: personId } });
-    return res.data;
-}
-
-export const getRelatedPeople = async (personId: string): Promise<Person[]> => {
-    const res = await api.get(`${API_PEOPLE}related`, { params: { person_id: personId } });
-    return res.data;
-}
+export const getRelatedPeople = async (tmdbPersonId: string): Promise<Person[]> => {
+    return (await getTmdbCatalogue<CataloguePerson[]>(`person/${tmdbPersonId}/related`)).map(toPerson);
+};
 
 export const getRandomPeople = async (): Promise<Person[]> => {
-    const res = await api.get(`${API_PEOPLE}random`);
-    return res.data;
-}
+    return (await getTmdbCatalogue<CataloguePerson[]>("people/featured")).map(toPerson);
+};

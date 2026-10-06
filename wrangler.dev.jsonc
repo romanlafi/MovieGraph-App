@@ -1,6 +1,6 @@
 {
   "name": "moviegraph-api-dev",
-  "main": "back/app/worker.py",
+  "main": "back/app/social_worker.py",
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["python_workers"],
   "hyperdrive": [

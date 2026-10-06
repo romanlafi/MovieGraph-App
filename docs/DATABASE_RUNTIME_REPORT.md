@@ -2,9 +2,13 @@
 
 ## Subsequent update — 2026-10-06
 
-Alembic revisions `20261006_00` and `20261006_01` have since been applied to the empty Neon `MovieGraph` development branch/database `moviegraph`. The user confirmed the `alembic_version`, `comments`, `user_movie_likes`, and `users` tables are visible. No historical rows were imported and no production schema was changed. The user supplied a Hyperdrive ID, now configured only in `wrangler.dev.jsonc` and `wrangler.db-probe.jsonc`; the base `wrangler.jsonc` remains unbound. This confirms configuration wiring only: the real Worker → Hyperdrive → Neon path and authenticated comment/like behavior remain **NOT VERIFIED**. The current execution environment has no Wrangler login configuration.
+Alembic revisions `20261006_00` and `20261006_01` were applied to the empty Neon `MovieGraph` development branch/database `moviegraph`. **Real Worker → Hyperdrive → Neon transactions and authenticated comments/likes now PASS.** The deployed temporary Worker verified SELECT, INSERT, UPDATE, rollback, DELETE, and session cleanup. TMDB 550 received a comment and like without catalogue tables. Baseline and final counts were users=0, comments=0, user_movie_likes=0, alembic_version=1; the fixture and Worker were removed. Production was not changed. Full identifiers, request results, and commands are recorded in [SOCIAL_TMDB_ID_MIGRATION.md](SOCIAL_TMDB_ID_MIGRATION.md).
 
-Infrastructure only. The accepted audit and TMDB gateway are preserved. The implementation is prepared and tested locally; **real Worker → Hyperdrive → Neon verification is blocked by missing development configuration**. No production deployment, database schema migration, catalogue/social migration or PostgreSQL mutations occurred.
+Wrangler has an existing OAuth login in its actual Windows configuration directory; earlier missing-login claims were incorrect. Read-only Hyperdrive inspection confirmed `moviegraph-dev`, database `moviegraph`, caching disabled. JWT verification using python-jose is tested in workerd and Cloudflare; password/login runtime integration remains pending. The DEV candidate mounts a limited social API without importing the legacy model/auth graph. The base Preview remains gateway-only.
+
+Python `pywrangler dev --remote` is unsupported, and Hyperdrive remote local bindings are unavailable. The repeatable **MovieGraph Verify Neon DEV** run configuration uses a uniquely named temporary DEV deployment with isolated keys and fixture cleanup. It needs no direct Neon URL. The original findings below describe the 2026-10-05 infrastructure phase and are superseded by this update where applicable.
+
+Historical 2026-10-05 status: infrastructure only, before real development configuration and schema setup. The accepted audit/TMDB gateway remain preserved; the subsequent update above contains the real verification evidence.
 
 ## 1. Selected PostgreSQL driver
 

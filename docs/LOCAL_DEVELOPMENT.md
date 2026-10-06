@@ -1,6 +1,6 @@
 # Local development and Worker foundation
 
-The local FastAPI/PostgreSQL API remains intact. The Cloudflare Worker exposes **health and a TMDB catalogue gateway**, with the legacy `/api/v1` disabled. It is not a replacement for the full app yet. No catalogue/social schema changes were made. The [migration audit](MIGRATION_AUDIT.md) remains the accepted historical baseline; see the [TMDB phase report](TMDB_GATEWAY_REPORT.md) for current results.
+The local FastAPI/PostgreSQL API remains intact. The default Preview Worker exposes health/TMDB. The separate DEV Worker now supports comments/likes by TMDB ID, verified against Neon through Hyperdrive; registration/login and the full frontend flow are still pending. The fresh DEV social schema exists at Alembic head `20261006_01`. The [migration audit](MIGRATION_AUDIT.md) remains the historical baseline; see the [social migration report](SOCIAL_TMDB_ID_MIGRATION.md) for current evidence.
 
 ## Existing local API
 
@@ -14,10 +14,17 @@ forwards `/api/tmdb` to the Worker, avoiding browser CORS configuration. This
 single PyCharm run configuration checks dependencies/port conflicts, waits for
 both servers, and stops their child processes when stopped from PyCharm.
 
-This preview currently verifies the TMDB search gateway only. The Worker does
-not mount the legacy catalogue, auth, comments, or likes API, so the home feed
-and those features are not available in this mode. Stop both processes from
-PyCharm when finished.
+This preview supports search, Home, movie/person details, cast/filmographies,
+genres, top-rated/latest lists, featured collections and related catalogue views,
+all directly through TMDB without a database. It does not mount auth, comments,
+likes or follows; an unavailable social request no longer hides movie details.
+Personalized MovieGraph recommendations still require their separate migration.
+See [catalogue verification](CATALOGUE_READ_MIGRATION.md). Stop both processes
+from PyCharm when finished. No new URL or secret is needed for this catalogue phase.
+
+### PyCharm: verify real Neon DEV
+
+Select **MovieGraph Verify Neon DEV** and press Run. It uses the existing Wrangler login and DEV Hyperdrive ID; it does not request or save a Neon URL. It deploys a uniquely named temporary diagnostic Worker, runs transaction and authenticated comment/like checks with a disposable account, compares baseline/final row counts, removes its fixture rows, and deletes the temporary Worker. This is an integration test, not the full frontend launcher. It does not change the normal Preview or production deployment. See [DATABASE_RUNTIME.md](DATABASE_RUNTIME.md) for the actual runtime flow.
 
 ### PyCharm run configurations
 
@@ -145,7 +152,7 @@ python -m pywrangler dev
 
 The actual successful run used Python 3.13.5 for the CLI, while compatibility date 2026-10-02 selected Python 3.14 for the Worker toolchain. Pywrangler generated root `pylock.toml`, which is retained for the runtime dependency versions. `.venv-workers`, `python_modules`, `.wrangler`, and local virtual environments are generated/ignored. `back/app/worker.py` is the entrypoint so Wrangler scans application sources rather than the local venv or env files beside `back/requirements.txt`. The health endpoint was verified under Wrangler 4.147.0; full application readiness remains unverified.
 
-The real development Hyperdrive ID is wired in `wrangler.dev.jsonc` and the isolated `wrangler.db-probe.jsonc`; the base `wrangler.jsonc` remains unbound. The infrastructure phase adds lazy synchronous SQLAlchemy/pg8000 runtime configuration and an isolated development probe Worker, while preserving local psycopg2. Follow [DATABASE_RUNTIME.md](DATABASE_RUNTIME.md) for probe setup and the distinction between local emulation and real remote Hyperdrive. No real Neon/Hyperdrive connectivity is verified yet. The normal Worker continues to omit the legacy API and diagnostics.
+The real development Hyperdrive ID is wired in DEV configurations; the base `wrangler.jsonc` remains unbound. Synchronous SQLAlchemy/pg8000 transactions and authenticated comments/likes have been verified in a temporary Cloudflare deployment against Neon. The default Preview remains gateway-only; `wrangler.dev.jsonc` selects the limited social candidate. Follow [DATABASE_RUNTIME.md](DATABASE_RUNTIME.md) for repeatable verification and the distinction between direct local emulation and deployed Hyperdrive. Python `dev --remote` is unsupported; the verification run handles a temporary deployment and cleanup automatically.
 
 ## Validation
 

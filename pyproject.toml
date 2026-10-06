@@ -1,13 +1,13 @@
 [project]
 name = "moviegraph-worker"
 version = "0.1.0"
-description = "MovieGraph FastAPI Worker health and TMDB catalogue gateway"
+description = "MovieGraph FastAPI Worker catalogue gateway and social API"
 requires-python = ">=3.13"
-dependencies = ["fastapi~=0.115.12", "sqlalchemy~=2.0.40", "pg8000~=1.31.5"]
+dependencies = ["fastapi~=0.115.12", "sqlalchemy~=2.0.40", "pg8000~=1.31.5", "python-jose~=3.4.0"]
 
 [dependency-groups]
 dev = ["workers-py", "workers-runtime-sdk"]
 
-# Legacy psycopg2/auth remain in back/requirements.txt until verified replacements.
+# Legacy psycopg2/password hashing remain local in back/requirements.txt.
 # Worker DB uses synchronous SQLAlchemy/pg8000. Catalogue HTTP uses
 # native workers.fetch; HTTPX remains a local-only dependency.

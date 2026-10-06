@@ -4,7 +4,9 @@ from fastapi.responses import JSONResponse
 from importlib import import_module
 
 
-def create_app(*, include_legacy_api: bool = True) -> FastAPI:
+def create_app(*, include_legacy_api: bool = True, include_social_api: bool = False) -> FastAPI:
+    if include_legacy_api and include_social_api:
+        raise ValueError("Choose either the legacy API or the limited social API")
     app = FastAPI(title="MovieGraph")
     # Wrangler imports this factory as `application`; local API uses app.application.
     prefix = f"{__package__}." if __package__ else ""
@@ -20,6 +22,10 @@ def create_app(*, include_legacy_api: bool = True) -> FastAPI:
     async def health() -> dict[str, str]:
         # Liveness only: no credentials, database calls, or schema creation.
         return {"status": "ok"}
+
+    if include_social_api:
+        social = import_module(f"{prefix}social.routes")
+        social.install_social_api(app)
 
     if include_legacy_api:
         from app.core.config import CORS_ORIGINS

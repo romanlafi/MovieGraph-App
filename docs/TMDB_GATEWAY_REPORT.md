@@ -1,5 +1,11 @@
 # TMDB gateway phase report — 2026-10-02
 
+Current catalogue continuation (2026-10-06): frontend Home, details, genres,
+lists, credits, featured collections and related catalogue views now use the
+gateway. The historical report below describes the first three-route phase;
+see [CATALOGUE_READ_MIGRATION.md](CATALOGUE_READ_MIGRATION.md) for current
+contracts, deliberate feature replacements and real Worker/browser evidence.
+
 The accepted `MIGRATION_AUDIT.md` is unchanged. Read AGENTS.md, CLOUDFLARE_MIGRATION.md, MIGRATION_AUDIT.md and LOCAL_DEVELOPMENT.md before implementation. This phase adds a real catalogue gateway to the existing Worker while preserving the legacy application. No schema change, SQL, data migration, catalogue deletion or deployment was performed.
 
 ## Files created

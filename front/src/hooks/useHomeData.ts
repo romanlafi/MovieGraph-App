@@ -27,7 +27,7 @@ export function useHomeData() {
                     top,
                     collection,
                     people
-                ] = await Promise.all([
+                ] = await Promise.allSettled([
                     getRandomMovies(5),
                     getLatestMovies(),
                     getTopRatedMovies(),
@@ -35,11 +35,11 @@ export function useHomeData() {
                     getRandomPeople()
                 ]);
 
-                setRandomFeaturedMovies(featured);
-                setLatestReleases(latest);
-                setTopRated(top);
-                setFeaturedCollection(collection);
-                setFeaturedPeople(people);
+                setRandomFeaturedMovies(featured.status === "fulfilled" ? featured.value : []);
+                setLatestReleases(latest.status === "fulfilled" ? latest.value : []);
+                setTopRated(top.status === "fulfilled" ? top.value : []);
+                setFeaturedCollection(collection.status === "fulfilled" ? collection.value : null);
+                setFeaturedPeople(people.status === "fulfilled" ? people.value : []);
             } catch (err) {
                 console.error("Failed to load home data", err);
             } finally {

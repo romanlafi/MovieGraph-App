@@ -1,6 +1,6 @@
 # Social TMDB ID migration
 
-Status: **fresh development schema applied to Neon; real application comment/like flow remains unverified** (2026-10-06). The requested target is MovieGraph Neon `dev` / `moviegraph`. No production migration or historical data import is intended. No database credentials are recorded here.
+Status: **TMDB-ID comments/likes and the limited Worker API verified against real Neon DEV through Hyperdrive** (2026-10-06). The requested target is MovieGraph Neon `dev` / `moviegraph`. This is a fresh deployment: no historical source rows existed to import. Full application authentication/deployment and the remaining catalogue refactor are still pending. No database credentials are recorded here.
 
 Configuration boundary: root `.dev.vars` is for Wrangler runtime variables such as TMDB credentials; do not put a direct Neon URL there. The read-only audit and Alembic migration each take a direct development-branch URL from a trusted, temporary shell process variable (`SOCIAL_AUDIT_DATABASE_URL` or `ALEMBIC_DATABASE_URL`). This is separate from Worker runtime configuration and does not configure the application to reach Neon.
 
@@ -14,7 +14,8 @@ The read-only audit connected to database `moviegraph` on the confirmed Neon `de
 |---|---|
 | Before migration: `public` tables in audited `dev/moviegraph` | no tables present |
 | After migration: tables visible in Neon | `alembic_version`, `comments`, `user_movie_likes`, `users` |
-| `comments` after migration | present; screenshot shows 0 rows |
+| `comments` after migration | present; real Hyperdrive query confirms 0 baseline rows |
+| Real DEV baseline / after fixture cleanup | `users=0`, `comments=0`, `user_movie_likes=0`, `alembic_version=1` |
 | `user_likes`, `likes`, `movies` | absent on the fresh target; no legacy source rows to import |
 | Legacy comment/like mapping and collisions | not applicable: no legacy sources existed on this target |
 
@@ -119,10 +120,67 @@ Automated SQLite tests are fixtures, not Neon evidence. They do not populate the
 
 ## Worker boundary
 
-The current normal Worker explicitly calls `create_app(include_legacy_api=False)`. The legacy API still imports `python-jose` and the legacy config/auth stack; those packages have not been validated in the Worker runtime. Do not mount unauthenticated routes or bypass token checks. The social routes are intentionally local `/api/v1` routes for now; Worker `/api/v1` remains absent until auth and real Hyperdrive access are verified. Local route/test success does not mean Cloudflare social behavior is available.
+The gateway-only `worker.py` and existing Preview remain unchanged. `wrangler.dev.jsonc` now selects `social_worker.py`, which mounts only the six comment/like operations alongside health/TMDB. It does not mount users, follows, recommendations, or legacy catalogue endpoints. A permanent DEV deployment is not claimed by the temporary verification run.
+
+Both runtimes share `app/social/store.py`, using SQLAlchemy Core queries against only the required users/comments/likes columns. These query declarations never create schema. The local service paths remain compatible; the Worker imports no legacy ORM model graph, legacy config, password hashing, or psycopg2. Comment listing joins username information in one query and preserves newest-first ordering.
+
+The Worker uses the same `python-jose` JWT verifier as existing authentication. It reads SECRET_KEY/JWT_ALGORITHM from request bindings, validates signatures and expiry, requires the existing email subject, and resolves that email to a persisted user. A token cannot choose another user's ID. Missing/invalid/expired/wrong-algorithm tokens are rejected before database access. No password verification is bypassed: login/registration remain outside this slice. `python-jose` is now a Worker dependency and has been verified inside workerd and an actual Cloudflare deployment; passlib/bcrypt remain local pending a separate authentication runtime phase.
+
+Async Worker handlers hold an asyncio lock across the complete synchronous database session and cleanup, as required by the [official Python Hyperdrive guidance](https://developers.cloudflare.com/hyperdrive/examples/python-workers/). Engines use the existing pg8000/NullPool request lifecycle. SQL failures return sanitized 503 responses and roll back.
+
+`social_probe_worker.py` is a separate development-only harness. Its fixture administration requires development flags and a random diagnostic Bearer secret. It creates only a UUID-named test account with a locally generated bcrypt password hash and refuses a schema without the expected Alembic revision. Actual comment/like calls still require a separately signed JWT and persisted user lookup. Cleanup targets only that UUID account, matching both its reserved email and username, and its comments/likes. No application Worker installs these admin routes, and no HTTP request creates tables or runs migrations.
+
+## Real runtime and application evidence — 2026-10-06
+
+Wrangler `whoami` confirmed an existing OAuth login. Earlier statements that login configuration was missing were based on checking the wrong Windows config location. A read-only `hyperdrive get` confirmed ID `24054140a3aa418ba1bd24b015f3d04b`, resource name `moviegraph-dev`, database `moviegraph`, Neon origin, and caching disabled. The actual database returned the expected schema and Alembic head `20261006_01` before fixture writes.
+
+Python Workers rejects `pywrangler dev --remote`; Hyperdrive also does not support [remote bindings during local development](https://developers.cloudflare.com/workers/local-development/#remote-bindings). Therefore `scripts/verify_neon_social.py` deployed a uniquely named temporary Cloudflare Worker with the existing DEV binding, ran the real flow, cleaned its fixture rows, and deleted the temporary Worker. It needs no direct Neon URL. Its ephemeral JWT/admin keys are generated locally, omitted from reports, and removed with the temporary configuration. Root temporary config files are ignored by Git and deleted after testing; keeping the temporary config at the project root ensures Wrangler includes `python_modules`.
+
+Successful temporary Worker: `moviegraph-probe-dev-073de2e5d83c4f48822e840897f5313b`. Fixture UUID: `073de2e5-d83c-4f48-822e-840897f5313b`; fixture user ID `1`; comment ID `1`; movie TMDB ID `550`. These are disposable test identifiers, not real user data.
+
+| Real verification | Result |
+|---|---|
+| SELECT / committed INSERT / committed UPDATE | PASS |
+| Rolled-back INSERT and UPDATE | PASS, verified from a new session |
+| DELETE / session and engine connection cleanup | PASS |
+| Authenticated POST comment / public GET comments | HTTP 200; fixture username and comment ID matched |
+| Like / duplicate like / state / list of TMDB IDs | HTTP 200; one relationship to TMDB 550 |
+| Unlike / repeated unlike / state / empty list | HTTP 200; liked=false, list empty |
+| Movie/Person/Genre/Collection/MoviePerson persistence | No catalogue tables before or after; none created |
+| Final DEV counts | Identical to baseline: users=0, comments=0, user_movie_likes=0, alembic_version=1 |
+| Temporary Worker removal | Confirmed successful |
+
+PostgreSQL sequences advanced normally for the disposable rows; they were not reset. There were zero legacy comments or likes on this target: mapped/unmapped counts and duplicate collisions are zero because both source structures and the catalogue were absent, not because historical rows were repaired or discarded. No new migration revision was added during Worker integration.
+
+The automated Worker tests use real JWT verification and actual SQLite transactions with mocked Hyperdrive configuration. They cover isolation between users, invalid tokens, positive TMDB IDs, ordering, failed-write rollback, lock release, no legacy imports, and fixture cleanup. Those fixtures are separate from the real Neon evidence above. A real local workerd run also returned 200 for health/TMDB, 401 for missing/forged/expired tokens, and 503 for a correctly verified legacy-minted JWT when no binding was configured; that 503 is only auth/runtime evidence, not database success.
+
+Frontend boundaries already migrated in this phase: `services/commentService.ts`, `types/comment.ts`, `hooks/movie/useMovieDetail.ts`, `contexts/LikeContext.tsx`, `components/common/LikeButton.tsx`, `components/movie/MovieCard.tsx`, `services/moviesService.ts`, and `data/apiConstants.ts`. They continue to use TMDB IDs for social state while remaining detail catalogue features retain their temporary compatibility path.
+
+Commands executed from the root unless noted:
+
+```powershell
+npx.cmd --yes wrangler whoami
+npx.cmd --yes wrangler hyperdrive get 24054140a3aa418ba1bd24b015f3d04b
+& '.\.venv\Scripts\python.exe' -m pywrangler dev --config wrangler.social-runtime-test.jsonc --ip 127.0.0.1 --port 8791
+curl.exe --silent --show-error --max-time 30 --write-out '\nHTTP %{http_code}\n' http://127.0.0.1:8791/api/health
+& '.\.venv\Scripts\python.exe' scripts/verify_neon_social.py
+git diff --check
+```
+
+The local runtime test config was removed and its Worker stopped. An additional local Python HTTP runner minted JWTs with the unchanged `app.core.security.create_access_token` and checked forged, expired, missing-expiry, and valid tokens against workerd without printing tokens. The verification script initially attempted unsupported remote dev, then corrected temporary config placement and the Worker name length; those failed deployments did not write to Neon and their unique resources were cleaned up. The successful run uses `pywrangler deploy --config <temporary-root-config>` and `npx wrangler delete --config <same-config> --force` internally. The temporary key values are deliberately not part of command/report output.
+
+From `back`, with the configured PyCharm interpreter:
+
+```powershell
+& '..\.venv\Scripts\python.exe' -m unittest discover -s tests -p 'test_social*.py' -v
+& '..\.venv\Scripts\python.exe' -m unittest discover -s tests -p test_social_worker.py -v
+& '..\.venv\Scripts\python.exe' -m unittest discover -s tests -v
+```
+
+Final complete backend suite: **56 tests passed in 11.832 seconds**, including foundation/auth/password, DB runtime, TMDB gateway, social integrity/migration fixtures, and the new Worker slice. From `front`: `npm.cmd run lint` (0 errors, 6 existing warnings) and `npm.cmd run build` (TypeScript/Vite success). `git diff --check` and new-file no-index whitespace checks passed; only existing Windows LF/CRLF notices were emitted.
 
 ## Rollback and next steps
 
 Before applying: create/confirm a Neon development branch snapshot and record the audit output. Apply the additive revision only to that branch. Keep old tables and columns for rollback inspection. During code rollback, old application versions may not display new uncached social rows; pause writes and reconcile/export TMDB-keyed rows before changing application versions. Never delete new rows to restore an older binary. Since the migration refuses downgrade, restore a verified snapshot only if an actual database rollback is required.
 
-Next: use the already configured DEV Hyperdrive binding to perform a real comment/like flow with a disposable test user and a TMDB ID absent from any local catalogue. The Worker still does not mount authenticated `/api/v1` routes because authentication/runtime has not been verified with the real binding; do not bypass auth to claim end-to-end Worker behavior. Local automated tests do not count as real application verification. Keep production untouched, and do not proceed to catalogue-table deletion in this phase.
+Next: migrate the existing registration/login/account routes to the Worker while preserving password hashes, Bearer JWT behavior, and user preference behavior, then connect a permanent DEV frontend/API preview for interactive testing. The limited social API and real Hyperdrive transactions are now verified; the full user authentication flow and permanent deployment remain pending. Use the shared **MovieGraph Verify Neon DEV** run configuration to repeat the isolated verification without saving or re-entering a Neon URL. Catalogue table deletion is still outside this phase.

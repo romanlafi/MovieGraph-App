@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {Genre} from "../../types/genre.ts";
 import {Movie} from "../../types/movie.ts";
-import {getGenres, getMoviesByGenre} from "../../services/moviesService.ts";
+import {getGenres, getMoviesByTmdbGenreId} from "../../services/moviesService.ts";
 
 export function useExploreGenres() {
     const [allGenres, setAllGenres] = useState<Genre[]>([]);
@@ -21,7 +21,7 @@ export function useExploreGenres() {
                 setVisibleGenres(initialGenres);
 
                 const moviesByGenre = await Promise.all(
-                    initialGenres.map((genre: Genre) => getMoviesByGenre(genre.name))
+                    initialGenres.map((genre: Genre) => getMoviesByTmdbGenreId(Number(genre.id)))
                 );
                 const moviesMap: Record<string, Movie[]> = {};
                 initialGenres.forEach((genre, index) => {
@@ -49,7 +49,7 @@ export function useExploreGenres() {
             }
 
             const moviesByGenre = await Promise.all(
-                nextGenres.map((genre: Genre) => getMoviesByGenre(genre.name))
+                nextGenres.map((genre: Genre) => getMoviesByTmdbGenreId(Number(genre.id)))
             );
 
             setVisibleGenres((prev) => [...prev, ...nextGenres]);

@@ -1,0 +1,17 @@
+{
+  "name": "moviegraph-social-probe-dev",
+  "main": "back/app/social_probe_worker.py",
+  "compatibility_date": "2026-10-02",
+  "compatibility_flags": ["python_workers"],
+  "vars": {
+    "APP_ENV": "development",
+    "DB_PROBE_ENABLED": "true",
+    "DB_PROBE_DEVELOPMENT_DATABASE": "true"
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "24054140a3aa418ba1bd24b015f3d04b"
+    }
+  ]
+}
