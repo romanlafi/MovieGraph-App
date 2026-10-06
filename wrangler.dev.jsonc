@@ -1,0 +1,12 @@
+{
+  "name": "moviegraph-api-dev",
+  "main": "back/app/worker.py",
+  "compatibility_date": "2026-10-02",
+  "compatibility_flags": ["python_workers"],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "24054140a3aa418ba1bd24b015f3d04b"
+    }
+  ]
+}

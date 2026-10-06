@@ -3,10 +3,10 @@ import {useLikes} from "../../contexts/LikeContext.tsx";
 import {useAuth} from "../../hooks/auth/useAuth.ts";
 
 interface LikeButtonProps {
-    movieId: string;
+    tmdbMovieId: number;
 }
 
-export default function LikeButton({ movieId }: LikeButtonProps) {
+export default function LikeButton({ tmdbMovieId }: LikeButtonProps) {
     const { isLiked, toggleLike } = useLikes();
     const { token } = useAuth();
 
@@ -16,11 +16,11 @@ export default function LikeButton({ movieId }: LikeButtonProps) {
         <button
             onClick={(e) => {
                 e.stopPropagation();
-                void toggleLike(movieId);
+                void toggleLike(tmdbMovieId);
             }}
             className="hover:text-purple-400 transition-colors"
         >
-            {isLiked(movieId) ? <FaHeart /> : <FaRegHeart />}
+            {isLiked(tmdbMovieId) ? <FaHeart /> : <FaRegHeart />}
         </button>
     );
 }

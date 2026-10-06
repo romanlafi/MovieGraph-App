@@ -1,24 +1,19 @@
 from sqlalchemy.orm import Session
 
-from app.exceptions import UserNotFoundError, MovieNotFoundError
+from app.exceptions import UserNotFoundError
 from app.models.comment import Comment
-from app.models.movie import Movie
 from app.models.user import User
 from app.schemas.comment import CommentCreate, CommentResponse
 
 
-def create_comment(db: Session, user_email: str, comment: CommentCreate):
+def create_comment(db: Session, user_email: str, tmdb_movie_id: int, comment: CommentCreate):
     user = db.query(User).filter_by(email=user_email).first()
-    movie = db.query(Movie).filter_by(id=comment.movie_id).first()
-
     if not user:
         raise UserNotFoundError()
-    if not movie:
-        raise MovieNotFoundError()
 
     new_comment = Comment(
         user_id=user.id,
-        movie_id=movie.id,
+        tmdb_movie_id=tmdb_movie_id,
         text=comment.text
     )
     db.add(new_comment)
@@ -32,10 +27,10 @@ def create_comment(db: Session, user_email: str, comment: CommentCreate):
         created_at=new_comment.created_at
     )
 
-def list_movie_comments(db: Session, movie_id: int):
+def list_movie_comments(db: Session, tmdb_movie_id: int):
     comments = (
         db.query(Comment)
-        .filter_by(movie_id=movie_id)
+        .filter_by(tmdb_movie_id=tmdb_movie_id)
         .order_by(Comment.created_at.desc())
         .all()
     )

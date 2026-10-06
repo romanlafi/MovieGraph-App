@@ -1,0 +1,137 @@
+[     302ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=c65f3233:17986
+[     489ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random?limit=5' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     491ms] [ERROR] Failed to load home data AxiosError @ http://127.0.0.1:5173/src/hooks/useHomeData.ts:37
+[     492ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random?limit=5:0
+[     498ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random_collection' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     498ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random_collection:0
+[     539ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/top_rated?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     540ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/top_rated?page=1&limit=10:0
+[     584ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random?limit=5' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     584ms] [ERROR] Failed to load home data AxiosError @ http://127.0.0.1:5173/src/hooks/useHomeData.ts:37
+[     584ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random?limit=5:0
+[     584ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random_collection' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     584ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random_collection:0
+[     617ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/top_rated?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     617ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/top_rated?page=1&limit=10:0
+[     618ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/latest?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     619ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/latest?page=1&limit=10:0
+[     620ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/people/random' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     620ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/people/random:0
+[     683ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/latest?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     684ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/latest?page=1&limit=10:0
+[     685ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/people/random' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[     686ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/people/random:0
+[   58010ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:963
+[   58013ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   59716ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17986
+[   59798ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random?limit=5' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59799ms] [ERROR] Failed to load home data AxiosError @ http://127.0.0.1:5173/src/hooks/useHomeData.ts:37
+[   59800ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random?limit=5:0
+[   59824ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/latest?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59824ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/latest?page=1&limit=10:0
+[   59829ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random_collection' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59830ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random_collection:0
+[   59830ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/top_rated?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59831ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/top_rated?page=1&limit=10:0
+[   59832ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/people/random' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59832ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/people/random:0
+[   59842ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random?limit=5' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59842ms] [ERROR] Failed to load home data AxiosError @ http://127.0.0.1:5173/src/hooks/useHomeData.ts:37
+[   59843ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random?limit=5:0
+[   59869ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/latest?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59869ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/latest?page=1&limit=10:0
+[   59872ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/top_rated?page=1&limit=10' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59872ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/top_rated?page=1&limit=10:0
+[   59873ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/movies/random_collection' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59873ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/movies/random_collection:0
+[   59874ms] [ERROR] Access to XMLHttpRequest at 'http://127.0.0.1:8787/people/random' from origin 'http://127.0.0.1:5173' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:5173/:0
+[   59874ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://127.0.0.1:8787/people/random:0
+[   60156ms] [LOG] [vite] server connection lost. Polling for restart... @ http://127.0.0.1:5173/@vite/client:963
+[   60160ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   61170ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   62176ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   63194ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   64203ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   65212ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   66216ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   67222ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   68233ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   69247ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   70263ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   71268ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   72285ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   73295ms] [ERROR] WebSocket connection to 'ws://127.0.0.1:5173/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:5173/@vite/client:1034
+[   75308ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17986
+[   75378ms] [ERROR] Error handled by React Router default ErrorBoundary: TypeError: movies.map is not a function
+    at HeroMovieSlider (http://127.0.0.1:5173/src/components/hero/HeroMovieSlider.tsx:74:30)
+    at react-stack-bottom-frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17424:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:4206:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6619:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:7654:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:1485:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10868:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10728:43)
+    at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10711:13)
+    at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10330:215) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=94678962:6039
+[   75379ms] [ERROR] Error handled by React Router default ErrorBoundary: TypeError: movies.map is not a function
+    at HeroMovieSlider (http://127.0.0.1:5173/src/components/hero/HeroMovieSlider.tsx:74:30)
+    at react-stack-bottom-frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17424:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:4206:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6619:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:7654:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:1485:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10868:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10728:43)
+    at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10711:13)
+    at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10330:215) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=94678962:6039
+[   75382ms] [ERROR] Error handled by React Router default ErrorBoundary: TypeError: movies.map is not a function
+    at HeroMovieSlider (http://127.0.0.1:5173/src/components/hero/HeroMovieSlider.tsx:74:30)
+    at react-stack-bottom-frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17424:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:4206:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6619:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:7654:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:1485:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10868:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10728:43)
+    at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10711:13)
+    at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10359:46) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=94678962:6039
+[   75382ms] [ERROR] Error handled by React Router default ErrorBoundary: TypeError: movies.map is not a function
+    at HeroMovieSlider (http://127.0.0.1:5173/src/components/hero/HeroMovieSlider.tsx:74:30)
+    at react-stack-bottom-frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17424:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:4206:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6619:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:7654:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:1485:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10868:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10728:43)
+    at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10711:13)
+    at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10359:46) @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=94678962:6039
+[   75383ms] [ERROR] %o
+
+%s
+
+%s
+ TypeError: movies.map is not a function
+    at HeroMovieSlider (http://127.0.0.1:5173/src/components/hero/HeroMovieSlider.tsx:74:30)
+    at react-stack-bottom-frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17424:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:4206:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6619:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:7654:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:1485:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10868:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10728:43)
+    at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10711:13)
+    at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10359:46) The above error occurred in the <HeroMovieSlider> component. React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary. @ http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6263
+[   75384ms] [ERROR] React Router caught the following error during render TypeError: movies.map is not a function
+    at HeroMovieSlider (http://127.0.0.1:5173/src/components/hero/HeroMovieSlider.tsx:74:30)
+    at react-stack-bottom-frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17424:20)
+    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:4206:24)
+    at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6619:21)
+    at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:7654:20)
+    at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:1485:72)
+    at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10868:98)
+    at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10728:43)
+    at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10711:13)
+    at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10359:46) {componentStack: 
+    at HeroMovieSlider (http://127.0.0.1:5173/src…/AuthProvider.tsx:21:32)
+    at App (<anonymous>)} @ http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=94678962:6075

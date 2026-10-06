@@ -1,0 +1,27 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "Logo MovieGraph" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Logo" [ref=e6]
+        - generic [ref=e7]: MovieGraph
+      - textbox "Search movies..." [ref=e11]
+      - navigation [ref=e12]:
+        - generic [ref=e13] [cursor=pointer]: Menu
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - heading "Categories" [level=2] [ref=e20]
+            - button [ref=e21]
+          - navigation [ref=e24]:
+            - link "Home" [ref=e25] [cursor=pointer]:
+              - /url: /
+            - link "Genres" [ref=e28] [cursor=pointer]:
+              - /url: /genres
+            - link "Collections" [ref=e31] [cursor=pointer]:
+              - /url: /collections
+            - link "Top Rated" [ref=e34] [cursor=pointer]:
+              - /url: /top-rated
+            - link "Latest Releases" [ref=e37] [cursor=pointer]:
+              - /url: /latest
+        - generic [ref=e40] [cursor=pointer]: Login
+  - main [ref=e45]

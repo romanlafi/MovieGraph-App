@@ -26,7 +26,6 @@ class Movie(Base):
 
     genres = relationship("Genre", secondary="movie_genres", back_populates="movies")
     movie_persons = relationship("MoviePerson", back_populates="movie")
-    comments = relationship("Comment", back_populates="movie", cascade="all, delete-orphan")
     liked_by = relationship("User", secondary="user_likes", back_populates="likes")
     collection = relationship("Collection", back_populates="movies")
 

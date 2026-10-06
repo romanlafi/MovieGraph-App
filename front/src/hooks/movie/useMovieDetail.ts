@@ -36,7 +36,7 @@ export function useMovieDetail(id: string) {
                     ] = await Promise.all([
                         getPeopleForMovie(movieData.id),
                         getRelatedMovies(movieData.id),
-                        getCommentsByMovie(movieData.id)
+                        getCommentsByMovie(movieData.tmdb_id)
                     ]);
 
                     setCast(castData);
@@ -62,11 +62,11 @@ export function useMovieDetail(id: string) {
     }, [id]);
 
     const handleCommentSubmit = async (text: string) => {
-        if (!movie?.id) return;
+        if (!movie?.tmdb_id) return;
 
         try {
-            await postComment(movie.id, text);
-            const updatedComments = await getCommentsByMovie(movie.id);
+            await postComment(movie.tmdb_id, text);
+            const updatedComments = await getCommentsByMovie(movie.tmdb_id);
             setComments(updatedComments);
         } catch (error) {
             console.error("Error submitting comment", error);

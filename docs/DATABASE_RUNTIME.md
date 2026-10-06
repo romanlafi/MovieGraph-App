@@ -2,6 +2,14 @@
 
 Infrastructure prepared on 2026-10-05. Real Neon/Hyperdrive connectivity is **not verified**. The normal Worker still exposes health and TMDB, without legacy `/api/v1` or database diagnostics. No application schema/data migration was performed.
 
+## Update — 2026-10-06
+
+The empty Neon `MovieGraph` development branch/database `moviegraph` now has the social schema created by Alembic revisions `20261006_00` and `20261006_01`: `users`, `comments`, `user_movie_likes`, and `alembic_version`. This was a direct Neon admin migration, not a Worker/Hyperdrive request. No historical rows were imported; production was not changed. The schema being present does **not** prove the Worker can connect or the authenticated social API works.
+
+The actual Hyperdrive ID supplied by the user is now wired only into `wrangler.dev.jsonc` and the isolated `wrangler.db-probe.jsonc`; base `wrangler.jsonc` remains unbound to avoid accidentally routing production to DEV. This config change does **not** prove a real connection. Cloudflare's current [Python Hyperdrive guide](https://developers.cloudflare.com/hyperdrive/examples/python-workers/) supports synchronous SQLAlchemy with `pg8000`, and requires serializing synchronous database work. The FastAPI ASGI scope exposes bindings at `request.scope["env"]`, as shown in Cloudflare's [FastAPI Python Worker guide](https://developers.cloudflare.com/workers/languages/python/packages/fastapi/). The existing Worker intentionally does not mount `/api/v1`: authentication/runtime dependencies still need a Worker-compatible verification, and must not be bypassed.
+
+The supplied binding must be confirmed in Cloudflare to target Neon `MovieGraph` → `dev` → `moviegraph`; the ID alone does not reveal its origin. For real Worker testing, use remote mode with the diagnostic config below. Keep the Neon URL private. Verify Hyperdrive query caching is disabled for social/auth read-after-write consistency before accepting runtime evidence.
+
 ## Driver and lifecycle
 
 Worker database requests use synchronous SQLAlchemy with `postgresql+pg8000`. Cloudflare currently lists pg8000 among verified Python/Hyperdrive drivers, supports synchronous SQLAlchemy, requires compatibility date >=2026-09-08, and recommends serializing synchronous database operations with an asyncio lock. Our date is 2026-10-02. See [official Python Hyperdrive documentation](https://developers.cloudflare.com/hyperdrive/examples/python-workers/) and [SQLAlchemy's pg8000 dialect](https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#pg8000).
@@ -31,10 +39,10 @@ Only `moviegraph_runtime_probe` is used, with text UUID primary key, value and c
 
 ## Configuration gate: required before real verification
 
-No real Hyperdrive ID or Neon development connection was present in the inspected configuration. The available legacy DATABASE_URL points at loopback; it was not used for diagnostic mutations. Prepare these locally, without pasting passwords into chat:
+No real Hyperdrive ID or Neon development connection was present in the inspected configuration. The available legacy DATABASE_URL points at loopback; it was not used for diagnostic mutations. Prepare these locally, without pasting passwords into chat. Keep the two configuration contexts separate: root `.dev.vars` is for variables Wrangler injects into the normal local Worker; it is not the place for a direct Neon URL. Admin/CLI connection URLs belong only in the trusted shell process that runs the command.
 
 1. Create/select a **Neon development branch/test database**. Obtain its **direct/unpooled** PostgreSQL connection string, with TLS, and explicitly confirm it is not production. Cloudflare recommends the direct endpoint for [Neon with Hyperdrive](https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-database-providers/neon/).
-2. In a trusted local/admin shell, set DB_PROBE_DATABASE_URL to that branch's URL (for this CLI use the local psycopg2 URL syntax, including `sslmode=require`). Set a randomly generated DB_PROBE_TOKEN in the shell and ignored root `.dev.vars`. No credentials belong in VITE_* or checked-in JSON. Worker does not need DB_PROBE_DATABASE_URL.
+2. In a trusted local/admin shell, set DB_PROBE_DATABASE_URL to that branch's URL (for this CLI use the local psycopg2 URL syntax, including `sslmode=require`). This is a process-only CLI variable: do not put it in root `.dev.vars`, frontend variables, or checked-in JSON. The Worker does not need DB_PROBE_DATABASE_URL. DB_PROBE_TOKEN is only for the optional diagnostic Worker session and should be passed to that session explicitly, not added to the shared `.dev.vars.example`.
 3. From `back`, using the configured local Python interpreter and installed requirements, explicitly create only the probe table:
 
    ```powershell
@@ -43,13 +51,13 @@ No real Hyperdrive ID or Neon development connection was present in the inspecte
 
    The CLI requires DB_PROBE_DATABASE_URL and the explicit flag. It does not load `.env`, use DATABASE_URL implicitly, import legacy models or call Base.metadata.create_all. This setup command has **not** been executed against a database in this phase. For stronger isolation, use a dedicated test database/role allowed to operate only on the probe table.
 
-4. Create a real development Hyperdrive configuration in Cloudflare. Disable query caching for verification so cached reads cannot obscure transaction evidence. A trusted shell example (not executed here):
+4. A development Hyperdrive ID was supplied and is already active in `wrangler.db-probe.jsonc`. Confirm in Cloudflare that it targets `MovieGraph` → `dev` → `moviegraph` and disable query caching so cached reads cannot obscure transaction evidence. Do not create a second Hyperdrive unless the existing one targets the wrong database. Keep its Neon origin URL private.
 
    ```powershell
    npx wrangler hyperdrive create moviegraph-runtime-probe-dev --connection-string "$env:DB_PROBE_DATABASE_URL" --caching-disabled --sslmode require
    ```
 
-   Alternatively configure it in the dashboard. Follow [official Wrangler commands](https://developers.cloudflare.com/hyperdrive/reference/wrangler-commands/). The returned **real** ID goes in `wrangler.db-probe.jsonc` by uncommenting/replacing its binding template. No fictitious active ID is committed.
+   Only if you had to create a replacement, update the ID in both DEV configs. Follow [official Wrangler commands](https://developers.cloudflare.com/hyperdrive/reference/wrangler-commands/).
 
    ```json
    "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<REAL_DEV_HYPERDRIVE_ID>" }]
@@ -58,10 +66,10 @@ No real Hyperdrive ID or Neon development connection was present in the inspecte
 5. From the repository root, run the development harness in remote mode with an authenticated Cloudflare account:
 
    ```powershell
-   python -m pywrangler dev --config wrangler.db-probe.jsonc --remote
+   python -m pywrangler dev --config wrangler.db-probe.jsonc --remote --var DB_PROBE_TOKEN:YOUR_TEMPORARY_RANDOM_TOKEN
    ```
 
-   Use the local URL Wrangler prints (normally port 8789). Ensure DB_PROBE_TOKEN is supplied to that development session. No production deployment is needed. **Remote mode has not been exercised in this phase.** Account access, real binding and origin connectivity remain prerequisites.
+   Use the local URL Wrangler prints (normally port 8789). Supply DB_PROBE_TOKEN to this diagnostic session with Wrangler's `--var` option; keep it out of the normal Worker configuration. No production deployment is needed. **Remote mode has not been exercised in this phase.** Account access, real binding and origin connectivity remain prerequisites.
 
 6. In a second trusted shell, set DB_PROBE_TOKEN to the same secret; from `back`:
 
@@ -73,7 +81,7 @@ No real Hyperdrive ID or Neon development connection was present in the inspecte
 
 Cloudflare's [local development guide](https://developers.cloudflare.com/hyperdrive/configuration/local-development/) distinguishes `wrangler dev` with `localConnectionString` (direct DB access, bypassing deployed Hyperdrive pooling/cache) from `wrangler dev --remote` (real configured Hyperdrive). Optional local binding emulation can use the process variable `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE`; never commit it. A successful emulated binding request alone does **not** prove the production Hyperdrive path.
 
-Once real development verification passes, the normal Worker's commented HYPERDRIVE template can be configured with the intended real binding. Adding a production binding does not itself mount the legacy API or run migrations.
+The normal DEV Worker binding is in `wrangler.dev.jsonc`; the base/production `wrangler.jsonc` deliberately has no Hyperdrive binding. Adding a DEV binding does not itself mount the legacy API or run migrations. Do not put the `localConnectionString` placeholder from Cloudflare's example into source control: remote mode uses the configured Hyperdrive resource, while local mode would require a real direct local-development URL.
 
 ## Current evidence
 

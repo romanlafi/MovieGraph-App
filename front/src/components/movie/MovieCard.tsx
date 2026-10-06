@@ -29,7 +29,7 @@ export default function MovieCard({movie}: Props) {
 
             <div className="flex items-center justify-between mt-1">
                 {movie.rating && <RatingDisplay rating={movie.rating}/>}
-                <LikeButton movieId={movie.id}/>
+                <LikeButton tmdbMovieId={movie.tmdb_id}/>
             </div>
         </div>
 

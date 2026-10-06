@@ -4,6 +4,21 @@ The local FastAPI/PostgreSQL API remains intact. The Cloudflare Worker exposes *
 
 ## Existing local API
 
+### PyCharm: catalogue preview (no database)
+
+Select **MovieGraph Preview** from the Run selector and
+press Run. It starts the local Cloudflare Worker on port 8787 and Vite on port
+5173. Open <http://127.0.0.1:5173/>. Wrangler reads the root `.dev.vars` for the
+TMDB credential; no Neon URL or database setup is required. The Vite dev proxy
+forwards `/api/tmdb` to the Worker, avoiding browser CORS configuration. This
+single PyCharm run configuration checks dependencies/port conflicts, waits for
+both servers, and stops their child processes when stopped from PyCharm.
+
+This preview currently verifies the TMDB search gateway only. The Worker does
+not mount the legacy catalogue, auth, comments, or likes API, so the home feed
+and those features are not available in this mode. Stop both processes from
+PyCharm when finished.
+
 ### PyCharm run configurations
 
 Shared configurations live in `.run/` and use the project's Python and Node.js
@@ -20,13 +35,13 @@ Before the first run:
    schema. The current Compose `db` service does not publish port 5432 to the host;
    starting that service alone does not make it accessible to local Uvicorn.
 
-Select **MovieGraph Local Dev** in PyCharm's Run selector to launch both processes:
+Select **MovieGraph Full App (local PostgreSQL required)** in PyCharm's Run selector to launch both processes:
 
 | Configuration | Command / URL |
 | --- | --- |
 | MovieGraph Backend Dev | `python -m uvicorn app.main:app --env-file .env --reload --host 127.0.0.1 --port 8000` from `back`; http://localhost:8000/docs |
 | MovieGraph Frontend Dev | `npm run dev -- --host localhost --port 5173 --strictPort` from `front`; http://localhost:5173 |
-| MovieGraph Local Dev | Runs the backend and frontend together |
+| MovieGraph Full App (local PostgreSQL required) | Runs the legacy backend and frontend together |
 
 Both processes reload on edits. The frontend configuration sets the public
 `VITE_API_PROD_URL=http://localhost:8000/api/v1`, so a frontend `.env` is optional
@@ -68,13 +83,40 @@ VITE_API_PROD_URL remains the public API base including `/api/v1` (example http:
 
 Official [FastAPI guide](https://developers.cloudflare.com/workers/languages/python/packages/fastapi/) uses `workers.asgi.entrypoint` and pywrangler. Runtime dependencies are in root `pyproject.toml`; `back/requirements.txt` is the transitional **local legacy API** environment. Pywrangler rejects requirements.txt in its working directory, so run the Worker from the repository root. The shared application factory mounts `app/catalogue` without importing legacy config, DB, models, auth or importer services. Keep `include_legacy_api=False` until those packages and transactions are verified.
 
-With Python >=3.13, Node and uv available, from the repository root:
+### First-time setup (Windows PowerShell)
+
+From the repository root, install the Worker toolchain into the project Python
+environment and the frontend dependencies once:
 
 ```powershell
-uv run pywrangler dev
+& .\.venv\Scripts\python.exe -m pip install workers-py workers-runtime-sdk uv
+cd front
+npm.cmd ci
+cd ..
 ```
 
-Then:
+The repository's `.dev.vars` is a local-only file and is ignored by Git. It is
+safe to start Wrangler without a TMDB credential; `/api/health` works, while
+catalogue requests return 503 until you add `TMDB_READ_ACCESS_TOKEN` or
+`TMDB_API_KEY` to that file. Use a TMDB credential from your own account; never
+put it in a `VITE_*` variable.
+
+### Start the Worker
+
+With Python >=3.13 and Node installed, from the repository root:
+
+```powershell
+$env:PATH = "$PWD\.venv\Scripts;$env:PATH"
+& .\.venv\Scripts\python.exe -m pywrangler dev
+```
+
+On Windows, adding the project environment's Scripts folder to `PATH` lets
+`pywrangler` find its installed `uv` executable. Invoking it through the
+configured project interpreter avoids `uv run` failing to detect the
+PyCharm-managed Python. Keep the working directory at the repository root.
+Wrangler serves the Worker at `http://localhost:8787` by default.
+
+Then, in a second PowerShell window:
 
 ```powershell
 Invoke-RestMethod http://localhost:8787/api/health
@@ -103,7 +145,7 @@ python -m pywrangler dev
 
 The actual successful run used Python 3.13.5 for the CLI, while compatibility date 2026-10-02 selected Python 3.14 for the Worker toolchain. Pywrangler generated root `pylock.toml`, which is retained for the runtime dependency versions. `.venv-workers`, `python_modules`, `.wrangler`, and local virtual environments are generated/ignored. `back/app/worker.py` is the entrypoint so Wrangler scans application sources rather than the local venv or env files beside `back/requirements.txt`. The health endpoint was verified under Wrangler 4.147.0; full application readiness remains unverified.
 
-Hyperdrive is intentionally not configured with a fictitious ID. The infrastructure phase adds lazy synchronous SQLAlchemy/pg8000 runtime configuration and an isolated development probe Worker, while preserving local psycopg2. Follow [DATABASE_RUNTIME.md](DATABASE_RUNTIME.md) for trusted probe-table setup, the exact real development binding configuration gate, and the distinction between local emulation and real remote Hyperdrive. No real Neon/Hyperdrive connectivity is verified yet. The normal Worker continues to omit the legacy API and diagnostics.
+The real development Hyperdrive ID is wired in `wrangler.dev.jsonc` and the isolated `wrangler.db-probe.jsonc`; the base `wrangler.jsonc` remains unbound. The infrastructure phase adds lazy synchronous SQLAlchemy/pg8000 runtime configuration and an isolated development probe Worker, while preserving local psycopg2. Follow [DATABASE_RUNTIME.md](DATABASE_RUNTIME.md) for probe setup and the distinction between local emulation and real remote Hyperdrive. No real Neon/Hyperdrive connectivity is verified yet. The normal Worker continues to omit the legacy API and diagnostics.
 
 ## Validation
 

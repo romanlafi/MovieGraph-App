@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MovieGraph Local Dev" type="CompoundRunConfigurationType">
+  <configuration default="false" name="MovieGraph Full App (local PostgreSQL required)" type="CompoundRunConfigurationType">
     <toRun name="MovieGraph Backend Dev" type="PythonConfigurationType" />
     <toRun name="MovieGraph Frontend Dev" type="js.build_tools.npm" />
     <method v="2" />

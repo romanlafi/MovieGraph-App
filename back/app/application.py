@@ -23,7 +23,7 @@ def create_app(*, include_legacy_api: bool = True) -> FastAPI:
 
     if include_legacy_api:
         from app.core.config import CORS_ORIGINS
-        from app.api.v1 import users, movies, follows, people, recommendations, comments
+        from app.api.v1 import users, movies, follows, people, recommendations, comments, movie_likes
 
         if CORS_ORIGINS:
             app.add_middleware(
@@ -33,7 +33,7 @@ def create_app(*, include_legacy_api: bool = True) -> FastAPI:
                 allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
                 allow_headers=["Authorization", "Content-Type"],
             )
-        for router in (users, follows, movies, people, recommendations, comments):
+        for router in (users, follows, movies, people, recommendations, comments, movie_likes):
             app.include_router(router.router, prefix="/api/v1")
 
     return app

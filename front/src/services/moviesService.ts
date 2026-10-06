@@ -56,22 +56,18 @@ export const getCollections = async (): Promise<Collection[]> => {
     return res.data;
 };
 
-export const getUserLikes = async (): Promise<Movie[]> => {
+export const getUserLikes = async (): Promise<number[]> => {
     const res = await api.get(`${API_MOVIES}likes`);
     return res.data;
 };
 
-export const likeMovie = async (movieId: string) => {
-    const res = await api.post(`${API_MOVIES}like`, null, {
-        params: { movie_id: movieId },
-    });
+export const likeMovie = async (tmdbMovieId: number) => {
+    const res = await api.post(`${API_MOVIES}${tmdbMovieId}/like`);
     return res.data;
 };
 
-export const unlikeMovie = async (movieId: string) => {
-    const res = await api.delete(`${API_MOVIES}like`, {
-        params: { movie_id: movieId },
-    });
+export const unlikeMovie = async (tmdbMovieId: number) => {
+    const res = await api.delete(`${API_MOVIES}${tmdbMovieId}/like`);
     return res.data;
 };
 

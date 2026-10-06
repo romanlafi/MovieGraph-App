@@ -1,5 +1,9 @@
 # Database runtime phase report — 2026-10-05
 
+## Subsequent update — 2026-10-06
+
+Alembic revisions `20261006_00` and `20261006_01` have since been applied to the empty Neon `MovieGraph` development branch/database `moviegraph`. The user confirmed the `alembic_version`, `comments`, `user_movie_likes`, and `users` tables are visible. No historical rows were imported and no production schema was changed. The user supplied a Hyperdrive ID, now configured only in `wrangler.dev.jsonc` and `wrangler.db-probe.jsonc`; the base `wrangler.jsonc` remains unbound. This confirms configuration wiring only: the real Worker → Hyperdrive → Neon path and authenticated comment/like behavior remain **NOT VERIFIED**. The current execution environment has no Wrangler login configuration.
+
 Infrastructure only. The accepted audit and TMDB gateway are preserved. The implementation is prepared and tested locally; **real Worker → Hyperdrive → Neon verification is blocked by missing development configuration**. No production deployment, database schema migration, catalogue/social migration or PostgreSQL mutations occurred.
 
 ## 1. Selected PostgreSQL driver
@@ -195,7 +199,7 @@ Lint warnings: FollowContext.tsx lines 24/53, LikeContext.tsx lines 47/56, useMo
 
 ## 20. Remaining blockers
 
-Real Neon development branch/test database credential and confirmation, real HYPERDRIVE config ID targeting that branch with caching disabled, probe table trusted setup, Cloudflare account access for remote development, and diagnostic secret configuration. These are the exact prerequisites before real SELECT/INSERT/UPDATE/rollback/DELETE/session cleanup can be recorded. Worker pg8000 sockets and PostgreSQL transaction semantics remain unverified. Legacy native auth/password packages are still not proven in Workers, and `/api/v1` remains disabled there.
+Remaining runtime verification: confirm in Cloudflare that the configured HYPERDRIVE ID targets Neon `MovieGraph` → `dev` → `moviegraph` and has caching disabled; prepare only the isolated `moviegraph_runtime_probe` table; authenticate Wrangler for remote development; and provide a temporary diagnostic token to that test session. These are the prerequisites before real SELECT/INSERT/UPDATE/rollback/DELETE/session cleanup can be recorded. Worker pg8000 sockets and PostgreSQL transaction semantics remain unverified. Legacy auth/password packages are still not proven in Workers, and `/api/v1` remains disabled there.
 
 ## 21. Recommended next phase
 

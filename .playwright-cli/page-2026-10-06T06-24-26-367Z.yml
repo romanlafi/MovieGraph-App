@@ -1,0 +1,11 @@
+- generic [ref=e2]:
+  - heading "Unexpected Application Error!" [level=2] [ref=e3]
+  - heading "movies.map is not a function" [level=3] [ref=e4]
+  - generic [ref=e5]: "TypeError: movies.map is not a function at HeroMovieSlider (http://127.0.0.1:5173/src/components/hero/HeroMovieSlider.tsx:74:30) at react-stack-bottom-frame (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:17424:20) at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:4206:24) at updateFunctionComponent (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:6619:21) at beginWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:7654:20) at runWithFiberInDEV (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:1485:72) at performUnitOfWork (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10868:98) at workLoopSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10728:43) at renderRootSync (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10711:13) at performWorkOnRoot (http://127.0.0.1:5173/node_modules/.vite/deps/react-dom_client.js?v=94678962:10359:46)"
+  - paragraph [ref=e6]: 💿 Hey developer 👋
+  - paragraph [ref=e7]:
+    - text: You can provide a way better UX than this when your app throws errors by providing your own
+    - code [ref=e8]: ErrorBoundary
+    - text: or
+    - code [ref=e9]: errorElement
+    - text: prop on your route.

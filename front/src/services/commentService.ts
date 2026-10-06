@@ -1,12 +1,11 @@
 import {api} from "./api.ts";
-import {API_COMMENTS} from "../data/apiConstants.ts";
 import { Comment } from "../types/comment";
 
-export const getCommentsByMovie = async (movieId: string): Promise<Comment[]> => {
-    const res = await api.get(API_COMMENTS, { params: { movie_id: movieId } });
+export const getCommentsByMovie = async (tmdbMovieId: number): Promise<Comment[]> => {
+    const res = await api.get(`/movies/${tmdbMovieId}/comments`);
     return res.data;
 }
 
-export const postComment = async (movieId: string, text: string) => {
-    await api.post(API_COMMENTS, { movie_id: movieId, text });
+export const postComment = async (tmdbMovieId: number, text: string) => {
+    await api.post(`/movies/${tmdbMovieId}/comments`, { text });
 }

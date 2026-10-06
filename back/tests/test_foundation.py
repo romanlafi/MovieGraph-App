@@ -52,7 +52,7 @@ assert 'app.services.tmdb_service' not in sys.modules
 from fastapi.testclient import TestClient
 from app.main import app
 routes = [r for r in app.routes if r.path.startswith('/api/v1')]
-assert sum(len(r.methods - {'HEAD', 'OPTIONS'}) for r in routes) == 41
+assert sum(len(r.methods - {'HEAD', 'OPTIONS'}) for r in routes) == 42
 with TestClient(app) as client:
     assert client.get('/api/health').json() == {'status': 'ok'}
     assert client.get('/api/v1/users/me').status_code == 401

@@ -8,4 +8,16 @@ export default defineConfig({
       react(),
       tailwindcss()
   ],
+  server: {
+    proxy: {
+      "/api/tmdb": {
+        target: "http://127.0.0.1:8787",
+        changeOrigin: true,
+      },
+      "/api/v1": {
+        target: "http://127.0.0.1:8787",
+        changeOrigin: true,
+      },
+    },
+  },
 })

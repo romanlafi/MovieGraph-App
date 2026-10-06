@@ -46,6 +46,8 @@ class User(Base):
         back_populates="liked_by"
     )
 
+    movie_likes = relationship("UserMovieLike", back_populates="user", cascade="all, delete-orphan")
+
     following = relationship(
         "User",
         secondary=user_follows,

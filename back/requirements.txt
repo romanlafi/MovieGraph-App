@@ -1,6 +1,7 @@
 fastapi~=0.115.12
 uvicorn~=0.34.0
 sqlalchemy~=2.0.40
+alembic>=1.13,<2
 # Retained legacy local driver; not installed as a Worker dependency.
 psycopg2-binary~=2.9.10
 # Matches Worker driver for binding/engine tests and optional dev probes.

@@ -1,13 +1,12 @@
-import {Movie} from "../types/movie.ts";
 import {createContext, useContext, useEffect, useState} from "react";
 import {useAuth} from "../hooks/auth/useAuth.ts";
 import * as React from "react";
 import {getUserLikes, likeMovie, unlikeMovie} from "../services/moviesService.ts";
 
 interface LikeContextType {
-    likes: Movie[];
-    isLiked: (movieId: string) => boolean;
-    toggleLike: (movieId: string) => Promise<void>;
+    likes: number[];
+    isLiked: (tmdbMovieId: number) => boolean;
+    toggleLike: (tmdbMovieId: number) => Promise<void>;
     refreshLikes: () => Promise<void>;
 }
 
@@ -15,7 +14,7 @@ const LikeContext = createContext<LikeContextType | undefined>(undefined);
 
 export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
     const { token } = useAuth();
-    const [likes, setLikes] = useState<Movie[]>([]);
+    const [likes, setLikes] = useState<number[]>([]);
 
     const refreshLikes = async () => {
         if (!token) return setLikes([]);
@@ -27,20 +26,20 @@ export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const toggleLike = async (movieId: string) => {
+    const isLiked = (tmdbMovieId: number) => likes.includes(tmdbMovieId);
+
+    const toggleLike = async (tmdbMovieId: number) => {
         try {
-            if (likes.some((m) => m.id === movieId)) {
-                await unlikeMovie(movieId);
+            if (isLiked(tmdbMovieId)) {
+                await unlikeMovie(tmdbMovieId);
             } else {
-                await likeMovie(movieId);
+                await likeMovie(tmdbMovieId);
             }
             await refreshLikes();
         } catch (error) {
             console.error("Failed to toggle like", error);
         }
     };
-
-    const isLiked = (movieId: string) => likes.some((m) => m.id === movieId);
 
     useEffect(() => {
         void refreshLikes();

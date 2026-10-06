@@ -5,12 +5,10 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.deps.auth import get_current_user
 from app.exceptions import MovieNotFoundError
 from app.models.collection import Collection
 from app.models.genre import Genre
 from app.models.movie import Movie
-from app.models.user import User
 from app.schemas.genre import GenreResponse
 from app.schemas.movie import (
     MovieListResponse,
@@ -57,40 +55,6 @@ def get_movie(movie_id: int = Query(...), db: Session = Depends(get_db)):
     if not movie:
         raise MovieNotFoundError()
     return movie
-
-@router.post("/like")
-def like_movie(
-        movie_id: int = Query(...),
-        db: Session = Depends(get_db),
-        current_user=Depends(get_current_user)
-):
-    user = db.query(User).filter(User.email == current_user.email).first()
-    movie = db.query(Movie).filter(Movie.id == movie_id).first()
-    if movie not in user.likes:
-        user.likes.append(movie)
-        db.commit()
-    return {"detail": "Movie liked"}
-
-@router.delete("/like")
-def unlike_movie(
-        movie_id: int = Query(...),
-        db: Session = Depends(get_db),
-        current_user=Depends(get_current_user)
-):
-    user = db.query(User).filter(User.email == current_user.email).first()
-    movie = db.query(Movie).filter(Movie.id == movie_id).first()
-    if movie in user.likes:
-        user.likes.remove(movie)
-        db.commit()
-    return {"detail": "Movie unliked"}
-
-@router.get("/likes", response_model=List[MovieListResponse])
-def get_user_likes(
-        db: Session = Depends(get_db),
-        current_user=Depends(get_current_user)
-):
-    user = db.query(User).filter(User.email == current_user.email).first()
-    return [movie_to_list_response(m) for m in user.likes]
 
 @router.get("/genres", response_model=List[GenreResponse])
 def get_genres(db: Session = Depends(get_db)):
