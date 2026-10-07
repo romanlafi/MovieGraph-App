@@ -17,11 +17,11 @@ import bcrypt
 import httpx
 from jose import jwt
 
-from run_preview import stop_process_tree
+from local_processes import stop_process_tree
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG = ROOT / "wrangler.social-probe.jsonc"
+CONFIG = ROOT / "tools" / "diagnostics" / "wrangler.social-probe.jsonc"
 
 
 def verify_hyperdrive(environment: dict[str, str]) -> dict:
@@ -38,11 +38,11 @@ def verify_hyperdrive(environment: dict[str, str]) -> dict:
         raise RuntimeError("Unable to inspect the configured DEV Hyperdrive with Wrangler")
     start, end = response.stdout.find("{"), response.stdout.rfind("}")
     config = json.loads(response.stdout[start:end + 1])
-    if (config.get("name") != "moviegraph-dev"
+    if (config.get("name") != "moviegraph-pre"
             or config.get("origin", {}).get("database") != "moviegraph"
             or not config.get("origin", {}).get("host", "").endswith(".neon.tech")
             or config.get("caching", {}).get("disabled") is not True):
-        raise RuntimeError("Hyperdrive does not match the configured MovieGraph DEV target with caching disabled")
+        raise RuntimeError("Hyperdrive does not match MovieGraph PRE with caching disabled")
     return {"id": identifier, "name": config["name"], "database": "moviegraph", "caching_disabled": True}
 
 
@@ -87,7 +87,7 @@ def run_verification() -> dict:
         worker_config = ROOT / f"wrangler.social-verification-{fixture_id.hex}.jsonc"
         config = json.loads(CONFIG.read_text(encoding="utf-8"))
         config["name"] = worker_name
-        config["main"] = str(ROOT / config["main"])
+        config["main"] = str((CONFIG.parent / config["main"]).resolve())
         config["workers_dev"] = True
         config["vars"].update({"SECRET_KEY": signing_secret, "DB_PROBE_TOKEN": probe_secret})
         with worker_config.open("x", encoding="utf-8") as config_file:

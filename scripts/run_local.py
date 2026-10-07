@@ -14,7 +14,8 @@ from sqlalchemy.pool import NullPool
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-from run_preview import FRONTEND, FRONTEND_PORT, ROOT, WORKER_PORT, port_is_open, stop_process_tree, wait_for_port
+from local_processes import (FRONTEND, FRONTEND_PORT, ROOT, WORKER_PORT, port_is_open,
+                             stop_process_tree, wait_for_local_api, wait_for_port)
 
 
 LOCAL_CONFIG = ROOT / ".local.env"
@@ -56,8 +57,11 @@ def compose_arguments(*arguments: str) -> list[str]:
 def start_database(environment: dict[str, str]) -> None:
     if shutil.which("docker") is None:
         raise RuntimeError("Docker Desktop is required for PostgreSQL local development")
-    status = subprocess.run(["docker", "info", "--format", "{{.ServerVersion}}"],
-                            capture_output=True, text=True, timeout=20)
+    try:
+        status = subprocess.run(["docker", "info", "--format", "{{.ServerVersion}}"],
+                                capture_output=True, text=True, timeout=60)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("Docker Desktop is not responding. Wait until its engine is ready, then run MovieGraph Local again") from None
     if status.returncode:
         raise RuntimeError("Start Docker Desktop and run MovieGraph Local again")
     subprocess.run(compose_arguments("up", "--detach", "--wait", "--wait-timeout", "90", "postgres"),
@@ -88,7 +92,10 @@ def apply_local_migrations(database_url: str, environment: dict[str, str]) -> No
 
 def check_local_schema(database_url: str) -> dict:
     inventory = database_inventory(database_url)
-    required = {"users", "comments", "user_movie_likes", "alembic_version"}
+    required = {
+        "users", "comments", "user_movie_likes", "user_genre_preferences",
+        "user_follows", "alembic_version",
+    }
     migration_config = Config(str(ROOT / "back" / "alembic.ini"))
     migration_config.set_main_option("script_location", str(ROOT / "back" / "migrations"))
     expected_revision = ScriptDirectory.from_config(migration_config).get_current_head()
@@ -110,6 +117,7 @@ def run_application(environment: dict[str, str], worker_only: bool = False, work
                                   cwd=ROOT, env=environment)
         processes.append(worker)
         wait_for_port(worker, worker_port, "Worker")
+        wait_for_local_api(worker, worker_port)
         if not worker_only:
             frontend_command = ["npm.cmd", "run", "dev", "--", "--host", "127.0.0.1", "--port", str(FRONTEND_PORT), "--strictPort"]
             frontend = subprocess.Popen(["cmd.exe", "/d", "/s", "/c", " ".join(frontend_command)] if os.name == "nt" else ["npm", *frontend_command[1:]],
@@ -118,7 +126,7 @@ def run_application(environment: dict[str, str], worker_only: bool = False, work
             wait_for_port(frontend, FRONTEND_PORT, "Frontend")
         address = f"http://127.0.0.1:{worker_port}/api/health" if worker_only else "http://127.0.0.1:5173/"
         print(f"MovieGraph Local: {address} — PostgreSQL local, not Neon", flush=True)
-        print("Catalogue and authenticated comment/like routes are mounted. Registration/login/follows are still pending.", flush=True)
+        print("Catalogue, account, follows, comments, likes, and recommendations are mounted on the local database.", flush=True)
         while True:
             if any(process.poll() is not None for process in processes):
                 raise RuntimeError("A local MovieGraph process exited")

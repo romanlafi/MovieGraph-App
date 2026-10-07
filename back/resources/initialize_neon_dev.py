@@ -30,11 +30,11 @@ def temporary_environment(values: dict[str, str]):
 
 
 def request_development_url() -> str:
-    confirmation = input("Neon target must be MovieGraph > dev > moviegraph. Type DEV to continue: ")
+    confirmation = input("Neon target must be MovieGraph > PRE (formerly dev) > moviegraph. Type DEV to continue: ")
     if confirmation != "DEV":
         raise RuntimeError("Target confirmation failed; no database connection was made")
 
-    database_url = getpass.getpass("Paste the direct Neon DEV URL (input hidden): ").strip()
+    database_url = getpass.getpass("Paste the direct Neon PRE URL (input hidden): ").strip()
     parsed = make_url(database_url)
     url_parts = urlsplit(database_url)
     ssl_modes = parse_qs(url_parts.query).get("sslmode", [])

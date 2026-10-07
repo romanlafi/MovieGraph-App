@@ -1,8 +1,9 @@
 {
-  "name": "moviegraph-social-probe-dev",
-  "main": "back/app/social_probe_worker.py",
+  "name": "moviegraph-db-probe-dev",
+  "main": "../../back/app/db_probe_worker.py",
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["python_workers"],
+  "dev": { "port": 8789 },
   "vars": {
     "APP_ENV": "development",
     "DB_PROBE_ENABLED": "true",

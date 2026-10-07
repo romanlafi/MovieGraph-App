@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MovieGraph Verify Neon DEV" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="MovieGraph Verify Neon PRE" type="PythonConfigurationType" factoryName="Python" folderName="Diagnostics">
     <module name="moviegraph-worker" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

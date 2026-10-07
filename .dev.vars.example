@@ -6,6 +6,6 @@
 # TMDB_READ_ACCESS_TOKEN=replace-with-your-tmdb-read-access-token
 # TMDB_API_KEY=replace-with-your-tmdb-api-key
 # TMDB_BASE_URL=https://api.themoviedb.org/3
-# The normal Worker does not need a database URL. Production DB access uses
-# a Cloudflare Hyperdrive binding; local DB diagnostics are configured
-# separately. Never put database credentials in VITE_* variables.
+# Local database credentials are generated in .local.env; do not put Neon URLs here.
+# Remote Workers use Hyperdrive IDs in their Wrangler configs and Cloudflare secrets.
+# See docs/ENVIRONMENTS.md. Never put database credentials in VITE_* variables.

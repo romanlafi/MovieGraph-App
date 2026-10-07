@@ -3,14 +3,23 @@
   "main": "back/app/preview_worker.py",
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["python_workers"],
-  "vars": {"APP_ENV": "production", "JWT_ALGORITHM": "HS256"},
-  "hyperdrive": [
-    {"binding": "HYPERDRIVE", "id": "4cbe52bd629d47c8b2b69a3529691f78"}
-  ],
+  "preview_urls": true,
   "assets": {
     "directory": "front/dist",
     "binding": "ASSETS",
     "run_worker_first": true,
     "not_found_handling": "single-page-application"
+  },
+  "previews": {
+    "vars": {
+      "APP_ENV": "pre",
+      "JWT_ALGORITHM": "HS256"
+    },
+    "hyperdrive": [
+      {
+        "binding": "HYPERDRIVE",
+        "id": "24054140a3aa418ba1bd24b015f3d04b"
+      }
+    ]
   }
 }

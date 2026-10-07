@@ -1,5 +1,11 @@
 # Database runtime: local API and development Hyperdrive verification
 
+Current run/configuration reference: [ENVIRONMENTS.md](ENVIRONMENTS.md).
+The DEV Hyperdrive is now named `moviegraph-pre`; diagnostic configs moved to
+`tools/diagnostics/`. The PyCharm verifier is **MovieGraph Verify Neon PRE**.
+Descriptions below of the unbound base Worker refer to the original runtime
+verification phase, not today's deployment configuration.
+
 Real development Worker → Hyperdrive → Neon connectivity and transactions were **verified on 2026-10-06**, including authenticated comments and likes. The base Worker/Preview still exposes the gateway; the separate DEV social Worker mounts the limited API. Production was not changed.
 
 ## Update — 2026-10-06
@@ -28,7 +34,7 @@ The diagnostic harness serializes the complete synchronous engine/session/transa
 
 ## Isolated diagnostic harness
 
-`wrangler.db-probe.jsonc` uses `back/app/db_probe_worker.py` and port 8789. It adds only:
+`tools/diagnostics/wrangler.db-probe.jsonc` uses `back/app/db_probe_worker.py` and port 8789. It adds only:
 
 - `GET /api/internal/db-health`: SELECT 1, safe `{ "database": "ok" }`.
 - `POST /api/internal/db-probe`: controlled six-part verification on a dedicated probe table.
@@ -39,7 +45,7 @@ Only `moviegraph_runtime_probe` is used, with text UUID primary key, value and c
 
 ## Repeat real DEV verification
 
-Select **MovieGraph Verify Neon DEV** in PyCharm and press Run, or from the project root:
+Select **Diagnostics / MovieGraph Verify Neon PRE** in PyCharm and press Run, or from the project root:
 
 ```powershell
 & '.\.venv\Scripts\python.exe' scripts/verify_neon_social.py
