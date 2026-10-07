@@ -23,6 +23,22 @@ print('bcrypt: both legacy hash helpers and existing $2a$ fixture PASS')
 ''', LOCAL_CONFIG)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_worker_bcrypt_helpers_verify_legacy_hashes(self):
+        result = isolated('''
+from app.social.passwords import hash_password, verify_password
+existing = '$2a$10$WvvTPHKwdBJ3uk0Z37EMR.hLA2W6N9AEBhEgrAOljy2Ae5MtaSIUi'
+assert verify_password('abc', existing)
+assert not verify_password('wrong', existing)
+hashed = hash_password('worker-password')
+assert hashed.startswith('$2b$12$')
+assert verify_password('worker-password', hashed)
+assert not verify_password('other-password', hashed)
+long_hash = hash_password('x' * 72 + 'first suffix')
+assert verify_password('x' * 72 + 'second suffix', long_hash)
+print('Worker bcrypt helpers preserve legacy hashes and 72-byte bcrypt semantics')
+''', LOCAL_CONFIG)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

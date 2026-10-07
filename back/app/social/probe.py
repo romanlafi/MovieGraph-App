@@ -51,10 +51,10 @@ def prepare_fixture(config, fixture: FixtureCreate) -> dict:
         event.listen(engine, "close", disconnected)
         with database.session_context(engine) as session:
             baseline = inventory(session)
-            if not {"users", "comments", "user_movie_likes", "alembic_version"}.issubset(baseline):
+            if not {"users", "comments", "user_movie_likes", "user_follows", "alembic_version"}.issubset(baseline):
                 raise ValueError("Expected migrated development schema")
-            if session.scalar(text("SELECT version_num FROM alembic_version")) != "20261006_01":
-                raise ValueError("Expected development migration revision")
+            if session.scalar(text("SELECT version_num FROM alembic_version")) != "20261008_00":
+                raise ValueError("Expected Worker follow migration revision")
             if session.scalar(text("SELECT 1")) != 1:
                 raise ValueError("SELECT verification failed")
             user_id = session.scalar(text("""
@@ -107,6 +107,7 @@ def remove_fixture(config, fixture_id: UUID) -> dict:
             if user_id is not None:
                 session.execute(text("DELETE FROM comments WHERE user_id=:id"), {"id": user_id})
                 session.execute(text("DELETE FROM user_movie_likes WHERE user_id=:id"), {"id": user_id})
+                session.execute(text("DELETE FROM user_follows WHERE follower_id=:id OR followed_id=:id"), {"id": user_id})
                 session.execute(text("DELETE FROM users WHERE id=:id AND email=:email AND username=:username"),
                                 {"id": user_id, "email": fixture_email, "username": fixture_username})
         session.commit()
@@ -125,6 +126,20 @@ async def create_fixture(request: Request, fixture: FixtureCreate):
             return prepare_fixture(runtime.request_database_config(request), fixture)
     except (runtime.DatabaseConfigurationError, SQLAlchemyError, ValueError):
         raise HTTPException(503, "Development fixture preparation failed") from None
+
+
+@router.get("/password-runtime")
+async def verify_password_runtime(request: Request):
+    require_probe_access(request)
+    from .passwords import hash_password, verify_password
+
+    fixture_hash = "$2a$10$WvvTPHKwdBJ3uk0Z37EMR.hLA2W6N9AEBhEgrAOljy2Ae5MtaSIUi"
+    if not verify_password("abc", fixture_hash):
+        raise HTTPException(503, "Worker password verification is unavailable")
+    generated = hash_password("worker-password-probe")
+    if not verify_password("worker-password-probe", generated):
+        raise HTTPException(503, "Worker password hashing is unavailable")
+    return {"bcrypt": "PASS", "legacy_hash_verification": "PASS", "hash_generation": "PASS"}
 
 
 @router.delete("/social-fixture/{fixture_id}")

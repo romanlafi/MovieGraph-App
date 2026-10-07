@@ -26,6 +26,8 @@ from test_foundation import isolated
 
 SECRET = "worker-social-test-only"
 MIGRATION_PATH = Path(__file__).resolve().parents[1] / "migrations/versions/20261006_01_social_tmdb_ids.py"
+AUTH_MIGRATION_PATH = Path(__file__).resolve().parents[1] / "migrations/versions/20261007_00_worker_auth_preferences.py"
+FOLLOWS_MIGRATION_PATH = Path(__file__).resolve().parents[1] / "migrations/versions/20261008_00_worker_follows.py"
 
 
 def token(email="first@example.test", *, secret=SECRET, expires=True, algorithm="HS256"):
@@ -40,13 +42,16 @@ class SocialWorkerTests(unittest.TestCase):
         self.directory = TemporaryDirectory()
         self.database_url = f"sqlite+pysqlite:///{Path(self.directory.name) / 'social.db'}"
         self.engine = create_engine(self.database_url)
-        spec = importlib.util.spec_from_file_location("worker_social_migration_fixture", MIGRATION_PATH)
-        migration = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(migration)
         with self.engine.begin() as connection:
-            operations = Operations(MigrationContext.configure(connection))
-            with patch.object(migration, "op", operations):
-                migration.upgrade()
+            for module_name, path in (("worker_social_migration_fixture", MIGRATION_PATH),
+                                      ("worker_auth_migration_fixture", AUTH_MIGRATION_PATH),
+                                      ("worker_follows_migration_fixture", FOLLOWS_MIGRATION_PATH)):
+                spec = importlib.util.spec_from_file_location(module_name, path)
+                migration = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(migration)
+                operations = Operations(MigrationContext.configure(connection))
+                with patch.object(migration, "op", operations):
+                    migration.upgrade()
             connection.execute(text("""
                 INSERT INTO users (id, email, username, password)
                 VALUES (1, 'first@example.test', 'first', 'unused'),
@@ -55,7 +60,8 @@ class SocialWorkerTests(unittest.TestCase):
         config = SimpleNamespace(url=make_url(self.database_url), worker=False)
         self.config_patch = patch.object(routes.runtime, "request_database_config", return_value=config)
         self.config_resolver = self.config_patch.start()
-        self.app = create_app(include_legacy_api=False, include_social_api=True)
+        self.app = create_app(include_legacy_api=False, include_social_api=True,
+                              include_account_api=True, include_follows_api=True)
         self.env = {"SECRET_KEY": SECRET, "JWT_ALGORITHM": "HS256"}
 
         @self.app.middleware("http")
@@ -90,7 +96,9 @@ class SocialWorkerTests(unittest.TestCase):
         with self.engine.connect() as connection:
             self.assertEqual(connection.execute(text("SELECT count(*) FROM user_movie_likes")).scalar_one(), 1)
             self.assertEqual(connection.execute(text("SELECT user_id FROM comments")).scalar_one(), 1)
-            self.assertEqual(set(inspect(connection).get_table_names()), {"users", "comments", "user_movie_likes"})
+            self.assertEqual(set(inspect(connection).get_table_names()), {
+                "users", "comments", "user_movie_likes", "user_genre_preferences", "user_follows",
+            })
         for attempt in range(2):
             self.assertEqual(self.client.delete(f"/api/v1/movies/{movie_id}/like", headers=self.headers).status_code, 200)
         self.assertFalse(self.client.get(f"/api/v1/movies/{movie_id}/like", headers=self.headers).json()["liked"])
@@ -129,6 +137,94 @@ class SocialWorkerTests(unittest.TestCase):
             """))
         response = self.client.get("/api/v1/movies/550/comments")
         self.assertEqual([(row["comment_id"], row["username"]) for row in response.json()], [(12, "second"), (11, "first")])
+
+    def test_worker_registration_login_and_profile_preserve_account_preferences(self):
+        account = {
+            "username": "new-user",
+            "email": "new@example.com",
+            "password": "a-long-enough-password",
+            "birthdate": "1990-04-12",
+            "bio": "Movie fan",
+            "favorite_genres": ["Drama", "Science Fiction", "Drama"],
+        }
+        registered = self.client.post("/api/v1/users/", json=account)
+        self.assertEqual(registered.status_code, 201, registered.text)
+        self.assertEqual(registered.json(), {"email": "new@example.com", "username": "new-user"})
+
+        duplicate_email = self.client.post("/api/v1/users/", json={**account, "username": "another"})
+        self.assertEqual(duplicate_email.status_code, 409)
+        duplicate_username = self.client.post("/api/v1/users/", json={**account, "email": "other@example.com"})
+        self.assertEqual(duplicate_username.status_code, 409)
+
+        invalid_login = self.client.post("/api/v1/users/login", data={
+            "username": account["email"], "password": "incorrect",
+        })
+        self.assertEqual(invalid_login.status_code, 401)
+        login = self.client.post("/api/v1/users/login", data={
+            "username": account["email"], "password": account["password"],
+        })
+        self.assertEqual(login.status_code, 200, login.text)
+        access_token = login.json()["access_token"]
+        profile = self.client.get("/api/v1/users/me", headers={"Authorization": f"Bearer {access_token}"})
+        self.assertEqual(profile.status_code, 200, profile.text)
+        self.assertEqual(profile.json(), {
+            "email": account["email"],
+            "username": account["username"],
+            "birthdate": account["birthdate"],
+            "bio": account["bio"],
+            "favorite_genres": ["Drama", "Science Fiction"],
+        })
+        with self.engine.connect() as connection:
+            self.assertEqual(connection.execute(text("SELECT count(*) FROM users WHERE email=:email"),
+                                              {"email": account["email"]}).scalar_one(), 1)
+            self.assertTrue(connection.execute(text("SELECT password FROM users WHERE email=:email"),
+                                               {"email": account["email"]}).scalar_one().startswith("$2b$"))
+            self.assertEqual(connection.execute(text("SELECT count(*) FROM user_genre_preferences" )).scalar_one(), 2)
+
+    def test_worker_follow_routes_preserve_contract_and_authentication(self):
+        with self.engine.begin() as connection:
+            connection.execute(text("UPDATE users SET email='first@example.com' WHERE id=1"))
+            connection.execute(text("UPDATE users SET email='second@example.com' WHERE id=2"))
+        first_headers = {"Authorization": f"Bearer {token('first@example.com')}"}
+        second_headers = {"Authorization": f"Bearer {token('second@example.com')}"}
+        self.assertEqual(self.client.get("/api/v1/follows/following").status_code, 401)
+        self.assertEqual(self.client.post("/api/v1/follows/", json={"email": "absent@example.com"},
+                                          headers=first_headers).status_code, 404)
+        self.assertEqual(self.client.post("/api/v1/follows/", json={"email": "second@example.com"},
+                                          headers=first_headers).status_code, 200)
+        self.assertEqual(self.client.post("/api/v1/follows/", json={"email": "second@example.com"},
+                                          headers=first_headers).status_code, 200)
+        self.assertEqual(self.client.get("/api/v1/follows/following", headers=first_headers).json()[0]["email"],
+                         "second@example.com")
+        self.assertEqual(self.client.get("/api/v1/follows/followers", headers=second_headers).json()[0]["email"],
+                         "first@example.com")
+        self.assertEqual(self.client.get("/api/v1/follows/search?query=second", headers=first_headers).json()[0]["id"], 2)
+        with self.engine.begin() as connection:
+            connection.execute(text("INSERT INTO user_movie_likes VALUES (1, 550), (2, 550), (2, 680)"))
+        self.assertEqual(self.client.get("/api/v1/follows/movie-likes", headers=first_headers).json(), [550, 680])
+        self.assertEqual(self.client.request("DELETE", "/api/v1/follows/", json={"email": "second@example.com"},
+                                              headers=first_headers).status_code, 200)
+        self.assertEqual(self.client.request("DELETE", "/api/v1/follows/", json={"email": "second@example.com"},
+                                              headers=first_headers).status_code, 200)
+        self.assertEqual(self.client.get("/api/v1/follows/following", headers=first_headers).json(), [])
+
+    def test_password_runtime_probe_is_available_only_through_development_harness(self):
+        from app.social.probe import install_social_probe
+
+        install_social_probe(self.app)
+        self.env.update({
+            "APP_ENV": "development",
+            "DB_PROBE_ENABLED": "true",
+            "DB_PROBE_DEVELOPMENT_DATABASE": "true",
+            "DB_PROBE_TOKEN": "password-probe-test-only",
+        })
+        response = self.client.get("/api/internal/password-runtime", headers={
+            "Authorization": "Bearer password-probe-test-only",
+        })
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json(), {
+            "bcrypt": "PASS", "legacy_hash_verification": "PASS", "hash_generation": "PASS",
+        })
 
     def test_failed_write_rolls_back_releases_lock_and_sanitizes_error(self):
         def fail_after_insert(db, user, tmdb_movie_id, comment_text):
@@ -176,7 +272,7 @@ import builtins
 import sys
 original_import = builtins.__import__
 def guarded_import(name, *args, **kwargs):
-    if name.startswith(('app.models', 'app.core.config', 'app.deps.auth', 'app.api.v1', 'passlib', 'bcrypt', 'psycopg2')):
+    if name.startswith(('app.models', 'app.core.config', 'app.deps.auth', 'app.api.v1', 'passlib', 'psycopg2')):
         raise AssertionError('Forbidden legacy import: ' + name)
     return original_import(name, *args, **kwargs)
 builtins.__import__ = guarded_import
@@ -185,9 +281,11 @@ from fastapi.testclient import TestClient
 with TestClient(create_app(include_legacy_api=False, include_social_api=True)) as client:
     assert client.get('/api/health').status_code == 200
     assert client.post('/api/v1/movies/550/like').status_code == 401
-    assert client.post('/api/v1/users/login').status_code == 404
-    assert client.get('/api/v1/follows').status_code == 404
+    assert client.get('/api/v1/follows/following').status_code == 404
     assert client.get('/api/internal/db-health').status_code == 404
+    assert '/api/v1/users/login' not in client.app.openapi()['paths']
+account_app = create_app(include_legacy_api=False, include_social_api=True, include_account_api=True)
+assert '/api/v1/users/login' in account_app.openapi()['paths']
 assert not any(name.startswith('app.models') for name in sys.modules)
 """)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -210,7 +308,7 @@ assert not any(name.startswith('app.models') for name in sys.modules)
         with self.engine.begin() as connection:
             self.assertEqual(connection.scalar(text("SELECT count(*) FROM users")), 2)
             connection.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)"))
-            connection.execute(text("INSERT INTO alembic_version VALUES ('20261006_01')"))
+            connection.execute(text("INSERT INTO alembic_version VALUES ('20261008_00')"))
         fixture = self.client.post("/api/internal/social-fixture", json=payload, headers=admin_headers)
         self.assertEqual(fixture.status_code, 200, fixture.text)
         self.assertTrue(all(value == "PASS" for value in fixture.json()["runtime"].values()))

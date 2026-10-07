@@ -3,11 +3,11 @@ name = "moviegraph-worker"
 version = "0.1.0"
 description = "MovieGraph FastAPI Worker catalogue gateway and social API"
 requires-python = ">=3.13"
-dependencies = ["fastapi~=0.115.12", "sqlalchemy~=2.0.40", "pg8000~=1.31.5", "python-jose~=3.4.0"]
+dependencies = ["fastapi~=0.115.12", "sqlalchemy~=2.0.40", "pg8000~=1.31.5", "python-jose~=3.4.0", "bcrypt~=5.0.0", "email-validator~=2.2.0", "python-multipart~=0.0.20"]
 
 [dependency-groups]
 dev = ["workers-py", "workers-runtime-sdk"]
 
-# Legacy psycopg2/password hashing remain local in back/requirements.txt.
-# Worker DB uses synchronous SQLAlchemy/pg8000. Catalogue HTTP uses
-# native workers.fetch; HTTPX remains a local-only dependency.
+# Legacy psycopg2 and Passlib remain local in back/requirements.txt. The Worker
+# uses Pyodide-supported bcrypt directly; catalogue HTTP uses native workers.fetch.
+# HTTPX remains a local-only dependency.

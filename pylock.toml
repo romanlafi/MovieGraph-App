@@ -18,9 +18,27 @@ version = "1.5.1"
 wheels = [{ url = "https://files.pythonhosted.org/packages/c9/7f/09065fd9e27da0eda08b4d6897f1c13535066174cc023af248fc2a8d5e5a/asn1crypto-1.5.1-py2.py3-none-any.whl", upload-time = 2022-03-15T14:46:51Z, size = 105045, hashes = { sha256 = "db4e40728b728508912cbb3d44f19ce188f218e9eba635821bb4b68564f8fd67" } }]
 
 [[packages]]
+name = "bcrypt"
+version = "5.0.0"
+wheels = [{ url = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/bcrypt-5.0.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl", hashes = { sha256 = "be8dd797737c16ca71c0bbc065a4f9bad2dae5a3f6943d9a4455a4eae195f528" } }]
+
+[[packages]]
+name = "dnspython"
+version = "2.8.0"
+wheels = [
+    { url = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/dnspython-2.8.0-py3-none-any.whl", hashes = { sha256 = "3f00404c101f22526ae56bc1a7510cc9306c8ace1ec615865bff399471522249" } },
+    { url = "https://files.pythonhosted.org/packages/ba/5a/18ad964b0086c6e62e2e7500f7edc89e3faa45033c71c1893d34eed2b2de/dnspython-2.8.0-py3-none-any.whl", hashes = { sha256 = "01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af" } },
+]
+
+[[packages]]
 name = "ecdsa"
 version = "0.19.2"
 wheels = [{ url = "https://files.pythonhosted.org/packages/51/79/119091c98e2bf49e24ed9f3ae69f816d715d2904aefa6a2baa039a2ba0b0/ecdsa-0.19.2-py2.py3-none-any.whl", upload-time = 2026-03-26T09:58:15Z, size = 150818, hashes = { sha256 = "840f5dc5e375c68f36c1a7a5b9caad28f95daa65185c9253c0c08dd952bb7399" } }]
+
+[[packages]]
+name = "email-validator"
+version = "2.2.0"
+wheels = [{ url = "https://files.pythonhosted.org/packages/d7/ee/bf0adb559ad3c786f12bcbc9296b3f5675f529199bef03e2df281fa1fadb/email_validator-2.2.0-py3-none-any.whl", upload-time = 2024-06-20T11:30:28Z, size = 33521, hashes = { sha256 = "561977c2d73ce3611850a06fa56b414621e0c8faa9d66f2611407d87465da631" } }]
 
 [[packages]]
 name = "fastapi"
@@ -67,6 +85,11 @@ wheels = [
 name = "python-jose"
 version = "3.4.0"
 wheels = [{ url = "https://files.pythonhosted.org/packages/63/b0/2586ea6b6fd57a994ece0b56418cbe93fff0efb85e2c9eb6b0caf24a4e37/python_jose-3.4.0-py2.py3-none-any.whl", upload-time = 2025-02-18T17:26:40Z, size = 34616, hashes = { sha256 = "9c9f616819652d109bd889ecd1e15e9a162b9b94d682534c9c2146092945b78f" } }]
+
+[[packages]]
+name = "python-multipart"
+version = "0.0.32"
+wheels = [{ url = "https://files.pythonhosted.org/packages/e1/04/e8135ebd1ad02c56ec633277529b2602ff99ff634be76cdba5744cf554fd/python_multipart-0.0.32-py3-none-any.whl", upload-time = 2026-06-04T16:18:57Z, size = 30042, hashes = { sha256 = "ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23" } }]
 
 [[packages]]
 name = "rsa"

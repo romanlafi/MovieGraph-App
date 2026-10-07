@@ -1,12 +1,16 @@
 import importlib.util
+import os
 import json
 from pathlib import Path
 import sys
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
+from urllib.error import HTTPError
+from xml.etree import ElementTree
 
 from resources.migration_target import validate_migration_target
+from test_foundation import isolated
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,9 +18,77 @@ sys.path.insert(0, str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location("moviegraph_run_local", ROOT / "scripts" / "run_local.py")
 local = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(local)
+import local_processes
+import deploy_worker
 
 
 class LocalDevelopmentTests(unittest.TestCase):
+    def test_pycharm_has_one_local_run_with_explicit_local_setup_before_launch(self):
+        names = {}
+        for path in (ROOT / ".run").glob("*.run.xml"):
+            configuration = ElementTree.parse(path).getroot().find("configuration")
+            names[configuration.attrib["name"]] = configuration
+        self.assertEqual(set(names), {
+            "MovieGraph Local", "MovieGraph Setup Local DB",
+            "MovieGraph Migrate Neon PRE", "MovieGraph Verify Neon PRE",
+        })
+        before_launch = names["MovieGraph Local"].find("method/option")
+        self.assertEqual(before_launch.attrib["run_configuration_name"], "MovieGraph Setup Local DB")
+        self.assertEqual(before_launch.attrib["enabled"], "true")
+        self.assertEqual(names["MovieGraph Setup Local DB"].find("option[@name='PARAMETERS']").attrib["value"], "--setup-db")
+
+    def test_deployment_commands_reject_wrong_git_branches(self):
+        for target, branch in (("staging", "main"), ("staging", "cloudflare-refactor"),
+                               ("production", "staging"), ("production", "")):
+            with self.subTest(target=target, branch=branch), self.assertRaises(RuntimeError):
+                deploy_worker.deployment_command(target, branch)
+        staging = deploy_worker.deployment_command("staging", "staging")
+        production = deploy_worker.deployment_command("production", "main")
+        self.assertIn("preview", staging)
+        self.assertIn("wrangler.preview.jsonc", staging)
+        self.assertIn("deploy", production)
+        self.assertIn("wrangler.jsonc", production)
+
+    def test_deployed_configs_use_distinct_hyperdrive_bindings(self):
+        production = json.loads((ROOT / "wrangler.jsonc").read_text())
+        staging = json.loads((ROOT / "wrangler.preview.jsonc").read_text())
+        self.assertEqual(production["name"], staging["name"])
+        self.assertEqual(production["main"], staging["main"])
+        self.assertEqual(production["hyperdrive"][0]["id"], "4cbe52bd629d47c8b2b69a3529691f78")
+        self.assertNotIn("hyperdrive", staging)
+        self.assertEqual(staging["previews"]["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
+        self.assertNotIn("previews", production)
+        for config in (production, staging):
+            self.assertTrue((ROOT / config["main"]).is_file())
+            self.assertTrue(config["assets"]["run_worker_first"])
+            self.assertNotIn("SECRET_KEY", config.get("vars", {}))
+        for path in (ROOT / "tools" / "diagnostics").glob("wrangler*.jsonc"):
+            config = json.loads(path.read_text())
+            self.assertTrue((path.parent / config["main"]).resolve().is_file())
+            self.assertEqual(config["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
+
+    def test_docker_timeout_gives_an_actionable_message_without_credentials(self):
+        with patch.object(local.shutil, "which", return_value="docker"), \
+                patch.object(local.subprocess, "run", side_effect=local.subprocess.TimeoutExpired("docker info", 60)):
+            with self.assertRaisesRegex(RuntimeError, "Docker Desktop is not responding"):
+                local.start_database({})
+
+    def test_local_readiness_requires_protected_account_route_not_only_open_port(self):
+        worker = Mock()
+        worker.poll.return_value = None
+        health = Mock()
+        health.__enter__ = Mock(return_value=Mock(status=200))
+        health.__exit__ = Mock(return_value=False)
+        for status, succeeds in ((401, True), (404, False), (500, False)):
+            with self.subTest(status=status), patch.object(local_processes, "urlopen", side_effect=[
+                health, HTTPError("http://localhost/api/v1/users/me", status, "fixture", {}, None),
+            ]):
+                if succeeds:
+                    local_processes.wait_for_local_api(worker, 8787)
+                else:
+                    with self.assertRaises(RuntimeError):
+                        local_processes.wait_for_local_api(worker, 8787)
+
     def test_local_migration_target_cannot_select_remote_or_other_databases(self):
         valid = "postgresql+pg8000://moviegraph_local:private@127.0.0.1:5442/moviegraph_local"
         validate_migration_target(valid, "local-development", "1")
@@ -90,6 +162,24 @@ class LocalDevelopmentTests(unittest.TestCase):
         compose = (ROOT / "compose.local.yaml").read_text()
         self.assertIn('"127.0.0.1:5442:5432"', compose)
         self.assertNotIn("pg_data:", compose)
+
+    def test_local_worker_mounts_account_and_follow_routes(self):
+        application_path = ROOT / "back" / "app"
+        backend_path = ROOT / "back"
+        python_path = os.pathsep.join((str(application_path), str(backend_path)))
+        result = isolated("""
+import sys, types
+workers = types.ModuleType('workers')
+workers.asgi = types.SimpleNamespace(entrypoint=lambda app: app)
+sys.modules['workers'] = workers
+import local_worker
+paths = {route.path for route in local_worker.app.routes}
+assert '/api/v1/users/' in paths
+assert '/api/v1/users/login' in paths
+assert '/api/v1/users/me' in paths
+assert '/api/v1/follows/movie-likes' in paths
+""", {"PYTHONPATH": python_path})
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_worker_and_frontend_are_cleaned_when_startup_fails(self):
         worker = Mock()
