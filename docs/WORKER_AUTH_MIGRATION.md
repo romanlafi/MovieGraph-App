@@ -76,6 +76,12 @@ is not bypassed, hashes are not rewritten, and production was not deployed.
   duplicate identities, preference round-trip and bcrypt legacy verification.
 - Actual local Workerd password probe: HTTP 200 for legacy verification and new
   hash generation; no database binding or Neon request was made.
+- Actual local Worker + local PostgreSQL flow on 2026-10-07: registration HTTP
+  201, login HTTP 200, profile HTTP 200 with saved genre preferences; follows
+  create/list/unfollow and followed-movie-like listing all passed. Two disposable
+  fixture users and their social rows were removed afterward. This verifies the
+  local runtime only; PRE migrations, deployment and production CPU limits remain
+  unverified.
 - Frontend lint: zero errors, four existing warnings. Frontend production build
   passed.
 - Neon migration/operation tests: **not run**. Cloudflare remote deployment:
