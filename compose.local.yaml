@@ -1,0 +1,21 @@
+name: moviegraph-local
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: moviegraph_local
+      POSTGRES_DB: moviegraph_local
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD:?Run MovieGraph Setup Local DB first}
+    ports:
+      - "127.0.0.1:5442:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moviegraph_local -d moviegraph_local"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres_data:

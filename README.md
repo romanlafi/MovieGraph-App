@@ -2,6 +2,8 @@
 
 Migration status: catalogue browsing now uses the Cloudflare Python Worker `/api/tmdb` gateway without a database: search, Home, movie/person details, credits, genres, latest/top-rated lists, featured collections and related catalogue views. Run **MovieGraph Preview** in PyCharm to try it with the existing `.dev.vars`. Comments/likes are separately verified against Neon DEV through Hyperdrive; login/account, follows and personalized recommendations still need Worker migration. No legacy catalogue tables have been deleted. See the [catalogue migration report](docs/CATALOGUE_READ_MIGRATION.md), [social migration report](docs/SOCIAL_TMDB_ID_MIGRATION.md), [database runtime report](docs/DATABASE_RUNTIME_REPORT.md) and [local setup](docs/LOCAL_DEVELOPMENT.md). Docker instructions below describe the legacy stack, not the target production runtime.
 
+For isolated database development, start Docker Desktop, run **MovieGraph Setup Local DB** once in PyCharm, then **MovieGraph Local**. It starts the local Worker/Vite against a dedicated local PostgreSQL without requiring another Neon URL. This currently covers catalogue and authenticated comments/likes, not registration/login. See [Local / PRE / PROD](docs/ENVIRONMENTS.md).
+
 MovieGraph is a full-stack web application that allows users to discover, follow, and interact with movies and other users. It's built using **FastAPI** (Python) for the backend, **React + TypeScript** for the frontend, and **PostgreSQL** for data storage — all orchestrated with Docker.
 
 ---

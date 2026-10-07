@@ -1,0 +1,15 @@
+{
+  "name": "moviegraph-local",
+  "main": "back/app/local_worker.py",
+  "compatibility_date": "2026-10-02",
+  "compatibility_flags": ["python_workers"],
+  "env": {
+    "local": {
+      "name": "moviegraph-local",
+      "vars": {"APP_ENV": "local", "JWT_ALGORITHM": "HS256"},
+      "hyperdrive": [
+        {"binding": "HYPERDRIVE", "id": "00000000000000000000000000000000"}
+      ]
+    }
+  }
+}

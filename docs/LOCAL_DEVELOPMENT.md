@@ -4,6 +4,19 @@ The local FastAPI/PostgreSQL API remains intact. The default Preview Worker expo
 
 ## Existing local API
 
+### PyCharm: local Worker + isolated PostgreSQL (recommended)
+
+Start Docker Desktop, run **MovieGraph Setup Local DB** once, then run
+**MovieGraph Local**. Open <http://127.0.0.1:5173/>. Stop Preview first if it is
+running on the same ports. The launcher manages local credentials; no Neon URL
+is needed. Setup alone applies explicit Alembic migrations; normal Run does not.
+See [environment separation and commands](ENVIRONMENTS.md).
+
+This runs the migrated catalogue and authenticated comments/likes slice, not
+the complete legacy API. Registration/login, follows and personalized
+recommendations still need Worker migration. The Uvicorn instructions below
+describe the older full-app compatibility workflow, not this local Worker.
+
 ### PyCharm: catalogue preview (no database)
 
 Select **MovieGraph Preview** from the Run selector and

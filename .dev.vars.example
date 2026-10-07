@@ -1,5 +1,7 @@
 # Worker health needs no secrets. /api/tmdb reads these bindings per request.
 # Copy to .dev.vars locally; use Worker secrets in Cloudflare.
+# MovieGraph Local generates .dev.vars.local and .local.env automatically.
+# Keep the TMDB credential here; do not paste Neon URLs for that local workflow.
 # Prefer the TMDB read access token; API key remains supported as an alternative.
 # TMDB_READ_ACCESS_TOKEN=replace-with-your-tmdb-read-access-token
 # TMDB_API_KEY=replace-with-your-tmdb-api-key

@@ -3,6 +3,7 @@
 .venv-workers/
 python_modules/
 .wrangler/
+.local.env
 wrangler.social-verification-*.jsonc
 scripts/__pycache__/
 **/.wrangler/
