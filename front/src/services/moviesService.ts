@@ -48,8 +48,8 @@ export const getCollections = async (): Promise<Collection[]> => {
     return (await getTmdbCatalogue<CatalogueCollection[]>("collections")).map(toCollection);
 };
 
-export const getUserLikes = async (): Promise<number[]> => {
-    const res = await api.get(`${API_MOVIES}likes`);
+export const getUserLikes = async (signal?: AbortSignal): Promise<number[]> => {
+    const res = await api.get<number[]>(`${API_MOVIES}likes`, {signal});
     return res.data;
 };
 

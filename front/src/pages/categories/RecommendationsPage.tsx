@@ -3,9 +3,7 @@ import {Movie} from "../../types/movie.ts";
 import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
 import Container from "../../components/layout/Container.tsx";
 import {
-    getFriendsRecommendations,
-    getHeroRecommendations, getRecommendationsFromLikes,
-    getRecommendedPeople
+    getPersonalizedRecommendations,
 } from "../../services/recommendationsService.ts";
 import HeroMovieSlider from "../../components/hero/HeroMovieSlider.tsx";
 import MovieCarousel from "../../components/movie/MovieCarousel.tsx";
@@ -22,25 +20,21 @@ export default function RecommendationsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchRecommendations = async () => {
-            try {
-                const heroRes = await getHeroRecommendations();
-                const likeMoviesResp = await getRecommendationsFromLikes();
-                const peopleRes = await getRecommendedPeople();
-                const friendsRes = await getFriendsRecommendations();
+        const controller = new AbortController();
+        setLoading(true);
+        void getPersonalizedRecommendations(controller.signal).then(recommendations => {
+            if (controller.signal.aborted) return;
+            setHero(recommendations.hero);
+            setLikeMovies(recommendations.basedOnLikes);
+            setPeople(recommendations.familiarFaces);
+            setFriends(recommendations.fromFriends);
+        }).catch(error => {
+            if (!controller.signal.aborted) console.error("Failed to fetch recommendations", error);
+        }).finally(() => {
+            if (!controller.signal.aborted) setLoading(false);
+        });
 
-                setHero(heroRes);
-                setLikeMovies(likeMoviesResp);
-                setPeople(peopleRes);
-                setFriends(friendsRes);
-            } catch (error) {
-                console.error("Failed to fetch recommendations", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        void fetchRecommendations();
+        return () => controller.abort();
     }, []);
 
     if (loading) return <LoadingSpinner />;

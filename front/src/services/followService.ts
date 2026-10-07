@@ -17,6 +17,11 @@ export const getMyFollowers = async (): Promise<User[]> => {
     return res.data;
 };
 
+export const getFollowedMovieLikes = async (signal?: AbortSignal): Promise<number[]> => {
+    const res = await api.get<number[]>(`${API_FOLLOWS}movie-likes`, {signal});
+    return res.data;
+};
+
 export const followUser = async (email: string): Promise<void> => {
     await api.post(API_FOLLOWS, { email });
 };

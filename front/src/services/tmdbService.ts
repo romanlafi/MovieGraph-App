@@ -12,8 +12,12 @@ export const searchTmdbMovies = async (query: string, page = 1): Promise<TmdbMov
     return res.data;
 };
 
-export const getTmdbCatalogue = async <Response>(path: string, params?: Record<string, string | number | boolean>): Promise<Response> => {
+export const getTmdbCatalogue = async <Response>(
+    path: string,
+    params?: Record<string, string | number | boolean>,
+    signal?: AbortSignal,
+): Promise<Response> => {
     const baseURL = (api.defaults.baseURL ?? "/api/v1").replace(/\/api\/v1\/?$/, "");
-    const res = await api.get<Response>(`/api/tmdb/${path}`, {baseURL, params});
+    const res = await api.get<Response>(`/api/tmdb/${path}`, {baseURL, params, signal});
     return res.data;
 };
