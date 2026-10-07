@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import Container from "../../components/layout/Container.tsx";
 import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
 import TextInput from "../../components/ui/inputs/TextInput.tsx";
@@ -9,6 +9,7 @@ import FollowButton from "../../components/user/FollowButton.tsx";
 import {getMyFollowers, getMyFollowing, searchUsers} from "../../services/followService.ts";
 import UserCard from "../../components/user/UserCard.tsx";
 import Text from "../../components/ui/Text.tsx";
+import {useAuth} from "../../hooks/auth/useAuth.ts";
 
 export default function SocialPage() {
     const [query, setQuery] = useState("");
@@ -16,23 +17,35 @@ export default function SocialPage() {
     const [loading, setLoading] = useState(false);
     const [followers, setFollowers] = useState<User[]>([]);
     const [following, setFollowing] = useState<User[]>([]);
+    const { token } = useAuth();
+    const requestId = useRef(0);
 
-    useEffect(() => {
-        const fetchFollows = async () => {
-            try {
-                const [followersData, followingData] = await Promise.all([
-                    getMyFollowers(),
-                    getMyFollowing(),
-                ]);
+    const refreshFollows = useCallback(async () => {
+        const currentRequestId = ++requestId.current;
+        if (!token) {
+            setFollowers([]);
+            setFollowing([]);
+            return;
+        }
+        try {
+            const [followersData, followingData] = await Promise.all([
+                getMyFollowers(),
+                getMyFollowing(),
+            ]);
+            if (currentRequestId === requestId.current) {
                 setFollowers(followersData);
                 setFollowing(followingData);
-            } catch (error) {
-                console.error("Failed to load follow data", error);
             }
-        };
+        } catch (error) {
+            console.error("Failed to load follow data", error);
+        }
+    }, [token]);
 
-        void fetchFollows();
-    }, []);
+    useEffect(() => {
+        setFollowers([]);
+        setFollowing([]);
+        void refreshFollows();
+    }, [refreshFollows]);
 
     const handleSearch = async () => {
         if (query.length < 2) return;
@@ -47,28 +60,11 @@ export default function SocialPage() {
         }
     };
 
-    const refreshFollows = async () => {
-        try {
-            const [followersData, followingData] = await Promise.all([
-                getMyFollowers(),
-                getMyFollowing(),
-            ]);
-            setFollowers(followersData);
-            setFollowing(followingData);
-        } catch (error) {
-            console.error("Failed to load follow data", error);
-        }
-    };
-
-    useEffect(() => {
-        void refreshFollows();
-    }, []);
-
     return (
         <Container className="space-y-10 mt-10">
             <Title title="Your Network" />
 
-            {followers.length > 0 && (
+            {token && followers.length > 0 && (
                 <div>
                     <Title title="Your Followers" as="h2" size="sm" className="mb-2"/>
                     <div className="flex overflow-x-auto gap-4 pb-2">
@@ -79,7 +75,7 @@ export default function SocialPage() {
                 </div>
             )}
 
-            {following.length > 0 && (
+            {token && following.length > 0 && (
                 <div>
                     <Title title="You're Following" as="h2" size="sm" className="mb-2"/>
 

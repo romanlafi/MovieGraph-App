@@ -1,5 +1,5 @@
 import {User} from "../types/user.ts";
-import {createContext, useContext, useEffect, useState} from "react";
+import {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useAuth} from "../hooks/auth/useAuth.ts";
 import * as React from "react";
 import {followUser, getMyFollowing, unfollowUser} from "../services/followService.ts";
@@ -15,23 +15,29 @@ const FollowContext = createContext<FollowContextType | undefined>(undefined);
 
 export const FollowProvider = ({ children }: { children: React.ReactNode }) => {
     const [following, setFollowing] = useState<User[]>([]);
-    const { user } = useAuth();
+    const { user, token } = useAuth();
+    const requestId = useRef(0);
+
+    const refreshFollowing = useCallback(async () => {
+        const currentRequestId = ++requestId.current;
+        if (!token || !user) {
+            setFollowing([]);
+            return;
+        }
+        try {
+            const followingList = await getMyFollowing();
+            if (currentRequestId === requestId.current) setFollowing(followingList);
+        } catch (error) {
+            console.error("Failed to load following", error);
+        }
+    }, [token, user]);
 
     useEffect(() => {
-        if (user) {
-            void refreshFollowing();
-        }
-    }, [user]);
-
-    const refreshFollowing = async () => {
-        if (user) {
-            const followingList = await getMyFollowing(); // Fetch from API
-            setFollowing(followingList);
-        }
-    };
+        void refreshFollowing();
+    }, [refreshFollowing]);
 
     const isFollowing = (userEmail: string) => {
-        return following.some(user => user.email === userEmail);
+        return Boolean(token && user && following.some(followedUser => followedUser.email === userEmail));
     };
 
     const toggleFollow = async (userEmail: string) => {
@@ -44,7 +50,7 @@ export const FollowProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <FollowContext.Provider value={{ following, isFollowing, toggleFollow, refreshFollowing }}>
+        <FollowContext.Provider value={{ following: token && user ? following : [], isFollowing, toggleFollow, refreshFollowing }}>
             {children}
         </FollowContext.Provider>
     );

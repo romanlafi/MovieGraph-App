@@ -1,7 +1,7 @@
-import {createContext, useContext, useEffect, useState} from "react";
+import {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useAuth} from "../hooks/auth/useAuth.ts";
 import * as React from "react";
-import {getUserLikes, likeMovie, unlikeMovie} from "../services/moviesService.ts";
+import {getUserLikes, likeMovie, unlikeMovie} from "../services/movieLikesService.ts";
 
 interface LikeContextType {
     likes: number[];
@@ -15,18 +15,23 @@ const LikeContext = createContext<LikeContextType | undefined>(undefined);
 export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
     const { token } = useAuth();
     const [likes, setLikes] = useState<number[]>([]);
+    const requestId = useRef(0);
 
-    const refreshLikes = async () => {
-        if (!token) return setLikes([]);
+    const refreshLikes = useCallback(async () => {
+        const currentRequestId = ++requestId.current;
+        if (!token) {
+            setLikes([]);
+            return;
+        }
         try {
             const data = await getUserLikes();
-            setLikes(data);
+            if (currentRequestId === requestId.current) setLikes(data);
         } catch (error) {
             console.error("Error fetching likes", error);
         }
-    };
+    }, [token]);
 
-    const isLiked = (tmdbMovieId: number) => likes.includes(tmdbMovieId);
+    const isLiked = (tmdbMovieId: number) => Boolean(token && likes.includes(tmdbMovieId));
 
     const toggleLike = async (tmdbMovieId: number) => {
         try {
@@ -43,10 +48,10 @@ export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         void refreshLikes();
-    }, [token]);
+    }, [refreshLikes]);
 
     return (
-        <LikeContext.Provider value={{ likes, isLiked, toggleLike, refreshLikes }}>
+        <LikeContext.Provider value={{ likes: token ? likes : [], isLiked, toggleLike, refreshLikes }}>
             {children}
         </LikeContext.Provider>
     );

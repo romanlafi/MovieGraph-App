@@ -1,5 +1,3 @@
-import {api} from "./api.ts";
-import {API_MOVIES} from "../data/apiConstants.ts";
 import type {Movie} from "../types/movie.ts";
 import type {Genre} from "../types/genre.ts";
 import type {Collection} from "../types/collection.ts";
@@ -46,21 +44,6 @@ export const getGenres = async (): Promise<Genre[]> => {
 
 export const getCollections = async (): Promise<Collection[]> => {
     return (await getTmdbCatalogue<CatalogueCollection[]>("collections")).map(toCollection);
-};
-
-export const getUserLikes = async (signal?: AbortSignal): Promise<number[]> => {
-    const res = await api.get<number[]>(`${API_MOVIES}likes`, {signal});
-    return res.data;
-};
-
-export const likeMovie = async (tmdbMovieId: number) => {
-    const res = await api.post(`${API_MOVIES}${tmdbMovieId}/like`);
-    return res.data;
-};
-
-export const unlikeMovie = async (tmdbMovieId: number) => {
-    const res = await api.delete(`${API_MOVIES}${tmdbMovieId}/like`);
-    return res.data;
 };
 
 export const getRandomMovies = async (limit = 5): Promise<Movie[]> => {
