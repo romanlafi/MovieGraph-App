@@ -73,14 +73,24 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
                     <div
                         key={movie.tmdb_id}
                         className="relative min-w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${getTmdbImageUrl(movie.backdrop_url, "original")})` }}
                     >
+                        <img
+                            src={getTmdbImageUrl(movie.backdrop_url, "w1920")}
+                            alt=""
+                            aria-hidden="true"
+                            loading={movies[currentIndex]?.tmdb_id === movie.tmdb_id ? "eager" : "lazy"}
+                            fetchPriority={movies[currentIndex]?.tmdb_id === movie.tmdb_id ? "high" : "low"}
+                            decoding="async"
+                            className="absolute inset-0 w-full h-full object-cover object-center"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-black/70"></div>
 
                         {movie.poster_url && (
                             <img
                                 src={getTmdbImageUrl(movie.poster_url)}
                                 alt={movie.title}
+                                loading={movies[currentIndex]?.tmdb_id === movie.tmdb_id ? "eager" : "lazy"}
+                                decoding="async"
                                 className="absolute left-8 bottom-8 w-[100px] md:w-[140px] rounded-lg shadow-lg border border-white/10"
                             />
                         )}

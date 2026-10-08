@@ -31,34 +31,37 @@ export function useMovieDetail(tmdbMovieId: string) {
                 const movieData = await getMovieByTmdbId(tmdbMovieId);
                 if (!active) return;
                 setMovie(movieData);
-                setCast(movieData.cast ?? []);
+                setCast([...(movieData.cast ?? [])].sort((personA, personB) => {
+                    const aIsDirector = personA.role?.split(",").some(role => role.trim() === "DIRECTOR") ?? false;
+                    const bIsDirector = personB.role?.split(",").some(role => role.trim() === "DIRECTOR") ?? false;
+                    return Number(bIsDirector) - Number(aIsDirector);
+                }));
+                setLoading(false);
 
-                if (movieData) {
-                    const [
-                        relatedData,
-                        commentData
-                    ] = await Promise.allSettled([
-                        getRelatedMovies(movieData.tmdb_id),
-                        getCommentsByMovie(movieData.tmdb_id)
-                    ]);
-                    if (!active) return;
+                const enrichmentRequests: Promise<unknown>[] = [
+                    getRelatedMovies(movieData.tmdb_id)
+                        .then((data) => { if (active) setRelatedMovies(data); })
+                        .catch(() => { if (active) setRelatedMovies([]); }),
+                    getCommentsByMovie(movieData.tmdb_id)
+                        .then((data) => { if (active) setComments(data); })
+                        .catch(() => { if (active) setComments([]); }),
+                ];
 
-                    setRelatedMovies(relatedData.status === "fulfilled" ? relatedData.value : []);
-                    setComments(commentData.status === "fulfilled" ? commentData.value : []);
-
-                    if (movieData.collection?.tmdb_id) {
-                        const collectionData = await getMoviesByCollection(movieData.collection.tmdb_id).catch(() => []);
-                        if (!active) return;
-                        setCollectionMovies(collectionData);
-                    } else {
-                        setCollectionMovies([]);
-                    }
+                if (movieData.collection?.tmdb_id) {
+                    enrichmentRequests.push(
+                        getMoviesByCollection(movieData.collection.tmdb_id)
+                            .then((data) => { if (active) setCollectionMovies(data); })
+                            .catch(() => { if (active) setCollectionMovies([]); }),
+                    );
                 }
+
+                void Promise.all(enrichmentRequests);
             } catch (error) {
                 console.error("Error loading movie data", error);
-                if (active) setMovie(null);
-            } finally {
-                if (active) setLoading(false);
+                if (active) {
+                    setMovie(null);
+                    setLoading(false);
+                }
             }
         };
 

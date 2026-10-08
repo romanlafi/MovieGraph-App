@@ -23,6 +23,8 @@ export default function MovieCard({movie}: Props) {
             <img
                 src={getTmdbImageUrl(movie.poster_url)}
                 alt={movie.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full aspect-[2/3] object-cover rounded mb-2"
             />
             <Text text={movie.title} size="sm" truncate={true} />

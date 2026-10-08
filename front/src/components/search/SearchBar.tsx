@@ -69,8 +69,10 @@ export default function SearchBar() {
                             className="flex items-center w-full text-left gap-3 p-2 hover:bg-card transition"
                         >
                             <img
-                                src={getTmdbImageUrl(movie.poster_url, "w342")}
+                                src={getTmdbImageUrl(movie.poster_url, "w185")}
                                 alt={movie.title}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-9 h-13 object-cover rounded"
                             />
                             <div className="text-sm text-ink flex-1 overflow-hidden">

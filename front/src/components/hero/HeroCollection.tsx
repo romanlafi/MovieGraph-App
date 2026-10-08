@@ -16,10 +16,15 @@ export default function HeroCollection({ collection, movies }: HeroCollectionPro
 
     return (
         <div className="relative w-full h-[550px] md:h-[600px] rounded-2xl overflow-hidden bg-black mb-8">
-            <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${getTmdbImageUrl(collection.backdrop_url, "original")})` }}
-            >
+            <div className="absolute inset-0 bg-cover bg-center">
+                <img
+                    src={getTmdbImageUrl(collection.backdrop_url, "w1280")}
+                    alt=""
+                    aria-hidden="true"
+                    fetchPriority="high"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/80"></div>
             </div>
 
@@ -29,6 +34,8 @@ export default function HeroCollection({ collection, movies }: HeroCollectionPro
                         <img
                             src={getTmdbImageUrl(collection.poster_url)}
                             alt={collection.name}
+                            fetchPriority="high"
+                            decoding="async"
                             className="w-[100px] md:w-[160px] rounded-lg shadow-lg border border-white/10"
                         />
                     )}

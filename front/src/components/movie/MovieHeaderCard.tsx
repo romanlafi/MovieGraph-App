@@ -26,8 +26,10 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-start mt-2">
                 <div className="w-full max-w-xs mx-auto lg:mx-0 h-[420px] flex items-center justify-center rounded overflow-hidden">
                     <img
-                        src={getTmdbImageUrl(movie.poster_url, "original")}
+                        src={getTmdbImageUrl(movie.poster_url, "w500")}
                         alt={movie.title}
+                        fetchPriority="high"
+                        decoding="async"
                         className="h-full w-auto rounded"
                     />
                 </div>
@@ -43,8 +45,10 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                         />
                     ) : (
                         <img
-                            src={getTmdbImageUrl(movie.backdrop_url, "original")}
+                            src={getTmdbImageUrl(movie.backdrop_url, "w780")}
                             alt={movie.title}
+                            fetchPriority="high"
+                            decoding="async"
                             className="h-full w-auto rounded"
                         />
                     )}

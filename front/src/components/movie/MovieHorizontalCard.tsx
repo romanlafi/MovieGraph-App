@@ -34,6 +34,8 @@ export default function MovieHorizontalCard({ movie, ranking, position }: Props)
                 <img
                     src={getTmdbImageUrl(movie.poster_url, "w342")}
                     alt={movie.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover rounded"
                 />
                 {ranking && ranking <= 3 && (

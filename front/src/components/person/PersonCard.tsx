@@ -1,7 +1,7 @@
 import {Person} from "../../types/person";
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
 import {useNavigate} from "react-router-dom";
 import Text from "../ui/Text.tsx";
+import PersonImage from "./PersonImage.tsx";
 
 export default function PersonCard({person}: { person: Person }) {
     const roles = person.role?.split(",").map(r => r.trim()) ?? [];
@@ -19,10 +19,11 @@ export default function PersonCard({person}: { person: Person }) {
         <div
             onClick={() => handleCardClick()}
             className="w-[100px] shrink-0 text-center group transition-transform duration-200 ease-out hover:scale-96">
-            <img
-                src={getTmdbImageUrl(person.photo_url, "w342")}
-                alt={person.name}
-                className="w-[100px] h-[100px] object-cover rounded-full mx-auto shadow-md group-hover:shadow-lg transition-shadow duration-200"
+            <PersonImage
+                name={person.name}
+                photoPath={person.photo_url}
+                size="card"
+                className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto shadow-md group-hover:shadow-lg transition-shadow duration-200"
             />
             <Text text={person.name} size="xs" className="mt-2 group-hover:text-accent transition-colors duration-200"/>
 

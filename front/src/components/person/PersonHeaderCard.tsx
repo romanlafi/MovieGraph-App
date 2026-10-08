@@ -1,18 +1,20 @@
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
 import {Person} from "../../types/person.ts";
 import {FaBirthdayCake, FaMapMarkerAlt} from "react-icons/fa";
 import Title from "../ui/Title.tsx";
 import Text from "../ui/Text.tsx";
+import PersonImage from "./PersonImage.tsx";
 
 export default function PersonHeaderCard({ person }: { person: Person }) {
     return (
         <section className="bg-panel rounded-xl p-6 shadow space-y-4">
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-start mt-2">
                 <div className="w-full max-w-xs mx-auto lg:mx-0 h-[420px] flex items-center justify-center rounded overflow-hidden">
-                    <img
-                        src={getTmdbImageUrl(person.photo_url, "original")}
-                        alt={person.name}
-                        className="h-full w-auto rounded"
+                    <PersonImage
+                        name={person.name}
+                        photoPath={person.photo_url}
+                        size="detail"
+                        className="h-full w-full flex items-center justify-center rounded overflow-hidden"
+                        imageClassName="h-full w-auto rounded object-cover"
                     />
                 </div>
 
