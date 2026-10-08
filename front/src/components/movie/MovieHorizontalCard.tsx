@@ -16,19 +16,19 @@ export default function MovieHorizontalCard({ movie, ranking, position }: Props)
     const navigate = useNavigate();
 
     const getMedalColor = () => {
-        if (ranking === 1) return "text-yellow-400";
-        if (ranking === 2) return "text-gray-300";
+        if (ranking === 1) return "text-accent";
+        if (ranking === 2) return "text-muted";
         if (ranking === 3) return "text-amber-700";
         return "";
     };
 
     return (
         <div
-            className="flex items-center gap-4 p-4 bg-neutral-800 rounded-xl shadow hover:bg-neutral-700 transition cursor-pointer"
+            className="flex items-center gap-4 p-4 bg-card ring-1 ring-border rounded-xl shadow hover:bg-border transition cursor-pointer"
             onClick={() => navigate(`/movie/${movie.tmdb_id}`)}
         >
             {typeof position === "number" && (
-                <div className="w-6 text-right text-white/50 font-semibold text-lg">{position}.</div>
+                <div className="w-6 text-right text-ink/50 font-semibold text-lg">{position}.</div>
             )}
             <div className="relative w-24 h-36 shrink-0 overflow-hidden rounded">
                 <img
@@ -43,7 +43,7 @@ export default function MovieHorizontalCard({ movie, ranking, position }: Props)
                 )}
             </div>
 
-            <div className="flex flex-col justify-between h-full space-y-1 text-white overflow-hidden">
+            <div className="flex flex-col justify-between h-full space-y-1 text-ink overflow-hidden">
                 <Title title={movie.title} size="sm" as="h3"/>
                 <Text text={movie.director} size="sm" color="white/60" italic={true} truncate={true}/>
                 <Text text={movie.year} size="sm" color="white/60"/>

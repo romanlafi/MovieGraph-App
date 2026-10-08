@@ -23,15 +23,15 @@ export default function MovieCarousel({ movies, title, subtitle, genreLink = tru
     if (!movies.length) return null;
 
     return (
-        <section className="bg-neutral-800 rounded-xl p-6 shadow space-y-4">
+        <section className="bg-panel rounded-xl p-6 shadow space-y-4">
             <Title
                 title={title}
                 as="h2"
                 size="md"
-                className={`mb-2 ${genreLink ? "cursor-pointer hover:text-purple-400" : ""}`}
+                className={`mb-2 ${genreLink ? "cursor-pointer hover:text-accent" : ""}`}
                 onClick={handleTitleClick}
             />
-            <Text text={subtitle} className="text-white/70"/>
+            <Text text={subtitle} className="text-ink/70"/>
             <MovieCarouselOverlay movies={movies} />
         </section>
     );

@@ -23,7 +23,7 @@ export default function HeroCollection({ collection, movies }: HeroCollectionPro
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/80"></div>
             </div>
 
-            <div className="relative z-10 h-full flex flex-col justify-between p-8 text-white max-w-[1200px] mx-auto">
+            <div className="relative z-10 h-full flex flex-col justify-between p-8 text-ink max-w-[1200px] mx-auto">
                 <div className="flex items-end gap-6">
                     {collection.poster_url && (
                         <img
@@ -44,7 +44,7 @@ export default function HeroCollection({ collection, movies }: HeroCollectionPro
                                 />
                             )}
 
-                            <span className="text-white/70 ml-4 text-sm">
+                            <span className="text-ink/70 ml-4 text-sm">
                                 {movies.length} {movies.length === 1 ? "movie" : "movies"}
                             </span>
                         </div>

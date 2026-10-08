@@ -17,7 +17,7 @@ export default function UserCard({
                                      onFollowChange,
                                  }: Props) {
     const CardContent = (
-        <div className="bg-neutral-800 p-4 rounded-lg shadow min-w-[200px] max-w-[200px] flex flex-col justify-between hover:bg-neutral-700 transition">
+        <div className="bg-card ring-1 ring-border p-4 rounded-lg shadow min-w-[200px] max-w-[200px] flex flex-col justify-between hover:bg-border transition">
             <Text text={user.username} size="base" truncate={true}/>
             <Text text={user.email} size="sm" color="white/60" truncate={true}/>
             {showFollowButton && (

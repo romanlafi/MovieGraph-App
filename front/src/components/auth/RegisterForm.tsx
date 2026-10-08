@@ -64,9 +64,9 @@ export default function RegisterForm() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-neutral-800 p-6 rounded-xl shadow"
+            className="bg-panel p-6 rounded-xl shadow"
         >
-            <div className="max-w-md mx-auto space-y-4 bg-neutral-900 p-6 rounded-xl shadow">
+            <div className="max-w-md mx-auto space-y-4 bg-card p-6 rounded-xl shadow">
                 <div className="flex justify-center mb-6">
                     <img src="/src/assets/logo.svg" alt="Register" className="w-30 h-30" />
                 </div>

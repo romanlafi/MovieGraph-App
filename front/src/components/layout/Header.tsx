@@ -27,11 +27,11 @@ export default function Header() {
     }, [showLogin]);
 
     return (
-        <header className="fixed top-0 left-0 right-0 h-16 bg-purple-800 border-b border-neutral-800 z-50 shadow-md">
+        <header className="fixed top-0 left-0 right-0 h-16 bg-accent text-canvas border-b border-accent-hover z-50 shadow-md">
             <div className="max-w-[1100px] mx-auto h-full flex items-center justify-between px-4 sm:px-6 md:px-8 relative">
                 {/* Logo */}
-                <Link to="/" className="flex items-center gap-2 text-lg font-bold text-white">
-                    <img src="/logo_bold.svg" alt="Logo" className="w-6 h-6" />
+                <Link to="/" className="flex items-center gap-2 text-lg font-bold text-canvas">
+                    <img src="/logo_bold.svg" alt="Logo" className="w-6 h-6 brightness-0" />
                     <span className="sm:inline">MovieGraph</span>
                 </Link>
 
@@ -41,7 +41,7 @@ export default function Header() {
                 </div>
 
                 {/* Right side nav */}
-                <nav className="flex items-center gap-1 text-sm text-white relative">
+                <nav className="flex items-center gap-1 text-sm text-canvas relative">
                     {/* Search mobile */}
                     <div className="md:hidden">
                         <SearchBarWrapper />
@@ -84,7 +84,7 @@ export default function Header() {
                             {showLogin && (
                                 <div
                                     ref={loginRef}
-                                    className="absolute right-4 top-10 z-50 w-72 bg-neutral-800 rounded shadow-lg p-4"
+                                    className="absolute right-4 top-10 z-50 w-72 bg-panel rounded shadow-lg p-4"
                                 >
                                     <LoginForm onSuccess={() => setShowLogin(false)} />
                                 </div>

@@ -15,8 +15,8 @@ export default function SelectableGenreBadge({
             onClick={() => onClick(genre)}
             className={`px-2 py-1 rounded-full text-xs transition border ${
                 selected
-                    ? "bg-purple-600 text-white border-purple-400"
-                    : "bg-purple-800/40 text-purple-300 hover:bg-purple-700 border-transparent"
+                    ? "bg-accent text-canvas border-accent"
+                    : "bg-accent/15 text-accent hover:bg-accent/25 border-transparent"
             }`}
         >
             {genre}

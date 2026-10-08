@@ -85,15 +85,15 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
                             />
                         )}
 
-                        <div className="relative z-10 h-full flex flex-col justify-end p-8 text-white max-w-[1100px] mx-auto ml-[110px] md:ml-[160px]">
+                        <div className="relative z-10 h-full flex flex-col justify-end p-8 text-ink max-w-[1100px] mx-auto ml-[110px] md:ml-[160px]">
                             <Title
                                 title={movie.title}
                                 as="h2"
                                 className="text-3xl md:text-5xl max-w-full"
                             />
-                            <Text text={movie.tagline} size="base" className="mt-2 text-white/80 line-clamp-3 max-w-full"/>
+                            <Text text={movie.tagline} size="base" className="mt-2 text-ink/80 line-clamp-3 max-w-full"/>
                             <button
-                                className="mt-4 flex items-center gap-3 bg-neutral-700 text-white px-3 py-2 rounded hover:bg-purple-800 transition text-sm md:text-lg md:px-6 md:py-3 md:w-[250px]"
+                                className="mt-4 flex items-center gap-3 bg-accent text-canvas px-3 py-2 rounded hover:bg-accent-hover transition text-sm md:text-lg md:px-6 md:py-3 md:w-[250px]"
                                 onClick={handleTrailerClick}
                             >
                                 <FaPlay className="text-sm md:text-2xl" />
@@ -118,7 +118,7 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
                             resetUITimeout();
                         }}
                         className={`w-3 h-3 rounded-full ${
-                            index === currentIndex ? "bg-white" : "bg-white/30"
+                            index === currentIndex ? "bg-accent" : "bg-ink/30"
                         }`}
                     />
                 ))}
@@ -130,7 +130,7 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
                     showUI ? "opacity-100" : "opacity-0"
                 }`}
             >
-                <FaChevronLeft className="text-white text-2xl" />
+                <FaChevronLeft className="text-ink text-2xl" />
             </button>
 
             <button
@@ -139,7 +139,7 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
                     showUI ? "opacity-100" : "opacity-0"
                 }`}
             >
-                <FaChevronRight className="text-white text-2xl" />
+                <FaChevronRight className="text-ink text-2xl" />
             </button>
         </div>
     );

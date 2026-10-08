@@ -24,7 +24,7 @@ export default function PersonCard({person}: { person: Person }) {
                 alt={person.name}
                 className="w-[100px] h-[100px] object-cover rounded-full mx-auto shadow-md group-hover:shadow-lg transition-shadow duration-200"
             />
-            <Text text={person.name} size="xs" className="mt-2 group-hover:text-purple-300 transition-colors duration-200"/>
+            <Text text={person.name} size="xs" className="mt-2 group-hover:text-accent transition-colors duration-200"/>
 
             <Text
                 className="text-[10px]"

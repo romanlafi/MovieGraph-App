@@ -4,7 +4,7 @@ import Text from "../ui/Text.tsx";
 
 export default function CommentCard({ comment }: { comment: Comment }) {
     return (
-        <div className="w-[250px] shrink-0 bg-neutral-700 p-4 rounded-lg shadow hover:scale-98 transition-transform duration-200">
+        <div className="w-[250px] shrink-0 bg-card ring-1 ring-border p-4 rounded-lg shadow hover:scale-98 transition-transform duration-200">
             <Text
                 text={comment.username}
                 size="sm"

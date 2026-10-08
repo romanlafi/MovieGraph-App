@@ -15,7 +15,7 @@ interface TextProps {
 export default function Text({
                                  text = "",
                                  size = "sm",
-                                 color = "white",
+                                 color = "ink",
                                  truncate = false,
                                  italic = false,
                                  weight = "normal",

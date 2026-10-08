@@ -1,9 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 @import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --color-canvas: #101419;
+  --color-panel: #1C232B;
+  --color-card: #27313C;
+  --color-border: #3A4652;
+  --color-ink: #F4F1EA;
+  --color-muted: #A9B0B8;
+  --color-accent: #E7A93B;
+  --color-accent-hover: #CF9023;
+}
 
 ::-webkit-scrollbar {
   height: 8px;
@@ -11,16 +18,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--color-panel);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #555;
+  background: var(--color-border);
   border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #888;
+  background: var(--color-muted);
 }
 
 input[type="search"]::-webkit-search-cancel-button {
@@ -30,7 +37,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 :root {
-  /*font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;*/
+  color-scheme: dark;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -41,29 +48,17 @@ input[type="search"]::-webkit-search-cancel-button {
 
 body {
   min-height: 100vh;
-  background-color: #131313;
-  color: white;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
   overflow-x: hidden;
   font-family: 'Outfit', sans-serif;
 }
 
 a {
   text-decoration: none;
-  color: inherit;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
 }

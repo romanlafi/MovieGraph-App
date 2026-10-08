@@ -16,7 +16,7 @@ export default function Title({
                                   size = "lg",
                                   as = "h2",
                                   className = "",
-                                  color = "text-white",
+                                  color = "text-ink",
                                   center = false,
                                   children,
                                   onClick,

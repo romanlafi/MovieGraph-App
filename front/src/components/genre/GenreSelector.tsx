@@ -16,7 +16,7 @@ export default function GenreSelector({
                                       }: GenreSelectorProps) {
     return (
         <div className="space-y-1">
-            <label className="block text-white font-bold mb-2">{label}</label>
+            <label className="block text-ink font-bold mb-2">{label}</label>
             <div className="flex flex-wrap gap-2">
                 {genres.map((genre) => (
                     <SelectableGenreBadge

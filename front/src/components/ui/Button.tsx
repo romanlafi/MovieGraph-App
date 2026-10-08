@@ -21,8 +21,8 @@ export default function Button({
         "font-semibold py-1 px-4 rounded transition duration-200";
 
     const variants = {
-        primary: "bg-purple-600 hover:bg-purple-700 text-white",
-        secondary: "bg-neutral-700 hover:bg-neutral-600 text-white",
+        primary: "bg-accent hover:bg-accent-hover text-canvas",
+        secondary: "bg-card hover:bg-border text-ink",
     };
 
     return (

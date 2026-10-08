@@ -10,7 +10,7 @@ export default function UserProfileCard({ user }: { user: User }) {
     const isCurrentUser = authUser?.email === user.email;
 
     return (
-        <div className="bg-neutral-800 p-6 rounded-xl shadow text-white space-y-3">
+        <div className="bg-card p-6 rounded-xl shadow text-ink space-y-3">
             <Title title={user.username} size="md" />
             <Text text={user.email} size="sm" color="white/60" />
             <Text  text={user.bio} color="white/70" size="base" />

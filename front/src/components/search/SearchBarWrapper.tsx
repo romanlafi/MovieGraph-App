@@ -29,7 +29,7 @@ export default function SearchBarWrapper() {
             <div className="flex md:hidden justify-end">
                 <button
                     onClick={() => setShowSearch(!showSearch)}
-                    className="text-white text-xl p-2"
+                    className="text-canvas text-xl p-2"
                 >
                     <FaSearch />
                 </button>

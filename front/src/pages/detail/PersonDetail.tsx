@@ -16,7 +16,7 @@ export default function PersonDetail() {
     if (!person) return <NotFound />;
 
     return (
-        <Container className="py-10 text-white space-y-10">
+        <Container className="py-10 text-ink space-y-10">
             <PersonHeaderCard
                 person={person}
             />

@@ -18,7 +18,7 @@ export default function LikeButton({ tmdbMovieId }: LikeButtonProps) {
                 e.stopPropagation();
                 void toggleLike(tmdbMovieId);
             }}
-            className="hover:text-purple-400 transition-colors"
+            className="hover:text-red-400 transition-colors"
         >
             {isLiked(tmdbMovieId) ? <FaHeart /> : <FaRegHeart />}
         </button>

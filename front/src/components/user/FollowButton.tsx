@@ -17,8 +17,8 @@ export default function FollowButton({ user, onFollowChange }: { user: User; onF
             onClick={handleClick}
             className={`px-3 py-1 text-sm rounded ${
                 isFollowing(user.email)
-                    ? "bg-purple-700 text-white hover:bg-purple-800"
-                    : "bg-white text-purple-800 hover:bg-purple-200"
+                    ? "bg-accent/15 text-accent hover:bg-accent/25"
+                    : "bg-accent text-canvas hover:bg-accent-hover"
             } transition`}
         >
             {isFollowing(user.email) ? "Following ✓" : "Follow"}

@@ -10,7 +10,7 @@ export default function TopRatedPage() {
     if (loading) return <LoadingSpinner />;
 
     return (
-        <Container className="space-y-6 py-10 text-white">
+        <Container className="space-y-6 py-10 text-ink">
             <div className="space-y-4">
                 {movies.map((movie, index) => (
                     <MovieHorizontalCard

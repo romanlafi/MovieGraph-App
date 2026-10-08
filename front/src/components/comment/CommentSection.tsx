@@ -13,7 +13,7 @@ export default function CommentSection({ comments, onSubmit }: CommentSectionPro
     const { token } = useAuth();
 
     return (
-        <div className="bg-neutral-800 p-4 rounded-lg space-y-4">
+        <div className="bg-panel p-4 rounded-lg space-y-4">
             <Title title="Comments" size="sm" />
             <div className="flex flex-col md:flex-row gap-4">
                 {token && (

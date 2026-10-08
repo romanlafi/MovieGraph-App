@@ -12,7 +12,7 @@ export default function RatingDisplay({
                                           iconSize = 12,
                                       }: RatingDisplayProps) {
     return (
-        <div className={`flex items-center gap-1 text-yellow-400 ${className}`}>
+        <div className={`flex items-center gap-1 text-accent ${className}`}>
             <FaStar size={iconSize} />
             <span className="font-medium text-sm">{rating.toPrecision(3)}</span>
         </div>

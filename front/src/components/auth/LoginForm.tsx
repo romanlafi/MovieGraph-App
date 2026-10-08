@@ -25,7 +25,7 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-white">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-ink">
             {error && (
                 <p className="text-red-400 text-sm">{error}</p>
             )}

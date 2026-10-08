@@ -17,11 +17,11 @@ export default function CommentForm({ onSubmit }: CommentFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-neutral-900 rounded-lg p-4 w-full h-full flex flex-col gap-2">
+        <form onSubmit={handleSubmit} className="bg-card rounded-lg p-4 w-full h-full flex flex-col gap-2">
             <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                className="bg-neutral-700 text-white rounded p-2 resize-none flex-1"
+                className="bg-panel border border-border text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent rounded p-2 resize-none flex-1"
                 placeholder="Write your comment..."
             />
             <Button type="submit" variant="primary">

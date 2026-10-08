@@ -21,7 +21,7 @@ export default function GenrePage() {
 
     if (!movies.length) {
         return (
-            <div className="flex justify-center items-center h-[70vh] text-white">
+            <div className="flex justify-center items-center h-[70vh] text-ink">
                 No movies found for this genre.
             </div>
         );
@@ -29,7 +29,7 @@ export default function GenrePage() {
 
     return (
         <Container className="py-10 space-y-6" >
-            <section className="bg-neutral-800 rounded-xl p-6 shadow space-y-4">
+            <section className="bg-panel rounded-xl p-6 shadow space-y-4">
                 <Title title={genre} size="lg" className="capitalize"/>
                 {genre && genreDescriptions[genre] &&
                     <Text text={genreDescriptions[genre]} size="sm" color="white/70"/>

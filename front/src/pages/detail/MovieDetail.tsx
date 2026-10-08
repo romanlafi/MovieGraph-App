@@ -24,7 +24,7 @@ export default function MovieDetail() {
     if (!movie) return <NotFound />;
 
     return (
-        <Container className="py-10 text-white space-y-10">
+        <Container className="py-10 text-ink space-y-10">
             <MovieHeaderCard
                 movie={movie}
             />

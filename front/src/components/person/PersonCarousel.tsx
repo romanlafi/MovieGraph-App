@@ -13,7 +13,7 @@ export default function PersonCarousel({ title, subtitle, people }: Props) {
     if (!people.length) return null;
 
     return (
-        <section className="bg-neutral-800 rounded-xl p-6 shadow space-y-4">
+        <section className="bg-panel rounded-xl p-6 shadow space-y-4">
             <Title title={title} as="h2" size="md"/>
             <Text text={subtitle} color="white/70"/>
             <div className="overflow-x-auto">

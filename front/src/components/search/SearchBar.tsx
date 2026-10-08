@@ -61,21 +61,21 @@ export default function SearchBar() {
             />
 
             {showDropdown && results.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-neutral-800 border border-neutral-700 mt-1 rounded shadow-lg z-50 max-h-72 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-72 overflow-y-auto">
                     {results.map((movie) => (
                         <button
                             key={movie.tmdb_id}
                             onClick={() => handleSelect(movie.tmdb_id)}
-                            className="flex items-center w-full text-left gap-3 p-2 hover:bg-neutral-700 transition"
+                            className="flex items-center w-full text-left gap-3 p-2 hover:bg-card transition"
                         >
                             <img
                                 src={getTmdbImageUrl(movie.poster_url, "w342")}
                                 alt={movie.title}
                                 className="w-9 h-13 object-cover rounded"
                             />
-                            <div className="text-sm text-white flex-1 overflow-hidden">
+                            <div className="text-sm text-ink flex-1 overflow-hidden">
                                 <Text text={movie.title} className="font-semibold" truncate={true}/>
-                                <div className="flex items-center justify-between text-xs text-white/60">
+                                <div className="flex items-center justify-between text-xs text-ink/60">
                                     <span>{movie.year}</span>
                                     {movie.rating && <RatingDisplay rating={movie.rating} />}
                                 </div>
