@@ -86,7 +86,7 @@ Configuración objetivo del Worker conectado a Git:
 - Build command:
 
 ```sh
-npm ci && npm run build && cd .. && pip install uv==0.12.23 && uvx --from workers-py pywrangler sync
+npm run build
 ```
 
 - Deploy command (main):
@@ -108,6 +108,23 @@ push de rollout. Los secretos de Previews Base se aplican a previews nuevos;
 un preview existente puede necesitar actualización de sus propios secretos.
 Referencia: [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/)
 y [configuración de Previews](https://developers.cloudflare.com/workers/previews/configuration/).
+
+`npm run build` ejecuta un `postbuild` en Workers Builds (`WORKERS_CI=1`)
+que prepara `python_modules` mediante uv 0.12.23 y workers-py 1.17.7. Comprueba
+que el SDK `workers`, FastAPI, SQLAlchemy y pg8000 se han empaquetado antes de
+dejar publicar el Worker. El build frontend local no ejecuta este paso. El
+comando de Preview por defecto `npx wrangler preview` también puede utilizarse
+porque `wrangler.jsonc` contiene el bloque PRE y las dependencias ya estarán
+preparadas. Un checkout limpio no contiene `python_modules`: omitir este paso
+provoca `ModuleNotFoundError: No module named 'workers'` durante el despliegue.
+
+Verificación del 2026-10-08: `npm ci && npm run build` pasó en un contenedor
+Linux limpio con Node 24 y `WORKERS_CI=1`, sin dependencias Python previamente
+instaladas. El Preview `staging` se publicó con el Hyperdrive PRE y su secreto
+TMDB. El despliegue `793540cf-4c62-437f-a8b2-4fb0dacb7806` respondió 200 en
+`/`, `/api/health`, `/api/tmdb/movie/550` y `/api/v1/movies/550/comments`.
+Esta comprobación no valida registro/login/follows remotos, que siguen sujetos
+al rollout descrito a continuación. No se ejecutaron migraciones de Neon.
 
 ## Estado de funcionalidades y migraciones
 
