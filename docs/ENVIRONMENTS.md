@@ -31,11 +31,12 @@ Cloudflare lanza builds de preview para todas las ramas distintas de `main`.
 Cada rama genera su propio preview, cuyo nombre selecciona Wrangler automáticamente.
 Todos los previews usan Hyperdrive PRE. El entorno de pruebas habitual es `staging`.
 
-`.node-version` fija Node 24.18.0 y `.python-version` fija Python 3.14.2 para
-Workers Builds. `requirements-build.txt` fija uv y Pywrangler; `package-lock.json`
-fija Wrangler en la raíz. El frontend conserva su propio lockfile.
-Si el dashboard tiene `NODE_VERSION` o `PYTHON_VERSION`, retirar esos overrides
-o alinearlos con los archivos. No hace falta añadir variables de compilación.
+`.node-version` fija Node 24.18.0 para Workers Builds; Cloudflare usa su Python
+predeterminado para instalar el proyecto. Pywrangler selecciona la versión Python
+del Worker desde su fecha de compatibilidad. `requirements-build.txt` fija uv y
+Pywrangler; `package-lock.json` fija Wrangler en la raíz. El frontend conserva
+su propio lockfile. Si el dashboard tiene `NODE_VERSION` o `PYTHON_VERSION`,
+retirar esos overrides. No hace falta añadir variables de compilación.
 Si ya existe `SKIP_DEPENDENCY_INSTALL=1`, puede quedarse: el script de build
 instala explícitamente todas las dependencias.
 
@@ -80,10 +81,9 @@ Ver [desarrollo local](LOCAL_DEVELOPMENT.md).
 
 ## Estado de la aplicación
 
-El entrypoint remoto actual conserva catálogo, comentarios, likes y assets.
-Cuentas/follows remotos requieren las migraciones `20261007_00` y `20261008_00`
-y validación de bcrypt en Workers antes de habilitarlos. Local ya los monta.
-PRE se verificó históricamente en `20261006_01`; producción no está auditada.
+El entrypoint de la rama `staging` monta catálogo, comentarios, likes, cuentas,
+follows y assets, igual que el Worker local. PRE debe estar en `20261008_00`
+antes del despliegue. Producción no cambia con esta activación y no está auditada.
 Ver [cuentas](WORKER_AUTH_MIGRATION.md) y [follows](WORKER_FOLLOWS_MIGRATION.md).
 Revisar la caché de consultas Hyperdrive antes de validar lecturas sociales:
 el inventario anterior tenía PRE sin caché y PROD sin desactivación registrada.

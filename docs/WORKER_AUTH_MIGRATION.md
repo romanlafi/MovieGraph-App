@@ -44,11 +44,10 @@ historical preference. This is a transitional MovieGraph preference relation,
 not a catalogue mirror; a later phase can map known names to TMDB genre IDs and
 preserve unmatched custom values.
 
-The actual Neon DEV database remains at revision `20261006_01` with the prior
-recorded empty social baseline. This revision has **not** been applied to DEV,
-PRE, or PROD. No account records were created or modified in Neon. Apply it only
-through the documented trusted migration process after a PRE schema/branch
-check; never run migrations during a Worker request.
+The recorded staging migration run reached revision `20261008_00` on the Neon
+database entered as MovieGraph PRE. Confirm the branch in Neon before relying
+on this report; the initializer labels its target `neon-development`. Never run
+migrations during a Worker request.
 
 ## Runtime gate
 
@@ -62,10 +61,10 @@ Cloudflare documents a 10 ms CPU limit on Workers Free and a 30 second default
 on Workers Paid; the account plan and per-operation CPU usage have not been
 verified. See [Workers limits](https://developers.cloudflare.com/workers/platform/limits/).
 
-Therefore account endpoints stay disabled by default. Do not enable them in
-PRE until a single-operation cost-12 registration/login measurement succeeds
-under the actual Worker plan and the new migration is applied. Authentication
-is not bypassed, hashes are not rewritten, and production was not deployed.
+The deployed account API remains opt-in and is enabled only in the `staging`
+branch entrypoint after the PRE migration. Measure registration/login CPU and
+latency on the actual Worker plan before enabling this entrypoint in production.
+Authentication is not bypassed and hashes are not rewritten.
 
 ## Validation
 
