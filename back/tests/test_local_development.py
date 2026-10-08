@@ -55,9 +55,10 @@ class LocalDevelopmentTests(unittest.TestCase):
         self.assertEqual(production["name"], staging["name"])
         self.assertEqual(production["main"], staging["main"])
         self.assertEqual(production["hyperdrive"][0]["id"], "4cbe52bd629d47c8b2b69a3529691f78")
+        self.assertEqual(production["previews"]["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
+        self.assertEqual(production["previews"]["vars"]["APP_ENV"], "pre")
         self.assertNotIn("hyperdrive", staging)
         self.assertEqual(staging["previews"]["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
-        self.assertNotIn("previews", production)
         for config in (production, staging):
             self.assertTrue((ROOT / config["main"]).is_file())
             self.assertTrue(config["assets"]["run_worker_first"])

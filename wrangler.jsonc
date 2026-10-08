@@ -7,6 +7,18 @@
   "hyperdrive": [
     {"binding": "HYPERDRIVE", "id": "4cbe52bd629d47c8b2b69a3529691f78"}
   ],
+  "previews": {
+    "vars": {
+      "APP_ENV": "pre",
+      "JWT_ALGORITHM": "HS256"
+    },
+    "hyperdrive": [
+      {
+        "binding": "HYPERDRIVE",
+        "id": "24054140a3aa418ba1bd24b015f3d04b"
+      }
+    ]
+  },
   "assets": {
     "directory": "front/dist",
     "binding": "ASSETS",

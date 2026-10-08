@@ -8,7 +8,7 @@ evidencia histórica; no son instrucciones para arrancar la aplicación.
 | Uso | Rama Git | Configuración | Base de datos |
 | --- | --- | --- | --- |
 | Desarrollo en PyCharm | Cualquier rama de trabajo, normalmente `cloudflare-refactor` | `wrangler.local.jsonc` | PostgreSQL local, `127.0.0.1:5442/moviegraph_local` |
-| Staging en Cloudflare | `staging` | `wrangler.preview.jsonc`, comando `preview --name staging` | Hyperdrive `moviegraph-pre` → Neon PRE |
+| Staging en Cloudflare | `staging` | `wrangler.jsonc` → bloque `previews` | Hyperdrive `moviegraph-pre` → Neon PRE |
 | Producción en Cloudflare | `main` | `wrangler.jsonc`, comando `deploy` | Hyperdrive `moviegraph-postgres` → endpoint de producción previsto |
 
 La rama Git no cambia automáticamente el destino de Wrangler. El comando de
@@ -72,8 +72,11 @@ No copies secretos PRE/PROD al JWT local ni uses variables `VITE_*` para secreto
 
 Se conserva el nombre `moviegraph-app` utilizado por el candidato Preview. Ambos
 archivos remotos sirven los assets `front/dist` y el API limitado en un origen.
-El binding PRE está exclusivamente en `previews.hyperdrive` de
-`wrangler.preview.jsonc`; el binding PROD solo en `wrangler.jsonc`.
+El binding PRE está en `previews.hyperdrive` de `wrangler.jsonc`; el binding
+PROD está en el nivel superior del mismo archivo. Workers Builds ejecuta
+`npx wrangler preview` por defecto y lee `wrangler.jsonc`, así que el bloque
+`previews` debe estar ahí aunque las herramientas locales todavía conserven
+`wrangler.preview.jsonc` como configuración explícita de staging.
 
 Configuración objetivo del Worker conectado a Git:
 
