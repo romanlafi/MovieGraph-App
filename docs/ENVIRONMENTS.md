@@ -41,8 +41,11 @@ instala explícitamente todas las dependencias.
 
 `npm run build:cloudflare` instala el toolchain Python y las dependencias npm,
 y construye React. `npm run build` conserva el build frontend local.
-Pywrangler empaqueta las dependencias Python
-de `pyproject.toml`/`pylock.toml` al ejecutar `deploy` o `preview`.
+Cloudflare instala el proyecto Python raíz antes del build. `pyproject.toml`
+declara que es un paquete solo de metadatos, así esa instalación conserva sus
+dependencias sin intentar empaquetar `back/`, `front/` o `node_modules`.
+Pywrangler empaqueta las dependencias Python de `pyproject.toml`/`pylock.toml`
+al ejecutar `deploy` o `preview`.
 No hay `postbuild` Python en Vite, preparador personalizado ni wrapper de despliegue.
 No se ejecutan migraciones de base de datos durante build, deploy o peticiones.
 

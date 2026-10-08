@@ -8,6 +8,9 @@ dependencies = ["fastapi~=0.115.12", "sqlalchemy~=2.0.40", "pg8000~=1.31.5", "py
 [dependency-groups]
 dev = ["workers-py", "workers-runtime-sdk"]
 
+[tool.setuptools]
+packages = []
+
 # Legacy psycopg2 and Passlib remain local in back/requirements.txt. The Worker
 # uses Pyodide-supported bcrypt directly; catalogue HTTP uses native workers.fetch.
 # HTTPX remains a local-only dependency.
