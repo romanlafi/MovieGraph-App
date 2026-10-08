@@ -19,7 +19,6 @@ spec = importlib.util.spec_from_file_location("moviegraph_run_local", ROOT / "sc
 local = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(local)
 import local_processes
-import deploy_worker
 
 
 class LocalDevelopmentTests(unittest.TestCase):
@@ -37,32 +36,26 @@ class LocalDevelopmentTests(unittest.TestCase):
         self.assertEqual(before_launch.attrib["enabled"], "true")
         self.assertEqual(names["MovieGraph Setup Local DB"].find("option[@name='PARAMETERS']").attrib["value"], "--setup-db")
 
-    def test_deployment_commands_reject_wrong_git_branches(self):
-        for target, branch in (("staging", "main"), ("staging", "cloudflare-refactor"),
-                               ("production", "staging"), ("production", "")):
-            with self.subTest(target=target, branch=branch), self.assertRaises(RuntimeError):
-                deploy_worker.deployment_command(target, branch)
-        staging = deploy_worker.deployment_command("staging", "staging")
-        production = deploy_worker.deployment_command("production", "main")
-        self.assertIn("preview", staging)
-        self.assertIn("wrangler.preview.jsonc", staging)
-        self.assertIn("deploy", production)
-        self.assertIn("wrangler.jsonc", production)
-
     def test_deployed_configs_use_distinct_hyperdrive_bindings(self):
         production = json.loads((ROOT / "wrangler.jsonc").read_text())
-        staging = json.loads((ROOT / "wrangler.preview.jsonc").read_text())
-        self.assertEqual(production["name"], staging["name"])
-        self.assertEqual(production["main"], staging["main"])
+        staging = production["previews"]
+        self.assertFalse((ROOT / "wrangler.preview.jsonc").exists())
         self.assertEqual(production["hyperdrive"][0]["id"], "4cbe52bd629d47c8b2b69a3529691f78")
         self.assertEqual(production["previews"]["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
         self.assertEqual(production["previews"]["vars"]["APP_ENV"], "pre")
-        self.assertNotIn("hyperdrive", staging)
-        self.assertEqual(staging["previews"]["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
+        self.assertEqual(staging["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
+        self.assertTrue((ROOT / production["main"]).is_file())
+        self.assertTrue(production["assets"]["run_worker_first"])
         for config in (production, staging):
-            self.assertTrue((ROOT / config["main"]).is_file())
-            self.assertTrue(config["assets"]["run_worker_first"])
             self.assertNotIn("SECRET_KEY", config.get("vars", {}))
+        frontend = json.loads((ROOT / "front" / "package.json").read_text())
+        self.assertNotIn("postbuild", frontend["scripts"])
+        self.assertNotIn("wrangler", frontend["devDependencies"])
+        tooling = json.loads((ROOT / "package.json").read_text())
+        self.assertEqual(tooling["scripts"]["deploy:production"], "python -m pywrangler deploy --config wrangler.jsonc")
+        self.assertEqual(tooling["scripts"]["deploy:preview"], "python -m pywrangler preview --config wrangler.jsonc")
+        lock = json.loads((ROOT / "package-lock.json").read_text())
+        self.assertEqual(tooling["devDependencies"]["wrangler"], lock["packages"]["node_modules/wrangler"]["version"])
         for path in (ROOT / "tools" / "diagnostics").glob("wrangler*.jsonc"):
             config = json.loads(path.read_text())
             self.assertTrue((path.parent / config["main"]).resolve().is_file())

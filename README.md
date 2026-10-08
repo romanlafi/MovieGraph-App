@@ -18,6 +18,13 @@ de PostgreSQL/JWT locales se generan automáticamente. No necesitas una URL Neon
 Guías actuales: [desarrollo local](docs/LOCAL_DEVELOPMENT.md) y
 [entornos/configuración/despliegue](docs/ENVIRONMENTS.md).
 
+Cloudflare Builds se ejecuta desde la raíz del repositorio (`/`) con
+`npm run build:cloudflare`, que instala las herramientas y construye React.
+Producción usa `npm run deploy:production`; las ramas de preview usan
+`npm run deploy:preview`. El entorno de pruebas habitual es `staging`.
+Pywrangler empaqueta Python al desplegar. `wrangler.jsonc` selecciona Hyperdrive
+PROD con `deploy` y PRE con `preview`. Configuración exacta en la guía de entornos.
+
 ## Límites actuales
 
 Local incluye registro/login, follows, comentarios, likes y catálogo TMDB.

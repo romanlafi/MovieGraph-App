@@ -1,4 +1,5 @@
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "moviegraph-app",
   "main": "back/app/preview_worker.py",
   "compatibility_date": "2026-10-02",

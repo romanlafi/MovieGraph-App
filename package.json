@@ -1,0 +1,13 @@
+{
+  "name": "moviegraph-app",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix front run build",
+    "build:cloudflare": "python -m pip install -r requirements-build.txt && npm ci && npm --prefix front ci && npm run build",
+    "deploy:production": "python -m pywrangler deploy --config wrangler.jsonc",
+    "deploy:preview": "python -m pywrangler preview --config wrangler.jsonc"
+  },
+  "devDependencies": {
+    "wrangler": "4.148.0"
+  }
+}
