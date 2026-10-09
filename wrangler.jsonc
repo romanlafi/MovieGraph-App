@@ -23,7 +23,7 @@
   "assets": {
     "directory": "front/dist",
     "binding": "ASSETS",
-    "run_worker_first": true,
+    "run_worker_first": ["/api", "/api/*", "/docs", "/docs/*", "/redoc", "/openapi.json"],
     "not_found_handling": "single-page-application"
   }
 }

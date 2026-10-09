@@ -45,7 +45,9 @@ class LocalDevelopmentTests(unittest.TestCase):
         self.assertEqual(production["previews"]["vars"]["APP_ENV"], "pre")
         self.assertEqual(staging["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
         self.assertTrue((ROOT / production["main"]).is_file())
-        self.assertTrue(production["assets"]["run_worker_first"])
+        self.assertEqual(production["assets"]["run_worker_first"], [
+            "/api", "/api/*", "/docs", "/docs/*", "/redoc", "/openapi.json",
+        ])
         for config in (production, staging):
             self.assertNotIn("SECRET_KEY", config.get("vars", {}))
         frontend = json.loads((ROOT / "front" / "package.json").read_text())

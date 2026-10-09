@@ -13,6 +13,32 @@ Su preview `staging` sirve el código de esa rama con el Hyperdrive PRE.
 `deploy` utiliza los bindings superiores; `preview` utiliza `previews`.
 El Wrangler local no contiene ningún ID Hyperdrive remoto.
 
+Los assets y el fallback SPA los sirve directamente Cloudflare. En el despliegue,
+`assets.run_worker_first` solo incluye `/api`, `/api/*` y las rutas de documentación
+FastAPI; `/`, las rutas React y los archivos estáticos no ejecutan Python.
+Esto evita que un fallo del runtime API impida servir el frontend y conserva
+los 404 de API sin convertirlos en HTML.
+
+### Diagnóstico de CPU y Pyodide
+
+El preview del 9 de octubre de 2026 se compiló y publicó correctamente. Los logs
+aportados muestran una petición de like con `outcome: exceededCpu` y 32 ms de CPU,
+seguida de errores `Cannot enter a promising task from inside another running
+promising task` al inicializar instancias Python. La secuencia es compatible con
+un runtime afectado tras la interrupción, pero no demuestra qué operación agotó
+la CPU ni confirma un defecto concreto de Pyodide.
+
+Comprobar el plan Workers y el límite efectivo del Worker/preview. Workers Free
+ofrece 10 ms de CPU por petición; Workers Paid permite configurar un presupuesto
+mayor. No confundir esos milisegundos con el tiempo esperando a Neon o TMDB.
+Perfilar una petición social y registro/login en el runtime remoto antes de
+declarar el problema resuelto; bcrypt con coste 12 también requiere validación.
+El cambio de routing protege el frontend, pero no elimina el exceso de CPU en API.
+No reducir el coste de contraseñas para ocultar este fallo.
+
+Referencias: [límites de CPU](https://developers.cloudflare.com/workers/platform/limits/#cpu-time)
+y [routing selectivo](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/#run-worker-first-for-selective-paths).
+
 ## Cloudflare Workers Builds
 
 Cambiar el directorio raíz de **ambas** configuraciones del dashboard a `/`.
