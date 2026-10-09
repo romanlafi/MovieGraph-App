@@ -7,7 +7,7 @@ import RatingDisplay from "../common/RatingDisplay.tsx";
 import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
 import Text from "../ui/Text.tsx";
 
-export default function SearchBar() {
+export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: boolean; onSelect?: () => void}) {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<TmdbMovieSearchResult[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -38,6 +38,7 @@ export default function SearchBar() {
         navigate(`/movie/${tmdb_id}`);
         setShowDropdown(false);
         setQuery("");
+        onSelect?.();
     };
 
     useEffect(() => {
@@ -52,16 +53,18 @@ export default function SearchBar() {
     }, []);
 
     return (
-        <div className="relative flex-1 mx-4 md:flex" ref={dropdownRef}>
+        <div className="relative min-w-0 w-full" ref={dropdownRef}>
             <TextInput
                 type="text"
+                aria-label="Search movies"
+                autoFocus={autoFocus}
                 placeholder="Search movies..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
             />
 
             {showDropdown && results.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-72 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-[min(18rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain">
                     {results.map((movie) => (
                         <button
                             key={movie.tmdb_id}

@@ -19,7 +19,7 @@ export default function MovieCard({movie}: Props) {
     return (
         <div
             onClick={() => handleCardClick()}
-            className="w-[140px] shrink-0 bg-card p-2 rounded hover:scale-98 hover:bg-border transition duration-200 ease-out shadow hover:shadow-xl">
+            className="w-[140px] shrink-0 bg-card p-2 rounded cursor-pointer hover:scale-98 hover:bg-border transition duration-200 ease-out shadow hover:shadow-xl">
             <img
                 src={getTmdbImageUrl(movie.poster_url)}
                 alt={movie.title}

@@ -12,6 +12,16 @@
   --color-accent-hover: #CF9023;
 }
 
+@layer base {
+  :where(a[href], button, summary, select, [role="button"], input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"]):not(:disabled):not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  :where(button, select, input, [role="button"]):is(:disabled, [aria-disabled="true"]) {
+    cursor: not-allowed;
+  }
+}
+
 ::-webkit-scrollbar {
   height: 8px;
   width: 8px;

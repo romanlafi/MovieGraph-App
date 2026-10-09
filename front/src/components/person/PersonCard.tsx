@@ -18,7 +18,7 @@ export default function PersonCard({person}: { person: Person }) {
     return (
         <div
             onClick={() => handleCardClick()}
-            className="w-[100px] shrink-0 text-center group transition-transform duration-200 ease-out hover:scale-96">
+            className="w-[100px] shrink-0 text-center group cursor-pointer transition-transform duration-200 ease-out hover:scale-96">
             <PersonImage
                 name={person.name}
                 photoPath={person.photo_url}

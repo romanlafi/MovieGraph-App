@@ -30,8 +30,8 @@ export const unfollowUser = async (email: string): Promise<void> => {
     await api.delete(API_FOLLOWS, { data: { email } });
 };
 
-export const getUserByEmail = async (email: string): Promise<User> => {
-    const res = await api.get(`${API_FOLLOWS}by_email`, { params: { email } });
+export const getUserByEmail = async (email: string, signal?: AbortSignal): Promise<User> => {
+    const res = await api.get(`${API_FOLLOWS}by_email`, { params: { email }, signal });
     return res.data;
 };
 
