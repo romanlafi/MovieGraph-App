@@ -12,11 +12,11 @@ export default function GenreSelector({
                                           genres,
                                           selected,
                                           onToggle,
-                                          label = "Favorite Genres:",
+                                          label,
                                       }: GenreSelectorProps) {
     return (
         <div className="space-y-1">
-            <label className="block text-ink font-bold mb-2">{label}</label>
+            {label && <p className="mb-2 block font-bold text-ink">{label}</p>}
             <div className="flex flex-wrap gap-2">
                 {genres.map((genre) => (
                     <SelectableGenreBadge

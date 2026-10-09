@@ -58,6 +58,7 @@ export default function SearchBar() {
                 placeholder="Search movies..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                className="!bg-[#FFF2D2] !text-canvas placeholder:!text-canvas/65 border border-[#B87810] shadow-inner"
             />
 
             {showDropdown && results.length > 0 && (

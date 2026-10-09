@@ -6,9 +6,10 @@ interface NavItemProps {
     className?: string;
     onClick?: () => void;
     to?: string;
+    ariaLabel?: string;
 }
 
-export default function NavItem({ children, className = "", onClick, to }: NavItemProps) {
+export default function NavItem({ children, className = "", onClick, to, ariaLabel }: NavItemProps) {
     const baseStyles =
         "flex flex-col items-center gap-2 px-2 py-2 rounded-md hover:bg-canvas/10 transition cursor-pointer";
 
@@ -21,8 +22,13 @@ export default function NavItem({ children, className = "", onClick, to }: NavIt
     }
 
     return (
-        <div onClick={onClick} className={`${baseStyles} ${className}`}>
+        <button
+            type="button"
+            aria-label={ariaLabel}
+            onClick={onClick}
+            className={`${baseStyles} border-0 bg-transparent font-[inherit] text-inherit ${className}`}
+        >
             {children}
-        </div>
+        </button>
     );
 }

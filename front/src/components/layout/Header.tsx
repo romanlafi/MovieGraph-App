@@ -1,4 +1,4 @@
-import {FaBars, FaSignInAlt, FaUser, FaUsers} from "react-icons/fa";
+import {FaBars, FaRedo, FaSignInAlt, FaSpinner, FaUser, FaUsers} from "react-icons/fa";
 import {useEffect, useRef, useState} from "react";
 import { Link } from "react-router-dom";
 import LoginForm from "../auth/LoginForm.tsx";
@@ -10,7 +10,7 @@ import CategoryOverlay from "./CategoryOverlay.tsx";
 
 
 export default function Header() {
-    const { token, user } = useAuth();
+    const { token, user, isLoading, retrySession } = useAuth();
     const [showCategories, setShowCategories] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
     const loginRef = useRef<HTMLDivElement>(null);
@@ -70,6 +70,13 @@ export default function Header() {
                             <div className="flex items-center gap-2">
                                 <FaUser className="text-xl" />
                                 <span className="hidden md:inline">{user.username}</span>
+                            </div>
+                        </NavItem>
+                    ) : token ? (
+                        <NavItem onClick={retrySession} ariaLabel="Restore session">
+                            <div className="flex items-center gap-2">
+                                {isLoading ? <FaSpinner className="animate-spin" /> : <FaRedo />}
+                                <span className="hidden md:inline">{isLoading ? "Restoring" : "Retry"}</span>
                             </div>
                         </NavItem>
                     ) : (
