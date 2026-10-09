@@ -64,6 +64,7 @@ export default function RegisterForm() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (isSubmitting) return;
         setIsSubmitting(true);
         setError(null);
 

@@ -21,7 +21,11 @@ export const loginUser = async (email: string, password: string): Promise<string
     return res.data.access_token;
 };
 
-export const fetchUser = async (): Promise<User> => {
-    const res = await api.get(`${API_AUTH}me`);
+export const fetchUser = async (token: string, signal?: AbortSignal): Promise<User> => {
+    const res = await api.get(`${API_AUTH}me`, {
+        signal,
+        timeout: 15000,
+        headers: {Authorization: `Bearer ${token}`},
+    });
     return res.data;
 }

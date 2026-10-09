@@ -1,5 +1,6 @@
 import axios from "axios";
 import {BASE_URL} from "../data/apiConstants.ts";
+import {clearSessionToken, getSessionToken} from "./session.ts";
 
 export const api = axios.create({
     baseURL: BASE_URL,
@@ -10,8 +11,8 @@ const releaseRequest = new WeakMap<object, () => void>();
 
 api.interceptors.request.use(
     async (config) => {
-        const token = localStorage.getItem("access_token");
-        if (token) {
+        const token = getSessionToken();
+        if (token && !config.headers.Authorization && !config.url?.endsWith("/users/login")) {
             config.headers.Authorization = `Bearer ${token}`;
         }
 
@@ -24,6 +25,14 @@ api.interceptors.request.use(
             });
             await previousRequest;
             releaseRequest.set(config, release);
+        }
+
+        const authorization = config.headers.Authorization;
+        if (typeof authorization === "string" && authorization.startsWith("Bearer ")
+            && authorization.slice(7) !== getSessionToken()) {
+            const cancellation = new axios.CanceledError("Session changed before the request was sent");
+            cancellation.config = config;
+            throw cancellation;
         }
 
         return config;
@@ -41,6 +50,11 @@ api.interceptors.response.use(
         if (error.config) {
             releaseRequest.get(error.config)?.();
             releaseRequest.delete(error.config);
+            const authorization = error.config.headers?.Authorization;
+            if (error.response?.status === 401 && !error.config.url?.endsWith("/users/login")
+                && typeof authorization === "string" && authorization.startsWith("Bearer ")) {
+                clearSessionToken(authorization.slice(7));
+            }
         }
         return Promise.reject(error);
     },

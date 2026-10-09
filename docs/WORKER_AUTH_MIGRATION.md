@@ -49,6 +49,26 @@ database entered as MovieGraph PRE. Confirm the branch in Neon before relying
 on this report; the initializer labels its target `neon-development`. Never run
 migrations during a Worker request.
 
+## Browser session lifecycle
+
+The frontend restores the Bearer token from `localStorage` and validates the
+profile through `/api/v1/users/me`. A shared session store synchronizes login,
+logout and token rejection between tabs on the same origin. Network failures
+and server errors preserve the token and offer a profile retry. A 401 from an
+authenticated request clears only the token used by that request, so a stale
+response cannot remove a newer login. Queued authenticated requests are canceled
+if the session changes before transmission.
+
+The backend remains responsible for signatures and expiry. This does not add
+refresh tokens: the configured access-token lifetime still applies (30 minutes
+by default). Local development uses `http://127.0.0.1:5173`; `localhost` is a
+different origin and has separate browser storage.
+
+Browser checks with intercepted API responses covered login, reload, opening a
+new tab, cross-tab login/logout, temporary failure and retry, invalid tokens,
+stale responses and queued mutation cancellation. No test accounts or database
+changes were required.
+
 ## Runtime gate
 
 The development-only `/api/internal/password-runtime` probe is protected by the

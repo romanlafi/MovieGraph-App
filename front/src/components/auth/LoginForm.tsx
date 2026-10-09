@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {loginUser} from "../../services/authService.ts";
 import * as React from "react";
+import axios from "axios";
 import Button from "../ui/Button.tsx";
 import {Link} from "react-router-dom";
 import TextInput from "../ui/inputs/TextInput.tsx";
@@ -11,26 +12,35 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setError("");
+        setIsSubmitting(true);
         try {
             const token = await loginUser(email, password);
             login(token);
             onSuccess();
         } catch (err) {
-            console.error(err);
-            setError("Wrong email or password");
+            setError(axios.isAxiosError(err) && err.response?.status === 401
+                ? "Wrong email or password"
+                : "Login is temporarily unavailable. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-ink">
             {error && (
-                <p className="text-red-400 text-sm">{error}</p>
+                <p role="alert" className="text-red-400 text-sm">{error}</p>
             )}
             <TextInput
                 type="email"
+                autoComplete="username"
+                aria-label="Email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -38,6 +48,8 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
             />
             <TextInput
                 type="password"
+                autoComplete="current-password"
+                aria-label="Password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -49,8 +61,8 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
                         Register
                     </Button>
                 </Link>
-                <Button type="submit" variant="primary" className="w-full">
-                    Log in
+                <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
+                    {isSubmitting ? "Logging in…" : "Log in"}
                 </Button>
             </div>
         </form>

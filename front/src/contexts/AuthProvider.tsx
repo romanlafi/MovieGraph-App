@@ -1,63 +1,62 @@
-import {useState, useEffect, ReactNode} from "react";
+import {useState, useEffect, useSyncExternalStore, ReactNode} from "react";
 import axios from "axios";
 import {User} from "../types/user.ts";
 import {fetchUser} from "../services/authService.ts";
-import { AuthContext } from "./AuthContext.ts";
+import {clearSessionToken, getSessionToken, setSessionToken, subscribeToSession} from "../services/session.ts";
+import {AuthContext} from "./AuthContext.ts";
+
+interface RestoredSession {
+    token: string;
+    user: User | null;
+    isLoading: boolean;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [token, setToken] = useState<string | null>(localStorage.getItem("access_token"));
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(Boolean(token));
+    const token = useSyncExternalStore(subscribeToSession, getSessionToken, () => null);
+    const [session, setSession] = useState<RestoredSession | null>(null);
     const [restoreAttempt, setRestoreAttempt] = useState(0);
+    const user = session?.token === token ? session.user : null;
+    const isLoading = Boolean(token && (session?.token !== token || session.isLoading));
 
     useEffect(() => {
         if (!token) {
-            setUser(null);
-            setIsLoading(false);
+            setSession(null);
             return;
         }
 
         let active = true;
-        setIsLoading(true);
-        fetchUser()
+        const controller = new AbortController();
+        setSession({token, user: null, isLoading: true});
+        fetchUser(token, controller.signal)
             .then((profile) => {
-                if (active) setUser(profile);
+                if (active && getSessionToken() === token) {
+                    setSession({token, user: profile, isLoading: false});
+                }
             })
             .catch((error: unknown) => {
-                if (!active) return;
+                if (!active || getSessionToken() !== token) return;
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
-                    localStorage.removeItem("access_token");
-                    setToken(null);
-                    setUser(null);
+                    clearSessionToken(token);
                     return;
                 }
-                setUser(null);
-            })
-            .finally(() => {
-                if (active) setIsLoading(false);
+                setSession({token, user: null, isLoading: false});
             });
 
         return () => {
             active = false;
+            controller.abort();
         };
     }, [token, restoreAttempt]);
 
-    const login = (newToken: string) => {
-        localStorage.setItem("access_token", newToken);
-        setUser(null);
-        setIsLoading(true);
-        setToken(newToken);
-    };
-
-    const logout = () => {
-        localStorage.removeItem("access_token");
-        setToken(null);
-        setUser(null);
-        setIsLoading(false);
-    };
-
     return (
-        <AuthContext.Provider value={{ user, token, isLoading, login, logout, retrySession: () => setRestoreAttempt((attempt) => attempt + 1) }}>
+        <AuthContext.Provider value={{
+            user,
+            token,
+            isLoading,
+            login: setSessionToken,
+            logout: () => clearSessionToken(),
+            retrySession: () => setRestoreAttempt((attempt) => attempt + 1),
+        }}>
             {children}
         </AuthContext.Provider>
     );
