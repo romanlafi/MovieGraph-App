@@ -1,5 +1,6 @@
 import {api} from "./api.ts";
 import type {TmdbMovieSearchResult} from "../types/tmdb.ts";
+import {hasMoviePosterAndRating} from "./catalogueAdapters.ts";
 
 export const searchTmdbMovies = async (query: string, page = 1): Promise<TmdbMovieSearchResult[]> => {
     // The transitional API base includes /api/v1. Use the same client and host
@@ -9,7 +10,10 @@ export const searchTmdbMovies = async (query: string, page = 1): Promise<TmdbMov
         baseURL,
         params: {q: query, page},
     });
-    return res.data;
+    return res.data.filter(movie => hasMoviePosterAndRating({
+        poster_path: movie.poster_url,
+        vote_average: movie.rating,
+    }));
 };
 
 export const getTmdbCatalogue = async <Response>(

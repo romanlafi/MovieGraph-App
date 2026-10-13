@@ -36,6 +36,7 @@ export default function PersonDetail() {
                 people={relatedPeople}
                 title={relatedPeoplePerson.title}
                 subtitle={relatedPeoplePerson.subtitle}
+                showRoles={false}
             />
         </Container>
     );

@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import Text from "../ui/Text.tsx";
 import PersonImage from "./PersonImage.tsx";
 
-export default function PersonCard({person}: { person: Person }) {
+export default function PersonCard({person, showRole = true}: { person: Person; showRole?: boolean }) {
     const roles = person.role?.split(",").map(r => r.trim()) ?? [];
 
     const isDirector = roles.includes("DIRECTOR");
@@ -27,15 +27,17 @@ export default function PersonCard({person}: { person: Person }) {
             />
             <Text text={person.name} size="xs" className="mt-2 group-hover:text-accent transition-colors duration-200"/>
 
-            <Text
-                className="text-[10px]"
-                color="white/60"
-                truncate={true}
-            >
-                {isDirector && "Director"}
-                {isDirector && isActor && " / "}
-                {isActor && <em>as {person.character}</em>}
-            </Text>
+            {showRole && (
+                <Text
+                    className="text-[10px]"
+                    color="white/60"
+                    truncate={true}
+                >
+                    {isDirector && "Director"}
+                    {isDirector && isActor && " / "}
+                    {isActor && <em>as {person.character}</em>}
+                </Text>
+            )}
         </div>
     );
 }

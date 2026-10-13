@@ -2,7 +2,7 @@ import type {Movie} from "../types/movie.ts";
 import type {Person} from "../types/person.ts";
 import {getFollowedMovieLikes} from "./followService.ts";
 import {getUserLikes} from "./movieLikesService.ts";
-import {CatalogueMovie, toMovie} from "./catalogueAdapters.ts";
+import {CatalogueMovie, hasMoviePosterAndRating, toMovie} from "./catalogueAdapters.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
 
 const SOURCE_MOVIE_LIMIT = 3;
@@ -38,7 +38,7 @@ const recommendationsFrom = async (
 
     for (const movies of fulfilledValues(results)) {
         movies.forEach((movie, index) => {
-            if (excludedIds.has(movie.tmdb_id) || !movie.poster_path) return;
+            if (excludedIds.has(movie.tmdb_id) || !hasMoviePosterAndRating(movie)) return;
             const existing = ranked.get(movie.tmdb_id);
             if (existing) {
                 existing.sourceCount += 1;

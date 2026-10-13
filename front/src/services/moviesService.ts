@@ -2,7 +2,7 @@ import type {Movie} from "../types/movie.ts";
 import type {Genre} from "../types/genre.ts";
 import type {Collection} from "../types/collection.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
-import {CatalogueCollection, CatalogueMovie, toCollection, toMovie} from "./catalogueAdapters.ts";
+import {CatalogueCollection, CatalogueMovie, toCollection, toMovie, toMovies} from "./catalogueAdapters.ts";
 
 export const getMoviesByGenre = async (genreName: string, page = 1, limit = 10): Promise<Movie[]> => {
     const genres = await getGenres();
@@ -14,23 +14,23 @@ export const getMoviesByTmdbGenreId = async (tmdbGenreId: number, page = 1, limi
     const movies = await getTmdbCatalogue<CatalogueMovie[]>("movies", {
         kind: "genre", tmdb_genre_id: tmdbGenreId, page, limit,
     });
-    return movies.map(toMovie);
+    return toMovies(movies);
 };
 
 export const getMoviesByCollection = async (tmdbCollectionId: string, page = 1, limit = 10): Promise<Movie[]> => {
     const collection = await getTmdbCatalogue<CatalogueCollection>(`collection/${tmdbCollectionId}`);
-    return (collection.movies ?? []).slice((page - 1) * limit, page * limit).map(toMovie);
+    return toMovies(collection.movies ?? []).slice((page - 1) * limit, page * limit);
 };
 
 const getMovieList = async (kind: string, page: number, limit: number): Promise<Movie[]> => {
-    return (await getTmdbCatalogue<CatalogueMovie[]>("movies", {kind, page, limit})).map(toMovie);
+    return toMovies(await getTmdbCatalogue<CatalogueMovie[]>("movies", {kind, page, limit}));
 };
 
 export const getTopRatedMovies = (page = 1, limit = 10): Promise<Movie[]> => getMovieList("top-rated", page, limit);
 export const getLatestMovies = (page = 1, limit = 10): Promise<Movie[]> => getMovieList("latest", page, limit);
 
 export const getRelatedMovies = async (tmdbMovieId: number): Promise<Movie[]> => {
-    return (await getTmdbCatalogue<CatalogueMovie[]>(`movie/${tmdbMovieId}/recommendations`)).map(toMovie);
+    return toMovies(await getTmdbCatalogue<CatalogueMovie[]>(`movie/${tmdbMovieId}/recommendations`));
 };
 
 export const getMovieByTmdbId = async (tmdbMovieId: string): Promise<Movie> => {
@@ -47,7 +47,7 @@ export const getCollections = async (): Promise<Collection[]> => {
 };
 
 export const getRandomMovies = async (limit = 5): Promise<Movie[]> => {
-    return (await getTmdbCatalogue<CatalogueMovie[]>("movies/featured", {limit})).map(toMovie);
+    return toMovies(await getTmdbCatalogue<CatalogueMovie[]>("movies/featured", {limit}));
 };
 
 export const getRandomCollection = async (): Promise<Collection> => {

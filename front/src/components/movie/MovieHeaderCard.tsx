@@ -13,6 +13,7 @@ import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
 import {getYoutubeEmbedUrl} from "../../utils/youtubeHelpers.ts";
 import Title from "../ui/Title.tsx";
 import Text from "../ui/Text.tsx";
+import LikeButton from "../common/LikeButton.tsx";
 
 
 export default function MovieHeaderCard({ movie }: { movie: Movie }) {
@@ -74,7 +75,14 @@ export default function MovieHeaderCard({ movie }: { movie: Movie }) {
                         </span>
                 )}
 
-                {movie.rating && <RatingDisplay rating={movie.rating} className="mt-2" iconSize={14}/>}
+                <div className="flex flex-wrap items-center gap-4">
+                    {movie.rating && <RatingDisplay rating={movie.rating} iconSize={14}/>}
+                    <LikeButton
+                        tmdbMovieId={movie.tmdb_id}
+                        movieTitle={movie.title}
+                        className="p-1 text-lg text-ink/80"
+                    />
+                </div>
 
                 <div className="flex flex-wrap gap-2 ">
                     {movie.genres?.map((genre) => (

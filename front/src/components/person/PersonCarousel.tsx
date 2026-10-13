@@ -7,9 +7,10 @@ interface Props {
     title?: string;
     subtitle?: string;
     people: Person[];
+    showRoles?: boolean;
 }
 
-export default function PersonCarousel({ title, subtitle, people }: Props) {
+export default function PersonCarousel({ title, subtitle, people, showRoles = true }: Props) {
     if (!people.length) return null;
 
     return (
@@ -20,7 +21,7 @@ export default function PersonCarousel({ title, subtitle, people }: Props) {
                 <div className="flex gap-4 pb-4 scroll-smooth snap-x snap-mandatory whitespace-nowrap">
                     {people.map((person) => (
                         <div key={person.tmdb_id} className="snap-start shrink-0">
-                            <PersonCard person={person} />
+                            <PersonCard person={person} showRole={showRoles} />
                         </div>
                     ))}
                 </div>

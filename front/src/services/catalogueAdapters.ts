@@ -41,6 +41,14 @@ export interface CatalogueMovie {
     trailer_youtube_key?: string | null;
 }
 
+export const hasMoviePosterAndRating = (movie: {
+    poster_path: string | null;
+    vote_average: number | null;
+}): boolean => Boolean(movie.poster_path?.trim()) && (movie.vote_average ?? 0) > 0;
+
+export const toMovies = (movies: CatalogueMovie[]): Movie[] =>
+    movies.filter(hasMoviePosterAndRating).map(toMovie);
+
 export const toMovie = (movie: CatalogueMovie): Movie => ({
     id: String(movie.tmdb_id),
     tmdb_id: movie.tmdb_id,
@@ -81,5 +89,5 @@ export const toCollection = (collection: CatalogueCollection): Collection => ({
     name: collection.name,
     poster_url: collection.poster_path ?? undefined,
     backdrop_url: collection.backdrop_path ?? undefined,
-    movies: collection.movies?.map(toMovie),
+    movies: collection.movies ? toMovies(collection.movies) : undefined,
 });

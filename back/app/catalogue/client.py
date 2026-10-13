@@ -222,7 +222,8 @@ class TMDBClient:
         if kind == "genre":
             if tmdb_genre_id is None or tmdb_genre_id <= 0:
                 raise TMDBError(422, "TMDB genre ID must be positive")
-            params = {"with_genres": tmdb_genre_id, "sort_by": "title.asc", "include_adult": "false"}
+            params = {"with_genres": tmdb_genre_id, "sort_by": "popularity.desc",
+                      "include_adult": "false", "vote_count.gte": 20}
         offset = (page - 1) * limit
         first_page = offset // 20 + 1
         last_page = (offset + limit - 1) // 20 + 1

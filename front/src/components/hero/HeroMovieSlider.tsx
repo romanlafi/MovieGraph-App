@@ -34,11 +34,13 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
     };
 
     useEffect(() => {
-        const slideInterval = setInterval(() => {
+        if (movies.length < 2) return;
+
+        const slideTimeout = setTimeout(() => {
             setCurrentIndex((prev) => (prev + 1) % movies.length);
         }, interval);
-        return () => clearInterval(slideInterval);
-    }, [movies, interval]);
+        return () => clearTimeout(slideTimeout);
+    }, [currentIndex, movies.length, interval]);
 
     const resetUITimeout = () => {
         setShowUI(true);
