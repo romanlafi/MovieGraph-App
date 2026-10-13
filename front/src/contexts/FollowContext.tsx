@@ -6,8 +6,8 @@ import {followUser, getMyFollowing, unfollowUser} from "../services/followServic
 
 interface FollowContextType {
     following: User[];
-    isFollowing: (userEmail: string) => boolean;
-    toggleFollow: (userEmail: string) => Promise<void>;
+    isFollowing: (publicId: string) => boolean;
+    toggleFollow: (publicId: string) => Promise<void>;
     refreshFollowing: () => Promise<void>;
 }
 
@@ -36,15 +36,15 @@ export const FollowProvider = ({ children }: { children: React.ReactNode }) => {
         void refreshFollowing();
     }, [refreshFollowing]);
 
-    const isFollowing = (userEmail: string) => {
-        return Boolean(token && user && following.some(followedUser => followedUser.email === userEmail));
+    const isFollowing = (publicId: string) => {
+        return Boolean(token && user && following.some(followedUser => followedUser.public_id === publicId));
     };
 
-    const toggleFollow = async (userEmail: string) => {
-        if (isFollowing(userEmail)) {
-            await unfollowUser(userEmail); // Call the API to unfollow
+    const toggleFollow = async (publicId: string) => {
+        if (isFollowing(publicId)) {
+            await unfollowUser(publicId);
         } else {
-            await followUser(userEmail); // Call the API to follow
+            await followUser(publicId);
         }
         await refreshFollowing();
     };

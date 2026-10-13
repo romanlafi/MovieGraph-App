@@ -108,9 +108,10 @@ Ver [desarrollo local](LOCAL_DEVELOPMENT.md).
 ## Estado de la aplicación
 
 El entrypoint de la rama `staging` monta catálogo, comentarios, likes, cuentas,
-follows y assets, igual que el Worker local. PRE debe estar en `20261008_00`
+follows y assets, igual que el Worker local. PRE debe estar en `20261009_00`
 antes del despliegue. Producción no cambia con esta activación y no está auditada.
-Ver [cuentas](WORKER_AUTH_MIGRATION.md) y [follows](WORKER_FOLLOWS_MIGRATION.md).
+Ver [cuentas](WORKER_AUTH_MIGRATION.md), [follows](WORKER_FOLLOWS_MIGRATION.md) y
+[IDs públicos de usuario](WORKER_PUBLIC_USER_IDS_MIGRATION.md).
 Revisar la caché de consultas Hyperdrive antes de validar lecturas sociales:
 el inventario anterior tenía PRE sin caché y PROD sin desactivación registrada.
 

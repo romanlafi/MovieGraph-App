@@ -28,6 +28,7 @@ SECRET = "worker-social-test-only"
 MIGRATION_PATH = Path(__file__).resolve().parents[1] / "migrations/versions/20261006_01_social_tmdb_ids.py"
 AUTH_MIGRATION_PATH = Path(__file__).resolve().parents[1] / "migrations/versions/20261007_00_worker_auth_preferences.py"
 FOLLOWS_MIGRATION_PATH = Path(__file__).resolve().parents[1] / "migrations/versions/20261008_00_worker_follows.py"
+PUBLIC_IDS_MIGRATION_PATH = Path(__file__).resolve().parents[1] / "migrations/versions/20261009_00_public_user_ids.py"
 
 
 def token(email="first@example.test", *, secret=SECRET, expires=True, algorithm="HS256"):
@@ -45,7 +46,8 @@ class SocialWorkerTests(unittest.TestCase):
         with self.engine.begin() as connection:
             for module_name, path in (("worker_social_migration_fixture", MIGRATION_PATH),
                                       ("worker_auth_migration_fixture", AUTH_MIGRATION_PATH),
-                                      ("worker_follows_migration_fixture", FOLLOWS_MIGRATION_PATH)):
+                                      ("worker_follows_migration_fixture", FOLLOWS_MIGRATION_PATH),
+                                      ("worker_public_ids_migration_fixture", PUBLIC_IDS_MIGRATION_PATH)):
                 spec = importlib.util.spec_from_file_location(module_name, path)
                 migration = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(migration)
@@ -53,9 +55,9 @@ class SocialWorkerTests(unittest.TestCase):
                 with patch.object(migration, "op", operations):
                     migration.upgrade()
             connection.execute(text("""
-                INSERT INTO users (id, email, username, password)
-                VALUES (1, 'first@example.test', 'first', 'unused'),
-                       (2, 'second@example.test', 'second', 'unused')
+                INSERT INTO users (id, email, username, password, public_id)
+                VALUES (1, 'first@example.test', 'first', 'unused', '00000000-0000-4000-8000-000000000001'),
+                       (2, 'second@example.test', 'second', 'unused', '00000000-0000-4000-8000-000000000002')
             """))
         config = SimpleNamespace(url=make_url(self.database_url), worker=False)
         self.config_patch = patch.object(routes.runtime, "request_database_config", return_value=config)
@@ -168,6 +170,7 @@ class SocialWorkerTests(unittest.TestCase):
         profile = self.client.get("/api/v1/users/me", headers={"Authorization": f"Bearer {access_token}"})
         self.assertEqual(profile.status_code, 200, profile.text)
         self.assertEqual(profile.json(), {
+            "public_id": profile.json()["public_id"],
             "email": account["email"],
             "username": account["username"],
             "birthdate": account["birthdate"],
@@ -181,6 +184,40 @@ class SocialWorkerTests(unittest.TestCase):
                                                {"email": account["email"]}).scalar_one().startswith("$2b$"))
             self.assertEqual(connection.execute(text("SELECT count(*) FROM user_genre_preferences" )).scalar_one(), 2)
 
+    def test_login_rate_limit_enforces_ip_and_account_buckets(self):
+        class Limiter:
+            def __init__(self, success):
+                self.success = success
+                self.keys = []
+
+            async def limit(self, options):
+                self.keys.append(options["key"])
+                return SimpleNamespace(success=self.success)
+
+        ip_limiter = Limiter(True)
+        account_limiter = Limiter(False)
+        self.env.update({
+            "APP_ENV": "production",
+            "LOGIN_IP_RATE_LIMITER": ip_limiter,
+            "LOGIN_ACCOUNT_RATE_LIMITER": account_limiter,
+        })
+        response = self.client.post("/api/v1/users/login", data={
+            "username": "FIRST@example.test", "password": "invalid",
+        }, headers={"cf-connecting-ip": "192.0.2.4"})
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(response.headers["retry-after"], "60")
+        self.assertEqual(len(ip_limiter.keys), 1)
+        self.assertEqual(len(account_limiter.keys), 1)
+        self.assertNotIn("192.0.2.4", ip_limiter.keys[0])
+        self.assertNotIn("FIRST@example.test", account_limiter.keys[0])
+
+    def test_production_login_fails_closed_without_rate_limit_bindings(self):
+        self.env["APP_ENV"] = "production"
+        response = self.client.post("/api/v1/users/login", data={
+            "username": "first@example.test", "password": "invalid",
+        })
+        self.assertEqual(response.status_code, 503)
+
     def test_worker_follow_routes_preserve_contract_and_authentication(self):
         with self.engine.begin() as connection:
             connection.execute(text("UPDATE users SET email='first@example.com' WHERE id=1"))
@@ -188,17 +225,40 @@ class SocialWorkerTests(unittest.TestCase):
         first_headers = {"Authorization": f"Bearer {token('first@example.com')}"}
         second_headers = {"Authorization": f"Bearer {token('second@example.com')}"}
         self.assertEqual(self.client.get("/api/v1/follows/following").status_code, 401)
+        self.assertEqual(self.client.get("/api/v1/follows/list").status_code, 401)
+        self.assertEqual(self.client.get("/api/v1/follows/by_email?email=second%40example.com").status_code, 401)
         self.assertEqual(self.client.post("/api/v1/follows/", json={"email": "absent@example.com"},
                                           headers=first_headers).status_code, 404)
         self.assertEqual(self.client.post("/api/v1/follows/", json={"email": "second@example.com"},
                                           headers=first_headers).status_code, 200)
         self.assertEqual(self.client.post("/api/v1/follows/", json={"email": "second@example.com"},
                                           headers=first_headers).status_code, 200)
-        self.assertEqual(self.client.get("/api/v1/follows/following", headers=first_headers).json()[0]["email"],
-                         "second@example.com")
-        self.assertEqual(self.client.get("/api/v1/follows/followers", headers=second_headers).json()[0]["email"],
-                         "first@example.com")
-        self.assertEqual(self.client.get("/api/v1/follows/search?query=second", headers=first_headers).json()[0]["id"], 2)
+        following = self.client.get("/api/v1/follows/following", headers=first_headers).json()[0]
+        self.assertEqual(following["public_id"], "00000000-0000-4000-8000-000000000002")
+        self.assertNotIn("email", following)
+        self.assertNotIn("id", following)
+        followers = self.client.get("/api/v1/follows/followers", headers=second_headers).json()[0]
+        self.assertEqual(followers["public_id"], "00000000-0000-4000-8000-000000000001")
+        search_result = self.client.get("/api/v1/follows/search?query=second", headers=first_headers).json()[0]
+        self.assertEqual(search_result["public_id"], "00000000-0000-4000-8000-000000000002")
+        self.assertNotIn("email", search_result)
+        directory = self.client.get("/api/v1/follows/list?limit=1&offset=0", headers=first_headers)
+        self.assertEqual(directory.status_code, 200)
+        self.assertEqual(len(directory.json()), 1)
+        self.assertNotIn("birthdate", directory.json()[0])
+        self.assertNotIn("email", directory.json()[0])
+        self.assertEqual(self.client.get("/api/v1/follows/list?limit=101", headers=first_headers).status_code, 422)
+        profile = self.client.get("/api/v1/follows/by_email?email=second%40example.com", headers=first_headers)
+        self.assertEqual(profile.status_code, 200)
+        self.assertNotIn("birthdate", profile.json())
+        self.assertNotIn("email", profile.json())
+        by_id = self.client.get("/api/v1/follows/users/00000000-0000-4000-8000-000000000002",
+                                headers=first_headers)
+        self.assertEqual(by_id.status_code, 200)
+        self.assertEqual(by_id.json()["public_id"], "00000000-0000-4000-8000-000000000002")
+        self.assertEqual(self.client.post("/api/v1/follows/", json={
+            "public_id": "00000000-0000-4000-8000-000000000002",
+        }, headers=first_headers).status_code, 200)
         with self.engine.begin() as connection:
             connection.execute(text("INSERT INTO user_movie_likes VALUES (1, 550), (2, 550), (2, 680)"))
         self.assertEqual(self.client.get("/api/v1/follows/movie-likes", headers=first_headers).json(), [550, 680])
@@ -207,6 +267,15 @@ class SocialWorkerTests(unittest.TestCase):
         self.assertEqual(self.client.request("DELETE", "/api/v1/follows/", json={"email": "second@example.com"},
                                               headers=first_headers).status_code, 200)
         self.assertEqual(self.client.get("/api/v1/follows/following", headers=first_headers).json(), [])
+
+    def test_social_input_limits_reject_oversized_content_and_bcrypt_passwords(self):
+        self.assertEqual(self.client.post("/api/v1/movies/550/comments", json={"text": "x" * 2001},
+                                          headers=self.headers).status_code, 422)
+        payload = {"username": "long-pass", "email": "long-pass@example.test",
+                   "password": "a" * 73, "birthdate": "1990-01-01"}
+        self.assertEqual(self.client.post("/api/v1/users/", json=payload).status_code, 422)
+        payload["password"] = "é" * 37
+        self.assertEqual(self.client.post("/api/v1/users/", json=payload).status_code, 422)
 
     def test_password_runtime_probe_is_available_only_through_development_harness(self):
         from app.social.probe import install_social_probe
@@ -308,7 +377,7 @@ assert not any(name.startswith('app.models') for name in sys.modules)
         with self.engine.begin() as connection:
             self.assertEqual(connection.scalar(text("SELECT count(*) FROM users")), 2)
             connection.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)"))
-            connection.execute(text("INSERT INTO alembic_version VALUES ('20261008_00')"))
+            connection.execute(text("INSERT INTO alembic_version VALUES ('20261009_00')"))
         fixture = self.client.post("/api/internal/social-fixture", json=payload, headers=admin_headers)
         self.assertEqual(fixture.status_code, 200, fixture.text)
         self.assertTrue(all(value == "PASS" for value in fixture.json()["runtime"].values()))

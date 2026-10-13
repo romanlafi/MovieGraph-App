@@ -79,7 +79,7 @@ export default function Header() {
                             </NavItem>
                         )}
                         {token && user ? (
-                            <NavItem to={`/user/${encodeURIComponent(user.email || "")}`} ariaLabel="Your profile">
+                            <NavItem to={`/user/${encodeURIComponent(user.public_id)}`} ariaLabel="Your profile">
                                 <span className="flex items-center gap-2"><FaUser aria-hidden="true" className="text-xl" /><span className="hidden max-w-24 truncate xl:inline">{user.username}</span></span>
                             </NavItem>
                         ) : token ? (

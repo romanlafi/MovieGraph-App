@@ -5,6 +5,18 @@
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["python_workers"],
   "vars": {"APP_ENV": "production", "JWT_ALGORITHM": "HS256"},
+  "ratelimits": [
+    {
+      "name": "LOGIN_IP_RATE_LIMITER",
+      "namespace_id": "7412086001",
+      "simple": {"limit": 30, "period": 60}
+    },
+    {
+      "name": "LOGIN_ACCOUNT_RATE_LIMITER",
+      "namespace_id": "7412086002",
+      "simple": {"limit": 8, "period": 60}
+    }
+  ],
   "hyperdrive": [
     {"binding": "HYPERDRIVE", "id": "4cbe52bd629d47c8b2b69a3529691f78"}
   ],
@@ -17,6 +29,18 @@
       {
         "binding": "HYPERDRIVE",
         "id": "24054140a3aa418ba1bd24b015f3d04b"
+      }
+    ],
+    "ratelimits": [
+      {
+        "name": "LOGIN_IP_RATE_LIMITER",
+        "namespace_id": "7412086011",
+        "simple": {"limit": 30, "period": 60}
+      },
+      {
+        "name": "LOGIN_ACCOUNT_RATE_LIMITER",
+        "namespace_id": "7412086012",
+        "simple": {"limit": 8, "period": 60}
       }
     ]
   },

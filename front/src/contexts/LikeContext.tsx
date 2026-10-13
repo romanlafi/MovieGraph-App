@@ -13,12 +13,13 @@ interface LikeContextType {
 const LikeContext = createContext<LikeContextType | undefined>(undefined);
 
 export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
-    const { token } = useAuth();
+    const { token, isLoading } = useAuth();
     const [likes, setLikes] = useState<number[]>([]);
     const requestId = useRef(0);
 
     const refreshLikes = useCallback(async () => {
         const currentRequestId = ++requestId.current;
+        if (isLoading) return;
         if (!token) {
             setLikes([]);
             return;
@@ -29,7 +30,7 @@ export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (error) {
             console.error("Error fetching likes", error);
         }
-    }, [token]);
+    }, [token, isLoading]);
 
     const isLiked = (tmdbMovieId: number) => Boolean(token && likes.includes(tmdbMovieId));
 

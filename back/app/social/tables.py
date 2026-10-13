@@ -10,6 +10,7 @@ users = Table(
     Column("id", Integer, primary_key=True),
     Column("email", String),
     Column("username", String),
+    Column("public_id", String(36), nullable=False, unique=True),
     Column("password", String),
     Column("birthdate", Date),
     Column("bio", String),

@@ -3,8 +3,10 @@
 import asyncio
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
+import hashlib
 from importlib import import_module
 import os
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -75,6 +77,38 @@ async def get_authenticated_user(
     return user
 
 
+async def enforce_login_rate_limit(request: Request, account_name: str) -> None:
+    env = request.scope.get("env")
+    if env is None:
+        return
+
+    ip_limiter = runtime.binding_value(env, "LOGIN_IP_RATE_LIMITER")
+    account_limiter = runtime.binding_value(env, "LOGIN_ACCOUNT_RATE_LIMITER")
+    environment = runtime.binding_value(env, "APP_ENV", "development")
+    if ip_limiter is None or account_limiter is None:
+        if environment in {"production", "pre"}:
+            raise HTTPException(503, "Login protection is not configured")
+        return
+
+    client_ip = request.headers.get("cf-connecting-ip") or "unknown"
+    normalized_account = account_name.strip().casefold()
+    keys = (
+        (ip_limiter, f"login-ip:{hashlib.sha256(client_ip.encode()).hexdigest()}"),
+        (account_limiter, f"login-account:{hashlib.sha256(normalized_account.encode()).hexdigest()}"),
+    )
+    for limiter, key in keys:
+        try:
+            result = await limiter.limit({"key": key})
+        except Exception:
+            raise HTTPException(503, "Login protection is unavailable") from None
+        if not result.success:
+            raise HTTPException(
+                429,
+                "Too many login attempts. Try again shortly.",
+                headers={"Retry-After": "60"},
+            )
+
+
 @account_router.post("/", status_code=201)
 async def register_account(
     account: auth_schemas.UserRegistration,
@@ -117,6 +151,7 @@ async def login_account(
 ):
     from .passwords import verify_password
 
+    await enforce_login_rate_limit(request, form_data.username)
     secret, algorithm, lifetime = auth_settings(request)
     account = store.get_account_by_email(db, form_data.username)
     if account is None or not verify_password(form_data.password, account["password"]):
@@ -141,7 +176,7 @@ async def get_my_account(
 
 @follows_router.get("/search", response_model=list[auth_schemas.UserResponse])
 async def search_users(
-    query: str = Query(..., min_length=2),
+    query: str = Query(..., min_length=2, max_length=80),
     user: store.SocialUser = Depends(get_authenticated_user),
     db: Session = Depends(get_social_session),
 ):
@@ -154,7 +189,10 @@ async def follow_user(
     user: store.SocialUser = Depends(get_authenticated_user),
     db: Session = Depends(get_social_session),
 ):
-    result = store.follow_user(db, user.id, str(follow.email))
+    if follow.public_id is not None:
+        result = store.follow_user_by_public_id(db, user.id, str(follow.public_id))
+    else:
+        result = store.follow_user(db, user.id, str(follow.email))
     if result is None:
         raise HTTPException(404, "User not found")
 
@@ -165,7 +203,10 @@ async def unfollow_user(
     user: store.SocialUser = Depends(get_authenticated_user),
     db: Session = Depends(get_social_session),
 ):
-    result = store.unfollow_user(db, user.id, str(follow.email))
+    if follow.public_id is not None:
+        result = store.unfollow_user_by_public_id(db, user.id, str(follow.public_id))
+    else:
+        result = store.unfollow_user(db, user.id, str(follow.email))
     if result is None:
         raise HTTPException(404, "User not found")
 
@@ -195,13 +236,34 @@ async def get_followed_movie_likes(
 
 
 @follows_router.get("/list", response_model=list[auth_schemas.UserResponse])
-async def list_users(db: Session = Depends(get_social_session)):
-    return store.list_users(db)
+async def list_users(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    user: store.SocialUser = Depends(get_authenticated_user),
+    db: Session = Depends(get_social_session),
+):
+    return store.list_users(db, limit=limit, offset=offset)
 
 
 @follows_router.get("/by_email", response_model=auth_schemas.UserResponse)
-async def user_by_email(email: str, db: Session = Depends(get_social_session)):
+async def user_by_email(
+    email: str,
+    _authenticated_user: store.SocialUser = Depends(get_authenticated_user),
+    db: Session = Depends(get_social_session),
+):
     user = store.user_by_email(db, email)
+    if user is None:
+        raise HTTPException(404, "User not found")
+    return user
+
+
+@follows_router.get("/users/{public_id}", response_model=auth_schemas.UserResponse)
+async def user_by_public_id(
+    public_id: UUID,
+    _authenticated_user: store.SocialUser = Depends(get_authenticated_user),
+    db: Session = Depends(get_social_session),
+):
+    user = store.user_by_public_id(db, str(public_id))
     if user is None:
         raise HTTPException(404, "User not found")
     return user

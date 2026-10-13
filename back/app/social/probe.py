@@ -1,7 +1,7 @@
 """Isolated DEV fixture administration; never installed in application Workers."""
 
 from importlib import import_module
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -53,14 +53,15 @@ def prepare_fixture(config, fixture: FixtureCreate) -> dict:
             baseline = inventory(session)
             if not {"users", "comments", "user_movie_likes", "user_follows", "alembic_version"}.issubset(baseline):
                 raise ValueError("Expected migrated development schema")
-            if session.scalar(text("SELECT version_num FROM alembic_version")) != "20261008_00":
-                raise ValueError("Expected Worker follow migration revision")
+            if session.scalar(text("SELECT version_num FROM alembic_version")) != "20261009_00":
+                raise ValueError("Expected public user ID migration revision")
             if session.scalar(text("SELECT 1")) != 1:
                 raise ValueError("SELECT verification failed")
             user_id = session.scalar(text("""
-                INSERT INTO users (email, username, password)
-                VALUES (:email, :username, :password) RETURNING id
-            """), {"email": email, "username": username, "password": fixture.password_hash})
+                INSERT INTO users (email, username, password, public_id)
+                VALUES (:email, :username, :password, :public_id) RETURNING id
+            """), {"email": email, "username": username, "password": fixture.password_hash,
+                   "public_id": str(uuid4())})
             session.commit()
         with database.session_context(engine) as session:
             if session.scalar(text("SELECT email FROM users WHERE id=:id"), {"id": user_id}) != email:
@@ -78,9 +79,10 @@ def prepare_fixture(config, fixture: FixtureCreate) -> dict:
             with database.session_context(engine) as session:
                 session.execute(text("UPDATE users SET bio='must-roll-back' WHERE id=:id"), {"id": user_id})
                 session.execute(text("""
-                    INSERT INTO users (email, username, password)
-                    VALUES (:email, :username, :password)
-                """), {"email": rolled_back_email, "username": f"rollback-{username}", "password": fixture.password_hash})
+                    INSERT INTO users (email, username, password, public_id)
+                    VALUES (:email, :username, :password, :public_id)
+                """), {"email": rolled_back_email, "username": f"rollback-{username}",
+                       "password": fixture.password_hash, "public_id": str(uuid4())})
                 raise DeliberateRollback()
         except DeliberateRollback:
             pass

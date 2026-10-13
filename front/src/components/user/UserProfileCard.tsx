@@ -11,7 +11,7 @@ interface Props {
 
 export default function UserProfileCard({user, onLogout}: Props) {
     const {user: authUser} = useAuth();
-    const isCurrentUser = Boolean(authUser?.email && authUser.email === user.email);
+    const isCurrentUser = Boolean(authUser?.public_id && authUser.public_id === user.public_id);
     const name = user.username || "MovieGraph member";
 
     return (
@@ -24,14 +24,14 @@ export default function UserProfileCard({user, onLogout}: Props) {
                     <div className="min-w-0">
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">{isCurrentUser ? "Your profile" : "MovieGraph member"}</p>
                         <h1 id="profile-name" className="break-words text-2xl font-bold text-ink">{name}</h1>
-                        <p className="mt-1 break-all text-sm text-muted">{user.email}</p>
+                        {isCurrentUser && user.email && <p className="mt-1 break-all text-sm text-muted">{user.email}</p>}
                     </div>
                 </div>
                 {isCurrentUser ? onLogout && (
                     <Button onClick={onLogout} variant="secondary" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
                         <FaSignOutAlt aria-hidden="true" />Log out
                     </Button>
-                ) : <FollowButton key={user.email} user={user} />}
+                ) : <FollowButton key={user.public_id} user={user} />}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">

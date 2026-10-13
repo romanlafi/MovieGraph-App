@@ -10,15 +10,15 @@ export default function FollowButton({ user, onFollowChange }: { user: User; onF
     const [pending, setPending] = useState(false);
     const [error, setError] = useState("");
     const submitting = useRef(false);
-    const following = Boolean(user.email && isFollowing(user.email));
+    const following = isFollowing(user.public_id);
 
     const handleClick = async () => {
-        if (!user.email || submitting.current) return;
+        if (submitting.current) return;
         submitting.current = true;
         setPending(true);
         setError("");
         try {
-            await toggleFollow(user.email);
+            await toggleFollow(user.public_id);
             onFollowChange?.();
         } catch {
             setError("Couldn't update this follow. Please try again.");
@@ -28,7 +28,7 @@ export default function FollowButton({ user, onFollowChange }: { user: User; onF
         }
     };
 
-    if (!user.email || !token || !currentUser || user.email === currentUser.email) return null;
+    if (!token || !currentUser || user.public_id === currentUser.public_id) return null;
 
     return (
         <div>
@@ -36,7 +36,7 @@ export default function FollowButton({ user, onFollowChange }: { user: User; onF
                 type="button"
                 onClick={handleClick}
                 disabled={pending}
-                aria-label={`${following ? "Unfollow" : "Follow"} ${user.username || user.email}`}
+                aria-label={`${following ? "Unfollow" : "Follow"} ${user.username || "user"}`}
                 aria-pressed={following}
                 className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-wait disabled:opacity-60 ${
                     following

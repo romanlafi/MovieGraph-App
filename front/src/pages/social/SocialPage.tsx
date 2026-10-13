@@ -98,7 +98,7 @@ export default function SocialPage() {
     const userGrid = (users: User[]) => (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {users.map(member => (
-                <UserCard key={member.id || member.email} user={member} className="min-w-0" onFollowChange={refreshFollows} />
+                <UserCard key={member.public_id} user={member} className="min-w-0" onFollowChange={refreshFollows} />
             ))}
         </div>
     );

@@ -33,9 +33,14 @@ hashed = hash_password('worker-password')
 assert hashed.startswith('$2b$12$')
 assert verify_password('worker-password', hashed)
 assert not verify_password('other-password', hashed)
-long_hash = hash_password('x' * 72 + 'first suffix')
-assert verify_password('x' * 72 + 'second suffix', long_hash)
-print('Worker bcrypt helpers preserve legacy hashes and 72-byte bcrypt semantics')
+try:
+    hash_password('x' * 72 + 'suffix')
+except ValueError:
+    pass
+else:
+    raise AssertionError('Passwords longer than 72 UTF-8 bytes must be rejected')
+assert not verify_password('x' * 72 + 'different suffix', hash_password('x' * 72))
+print('Worker bcrypt helpers preserve legacy hashes and reject inputs beyond 72 bytes')
 ''', LOCAL_CONFIG)
         self.assertEqual(result.returncode, 0, result.stderr)
 

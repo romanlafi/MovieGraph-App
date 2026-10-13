@@ -4,7 +4,10 @@ import bcrypt
 
 
 def _bcrypt_input(password: str) -> bytes:
-    return password.encode("utf-8")[:72]
+    encoded = password.encode("utf-8")
+    if len(encoded) > 72:
+        raise ValueError("Password must not exceed 72 UTF-8 bytes")
+    return encoded
 
 
 def hash_password(password: str) -> str:

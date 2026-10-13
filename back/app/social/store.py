@@ -2,8 +2,9 @@
 
 from dataclasses import dataclass
 from datetime import datetime, UTC
+from uuid import uuid4
 
-from sqlalchemy import delete, insert, or_, select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -44,6 +45,7 @@ def create_account(db: Session, account: dict) -> None:
 
     user_id = db.execute(insert(users).values(
         email=account["email"], username=account["username"],
+        public_id=str(uuid4()),
         password=hash_password(account["password"]), birthdate=account["birthdate"],
         bio=account["bio"],
     ).returning(users.c.id)).scalar_one()
@@ -56,7 +58,7 @@ def create_account(db: Session, account: dict) -> None:
 
 def get_user_profile(db: Session, email: str) -> dict | None:
     user = db.execute(select(
-        users.c.id, users.c.email, users.c.username, users.c.birthdate, users.c.bio,
+        users.c.id, users.c.public_id, users.c.email, users.c.username, users.c.birthdate, users.c.bio,
     ).where(users.c.email == email)).mappings().first()
     if user is None:
         return None
@@ -64,6 +66,7 @@ def get_user_profile(db: Session, email: str) -> dict | None:
         user_genre_preferences.c.user_id == user["id"],
     ).order_by(user_genre_preferences.c.genre_name)))
     return {
+        "public_id": user["public_id"],
         "email": user["email"],
         "username": user["username"],
         "birthdate": user["birthdate"],
@@ -81,7 +84,7 @@ def _user_responses(db: Session, user_ids: list[int]) -> list[dict]:
     if not user_ids:
         return []
     user_rows = db.execute(select(
-        users.c.id, users.c.email, users.c.username, users.c.birthdate, users.c.bio,
+        users.c.id, users.c.public_id, users.c.username, users.c.bio,
     ).where(users.c.id.in_(user_ids))).mappings().all()
     user_by_id = {row["id"]: dict(row) for row in user_rows}
     preferences_by_user: dict[int, list[str]] = {user_id: [] for user_id in user_by_id}
@@ -93,7 +96,10 @@ def _user_responses(db: Session, user_ids: list[int]) -> list[dict]:
     for user_id, genre_name in preference_rows:
         preferences_by_user[user_id].append(genre_name)
     return [
-        {**user_by_id[user_id], "favorite_genres": preferences_by_user[user_id]}
+        {"public_id": user_by_id[user_id]["public_id"],
+         "username": user_by_id[user_id]["username"],
+         "bio": user_by_id[user_id]["bio"],
+         "favorite_genres": preferences_by_user[user_id]}
         for user_id in user_ids if user_id in user_by_id
     ]
 
@@ -103,17 +109,22 @@ def user_by_email(db: Session, email: str) -> dict | None:
     return user_response(db, user_id) if user_id is not None else None
 
 
+def user_by_public_id(db: Session, public_id: str) -> dict | None:
+    user_id = db.scalar(select(users.c.id).where(users.c.public_id == public_id))
+    return user_response(db, user_id) if user_id is not None else None
+
+
 def search_users(db: Session, query: str, exclude_email: str) -> list[dict]:
     pattern = f"%{query.lower()}%"
     user_ids = db.scalars(select(users.c.id).where(
         users.c.email != exclude_email,
-        or_(users.c.username.ilike(pattern), users.c.email.ilike(pattern)),
+        users.c.username.ilike(pattern),
     ).order_by(users.c.username).limit(20)).all()
     return _user_responses(db, user_ids)
 
 
-def list_users(db: Session) -> list[dict]:
-    user_ids = db.scalars(select(users.c.id).order_by(users.c.username)).all()
+def list_users(db: Session, *, limit: int = 20, offset: int = 0) -> list[dict]:
+    user_ids = db.scalars(select(users.c.id).order_by(users.c.username).limit(limit).offset(offset)).all()
     return _user_responses(db, user_ids)
 
 
@@ -121,6 +132,17 @@ def follow_user(db: Session, follower_id: int, followed_email: str) -> str | Non
     followed_id = db.scalar(select(users.c.id).where(users.c.email == followed_email))
     if followed_id is None:
         return None
+    return _follow_user_id(db, follower_id, followed_id)
+
+
+def follow_user_by_public_id(db: Session, follower_id: int, public_id: str) -> str | None:
+    followed_id = db.scalar(select(users.c.id).where(users.c.public_id == public_id))
+    if followed_id is None:
+        return None
+    return _follow_user_id(db, follower_id, followed_id)
+
+
+def _follow_user_id(db: Session, follower_id: int, followed_id: int) -> str:
     if follower_id == followed_id or db.execute(select(user_follows.c.follower_id).where(
         user_follows.c.follower_id == follower_id,
         user_follows.c.followed_id == followed_id,
@@ -144,6 +166,17 @@ def unfollow_user(db: Session, follower_id: int, followed_email: str) -> str | N
     followed_id = db.scalar(select(users.c.id).where(users.c.email == followed_email))
     if followed_id is None:
         return None
+    return _unfollow_user_id(db, follower_id, followed_id)
+
+
+def unfollow_user_by_public_id(db: Session, follower_id: int, public_id: str) -> str | None:
+    followed_id = db.scalar(select(users.c.id).where(users.c.public_id == public_id))
+    if followed_id is None:
+        return None
+    return _unfollow_user_id(db, follower_id, followed_id)
+
+
+def _unfollow_user_id(db: Session, follower_id: int, followed_id: int) -> str:
     db.execute(delete(user_follows).where(
         user_follows.c.follower_id == follower_id,
         user_follows.c.followed_id == followed_id,

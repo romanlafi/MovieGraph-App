@@ -22,16 +22,21 @@ export const getFollowedMovieLikes = async (signal?: AbortSignal): Promise<numbe
     return res.data;
 };
 
-export const followUser = async (email: string): Promise<void> => {
-    await api.post(API_FOLLOWS, { email });
+export const followUser = async (publicId: string): Promise<void> => {
+    await api.post(API_FOLLOWS, { public_id: publicId });
 };
 
-export const unfollowUser = async (email: string): Promise<void> => {
-    await api.delete(API_FOLLOWS, { data: { email } });
+export const unfollowUser = async (publicId: string): Promise<void> => {
+    await api.delete(API_FOLLOWS, { data: { public_id: publicId } });
 };
 
 export const getUserByEmail = async (email: string, signal?: AbortSignal): Promise<User> => {
     const res = await api.get(`${API_FOLLOWS}by_email`, { params: { email }, signal });
+    return res.data;
+};
+
+export const getUserByPublicId = async (publicId: string, signal?: AbortSignal): Promise<User> => {
+    const res = await api.get(`${API_FOLLOWS}users/${encodeURIComponent(publicId)}`, {signal});
     return res.data;
 };
 

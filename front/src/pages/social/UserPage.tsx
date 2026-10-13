@@ -5,14 +5,14 @@ import {FaUsers} from "react-icons/fa";
 import Container from "../../components/layout/Container.tsx";
 import UserProfileCard from "../../components/user/UserProfileCard.tsx";
 import {User} from "../../types/user.ts";
-import {getMyFollowers, getMyFollowing, getUserByEmail} from "../../services/followService.ts";
+import {getMyFollowers, getMyFollowing, getUserByEmail, getUserByPublicId} from "../../services/followService.ts";
 import {useAuth} from "../../hooks/auth/useAuth.ts";
 import Button from "../../components/ui/Button.tsx";
 import UserCard from "../../components/user/UserCard.tsx";
 import NotFound from "../NotFound.tsx";
 
 export default function UserPage() {
-    const {email} = useParams();
+    const {publicId: routeIdentifier} = useParams();
     const {user: authUser, token, logout} = useAuth();
     const [profile, setProfile] = useState<User | null>(null);
     const [followers, setFollowers] = useState<User[]>([]);
@@ -25,8 +25,11 @@ export default function UserPage() {
     const [networkError, setNetworkError] = useState("");
     const networkRequest = useRef(0);
     const navigate = useNavigate();
-    const targetEmail = email || authUser?.email;
-    const isCurrentUser = Boolean(token && authUser?.email && authUser.email === targetEmail);
+    const routePublicId = routeIdentifier && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(routeIdentifier)
+        ? routeIdentifier
+        : null;
+    const isLegacyEmailLink = Boolean(routeIdentifier && !routePublicId);
+    const isCurrentUser = Boolean(token && authUser?.public_id && authUser.public_id === routePublicId);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -36,14 +39,21 @@ export default function UserPage() {
         setNotFound(false);
 
         const loadProfile = async () => {
-            if (!targetEmail) {
+            if (!routeIdentifier) {
                 setNotFound(true);
                 setLoading(false);
                 return;
             }
             try {
-                const fetchedUser = await getUserByEmail(targetEmail, controller.signal);
-                if (!controller.signal.aborted) setProfile(fetchedUser);
+                const fetchedUser = isLegacyEmailLink
+                    ? await getUserByEmail(routeIdentifier, controller.signal)
+                    : await getUserByPublicId(routeIdentifier, controller.signal);
+                if (controller.signal.aborted) return;
+                if (isLegacyEmailLink && fetchedUser.public_id) {
+                    navigate(`/user/${encodeURIComponent(fetchedUser.public_id)}`, {replace: true});
+                    return;
+                }
+                setProfile(fetchedUser);
             } catch (error) {
                 if (controller.signal.aborted) return;
                 if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -58,7 +68,7 @@ export default function UserPage() {
 
         void loadProfile();
         return () => controller.abort();
-    }, [targetEmail, retryAttempt]);
+    }, [routeIdentifier, isLegacyEmailLink, navigate, retryAttempt]);
 
     const refreshNetwork = useCallback(async () => {
         const currentRequest = ++networkRequest.current;
@@ -133,7 +143,7 @@ export default function UserPage() {
                                             {list.users.length > 0 ? (
                                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                                     {list.users.map(member => (
-                                                        <UserCard key={member.id || member.email} user={member} className="min-w-0" onFollowChange={refreshNetwork} />
+                                                        <UserCard key={member.public_id} user={member} className="min-w-0" onFollowChange={refreshNetwork} />
                                                     ))}
                                                 </div>
                                             ) : (

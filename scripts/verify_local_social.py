@@ -29,7 +29,7 @@ def verify(worker_port: int = 8787) -> dict:
                            connect_args={"timeout": 10})
     tables = ("users", "comments", "user_movie_likes")
     fixture_id = uuid4().hex
-    email = f"local-verification-{fixture_id}@example.invalid"
+    email = f"local-verification-{fixture_id}@example.com"
     username = f"local-verification-{fixture_id}"
     user_id = None
     baseline = {}
@@ -41,9 +41,11 @@ def verify(worker_port: int = 8787) -> dict:
                 raise RuntimeError("Local Worker must enforce authentication; run MovieGraph Local")
             with engine.begin() as connection:
                 user_id = connection.execute(text(
-                    "INSERT INTO users(email, username, password) VALUES (:email, :username, :password) RETURNING id"
+                    "INSERT INTO users(email, username, password, public_id) "
+                    "VALUES (:email, :username, :password, :public_id) RETURNING id"
                 ), {"email": email, "username": username,
-                    "password": bcrypt.hashpw(secrets.token_bytes(32), bcrypt.gensalt()).decode()}).scalar_one()
+                    "password": bcrypt.hashpw(secrets.token_bytes(32), bcrypt.gensalt()).decode(),
+                    "public_id": str(uuid4())}).scalar_one()
             token = jwt.encode({"sub": email, "exp": datetime.now(timezone.utc) + timedelta(minutes=5)},
                                signing_key, algorithm="HS256")
             client.headers["Authorization"] = f"Bearer {token}"
@@ -78,6 +80,9 @@ def verify(worker_port: int = 8787) -> dict:
                 raise RuntimeError("Unlike state mismatch")
             if request("empty_likes", "GET", "/api/v1/movies/likes") != []:
                 raise RuntimeError("Unlike list mismatch")
+            profile = request("my_profile", "GET", "/api/v1/users/me")
+            if profile["email"] != email or profile["username"] != username:
+                raise RuntimeError("Authenticated profile mismatch")
         result = {"target": "local-development", "requests": statuses}
     finally:
         try:

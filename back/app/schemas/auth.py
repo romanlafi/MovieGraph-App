@@ -1,18 +1,35 @@
 from datetime import date
 
-from pydantic import BaseModel, EmailStr, Field
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 
 class UserRegistration(BaseModel):
-    username: str
+    username: str = Field(min_length=2, max_length=40)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=12, max_length=72)
     birthdate: date
-    bio: str | None = None
-    favorite_genres: list[str] = Field(default_factory=list)
+    bio: str | None = Field(default=None, max_length=500)
+    favorite_genres: list[str] = Field(default_factory=list, max_length=20)
+
+    @field_validator("password")
+    @classmethod
+    def password_fits_bcrypt(cls, password: str) -> str:
+        if len(password.encode("utf-8")) > 72:
+            raise ValueError("Password must not exceed 72 UTF-8 bytes")
+        return password
+
+    @field_validator("favorite_genres")
+    @classmethod
+    def genre_names_are_bounded(cls, genres: list[str]) -> list[str]:
+        if any(not genre.strip() or len(genre) > 40 for genre in genres):
+            raise ValueError("Each genre must contain between 1 and 40 characters")
+        return genres
 
 
 class UserProfile(BaseModel):
+    public_id: UUID
     email: EmailStr
     username: str
     birthdate: date | None
@@ -20,12 +37,22 @@ class UserProfile(BaseModel):
     favorite_genres: list[str]
 
 
-class UserResponse(UserProfile):
-    id: int
+class UserResponse(BaseModel):
+    public_id: UUID
+    username: str
+    bio: str | None
+    favorite_genres: list[str]
 
 
 class FollowRequest(BaseModel):
-    email: EmailStr
+    public_id: UUID | None = None
+    email: EmailStr | None = None
+
+    @model_validator(mode="after")
+    def requires_one_identifier(self) -> "FollowRequest":
+        if (self.public_id is None) == (self.email is None):
+            raise ValueError("Provide exactly one of public_id or email")
+        return self
 
 
 class Token(BaseModel):

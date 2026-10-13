@@ -23,17 +23,14 @@ export default function UserCard({
             <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/15 text-lg font-semibold text-accent">
                 {name.slice(0, 1).toUpperCase()}
             </span>
-            <div className="min-w-0">
-                <p className="truncate font-semibold text-ink">{name}</p>
-                <p className="truncate text-xs text-muted">{user.email}</p>
-            </div>
+            <p className="truncate font-semibold text-ink">{name}</p>
         </>
     );
 
     return (
         <article className={`flex flex-col gap-4 rounded-lg border border-border bg-card p-4 ${className}`}>
-            {linkToProfile && user.email ? (
-                <Link to={`/user/${encodeURIComponent(user.email)}`} className="flex items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent hover:text-accent">
+            {linkToProfile && user.public_id ? (
+                <Link to={`/user/${encodeURIComponent(user.public_id)}`} className="flex items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent hover:text-accent">
                     {profile}
                 </Link>
             ) : (
