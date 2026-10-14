@@ -2,18 +2,18 @@ import {api} from "./api.ts";
 import {User} from "../types/user.ts";
 import {API_FOLLOWS} from "../data/apiConstants.ts";
 
-export const searchUsers = async (query: string): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}search`, { params: { query } });
+export const searchUsers = async (query: string, signal?: AbortSignal): Promise<User[]> => {
+    const res = await api.get<User[]>(`${API_FOLLOWS}search`, {params: {query}, signal});
     return res.data;
 };
 
-export const getMyFollowing = async (): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}following`);
+export const getMyFollowing = async (signal?: AbortSignal): Promise<User[]> => {
+    const res = await api.get<User[]>(`${API_FOLLOWS}following`, {signal});
     return res.data;
 };
 
-export const getMyFollowers = async (): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}followers`);
+export const getMyFollowers = async (signal?: AbortSignal): Promise<User[]> => {
+    const res = await api.get<User[]>(`${API_FOLLOWS}followers`, {signal});
     return res.data;
 };
 
