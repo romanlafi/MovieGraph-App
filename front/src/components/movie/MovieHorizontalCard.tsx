@@ -17,7 +17,7 @@ export default function MovieHorizontalCard({ movie, position }: Props) {
         <button
             type="button"
             className="flex w-full min-w-0 items-center gap-4 rounded-xl bg-card p-3 text-left ring-1 ring-border transition hover:bg-border sm:p-4"
-            onClick={() => navigate(`/movie/${movie.tmdb_id}`)}
+            onClick={() => navigate(`/movie/${movie.tmdbId}`)}
         >
             {typeof position === "number" && (
                 <span className="w-8 shrink-0 text-right text-muted font-semibold text-lg">{position}.</span>

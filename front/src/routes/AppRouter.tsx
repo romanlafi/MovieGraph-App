@@ -24,9 +24,9 @@ const router = createBrowserRouter([
       { path: "register", element: <Register /> },
       { path: "user/:publicId", element: <UserPage /> },
 
-      { path: "movie/:id", element: <MovieDetail /> },
+      { path: "movie/:tmdbMovieId", element: <MovieDetail /> },
 
-      { path: "person/:id", element: <PersonDetail /> },
+      { path: "person/:tmdbPersonId", element: <PersonDetail /> },
 
       { path: "genres", element: <ExploreGenresPage /> },
       { path: "genre/:genre", element: <GenrePage /> },

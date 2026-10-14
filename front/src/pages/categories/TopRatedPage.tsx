@@ -1,12 +1,12 @@
 import { useTopRatedMovies } from "../../hooks/movie/useTopRatedMovies.ts";
 import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
 import Container from "../../components/layout/Container.tsx";
-import Button from "../../components/ui/Button.tsx";
+import MoviePagination from "../../components/movie/MoviePagination.tsx";
 import MovieHorizontalCard from "../../components/movie/MovieHorizontalCard.tsx";
 import TopRatedMovieCard from "../../components/movie/TopRatedMovieCard.tsx";
 
 export default function TopRatedPage() {
-    const { movies, loading, loadMore, loadingMore, hasMore } = useTopRatedMovies();
+    const { movies, loading, loadMore, loadingMore, hasMore, error } = useTopRatedMovies();
 
     if (loading) return <LoadingSpinner />;
 
@@ -21,7 +21,7 @@ export default function TopRatedPage() {
                     <div className="grid gap-4 md:grid-cols-3">
                         {movies.slice(0, 3).map((movie, index) => (
                             <TopRatedMovieCard
-                                key={movie.tmdb_id}
+                                key={movie.tmdbId}
                                 movie={movie}
                                 rank={(index + 1) as 1 | 2 | 3}
                             />
@@ -39,7 +39,7 @@ export default function TopRatedPage() {
                     <div className="space-y-4">
                         {movies.slice(3).map((movie, index) => (
                             <MovieHorizontalCard
-                                key={movie.tmdb_id}
+                                key={movie.tmdbId}
                                 movie={movie}
                                 position={index + 4}
                             />
@@ -48,19 +48,13 @@ export default function TopRatedPage() {
                 </section>
             )}
 
-            {movies.length === 0 && (
+            {movies.length === 0 && !error && (
                 <p className="rounded-xl border border-dashed border-border p-8 text-center text-muted">
                     No top-rated movies are available right now.
                 </p>
             )}
 
-            {hasMore && (
-                <div className="flex justify-center">
-                    <Button onClick={loadMore} disabled={loadingMore}>
-                        {loadingMore ? "Loading..." : "Load More"}
-                    </Button>
-                </div>
-            )}
+            <MoviePagination error={error} hasMore={hasMore} loadingMore={loadingMore} loadMore={loadMore} />
         </Container>
     );
 }

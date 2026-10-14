@@ -1,19 +1,14 @@
 import {api} from "./api.ts";
 import type {TmdbMovieSearchResult} from "../types/tmdb.ts";
-import {hasMoviePosterAndRating} from "./catalogueAdapters.ts";
+import type {MovieSearchResult} from "../types/movie.ts";
+import {hasMoviePosterAndRating, toMovieSearchResult} from "./catalogueAdapters.ts";
 
-export const searchTmdbMovies = async (query: string, page = 1): Promise<TmdbMovieSearchResult[]> => {
-    // The transitional API base includes /api/v1. Use the same client and host
-    // for the sibling catalogue namespace without changing legacy callers.
-    const baseURL = (api.defaults.baseURL ?? "/api/v1").replace(/\/api\/v1\/?$/, "");
-    const res = await api.get<TmdbMovieSearchResult[]>("/api/tmdb/search/movie", {
-        baseURL,
-        params: {q: query, page},
-    });
-    return res.data.filter(movie => hasMoviePosterAndRating({
+export const searchTmdbMovies = async (query: string, page = 1, signal?: AbortSignal): Promise<MovieSearchResult[]> => {
+    const results = await getTmdbCatalogue<TmdbMovieSearchResult[]>("search/movie", {q: query, page}, signal);
+    return results.filter(movie => hasMoviePosterAndRating({
         poster_path: movie.poster_url,
         vote_average: movie.rating,
-    }));
+    })).map(toMovieSearchResult);
 };
 
 export const getTmdbCatalogue = async <Response>(

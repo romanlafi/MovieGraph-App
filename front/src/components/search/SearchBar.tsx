@@ -1,92 +1,80 @@
-import {useEffect, useRef, useState} from "react";
-import type {TmdbMovieSearchResult} from "../../types/tmdb.ts";
-import {searchTmdbMovies} from "../../services/tmdbService.ts";
+import {useEffect, useId, useRef, useState} from "react";
+import {useMovieSearch} from "../../hooks/movie/useMovieSearch.ts";
 import {useNavigate} from "react-router-dom";
 import TextInput from "../ui/inputs/TextInput.tsx";
-import RatingDisplay from "../common/RatingDisplay.tsx";
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
-import Text from "../ui/Text.tsx";
+import MovieSearchResults from "./MovieSearchResults.tsx";
 
 export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: boolean; onSelect?: () => void}) {
-    const [query, setQuery] = useState("");
-    const [results, setResults] = useState<TmdbMovieSearchResult[]>([]);
+    const {query, results, status, error, updateQuery, clear, retry} = useMovieSearch();
     const [showDropdown, setShowDropdown] = useState(false);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const statusId = useId();
+    const resultsId = useId();
+    const dropdownVisible = showDropdown && status !== "idle";
 
-    useEffect(() => {
-        if (query.length < 2) {
-            setResults([]);
-            return;
-        }
-
-        const timeout = setTimeout(async () => {
-            try {
-                const res = await searchTmdbMovies(query);
-                setResults(res);
-                setShowDropdown(true);
-            } catch (err) {
-                console.error("Error searching movies", err);
-            }
-        }, 300); // debounce
-
-        return () => clearTimeout(timeout);
-    }, [query]);
-
-    const handleSelect = (tmdb_id: number) => {
-        navigate(`/movie/${tmdb_id}`);
+    const handleSelect = (tmdbMovieId: number) => {
         setShowDropdown(false);
-        setQuery("");
+        clear();
+        navigate(`/movie/${tmdbMovieId}`);
         onSelect?.();
     };
 
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (!dropdownRef.current?.contains(e.target as Node)) {
+        const handlePointerOutside = (event: PointerEvent) => {
+            if (!dropdownRef.current?.contains(event.target as Node)) {
                 setShowDropdown(false);
-                setQuery("");
+                clear();
             }
         };
-        document.addEventListener("click", handleClickOutside);
-        return () => document.removeEventListener("click", handleClickOutside);
-    }, []);
+        document.addEventListener("pointerdown", handlePointerOutside);
+        return () => document.removeEventListener("pointerdown", handlePointerOutside);
+    }, [clear]);
 
     return (
-        <div className="relative min-w-0 w-full" ref={dropdownRef}>
+        <div
+            className="relative min-w-0 w-full"
+            ref={dropdownRef}
+            onKeyDown={event => {
+                if (event.key === "Escape") {
+                    setShowDropdown(false);
+                    clear();
+                    dropdownRef.current?.querySelector("input")?.focus();
+                }
+            }}
+        >
             <TextInput
                 type="text"
                 aria-label="Search movies"
+                aria-describedby={statusId}
+                aria-controls={dropdownVisible ? resultsId : undefined}
                 autoFocus={autoFocus}
                 placeholder="Search movies..."
+                maxLength={200}
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={event => {
+                    setShowDropdown(true);
+                    updateQuery(event.target.value);
+                }}
             />
+            <p id={statusId} role="status" aria-atomic="true" className="sr-only">
+                {dropdownVisible && (status === "loading"
+                    ? "Searching movies..."
+                    : status === "success"
+                        ? results.length ? `${results.length} movies found.` : "No movies found."
+                        : "")}
+            </p>
 
-            {showDropdown && results.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-[min(18rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain">
-                    {results.map((movie) => (
-                        <button
-                            key={movie.tmdb_id}
-                            onClick={() => handleSelect(movie.tmdb_id)}
-                            className="flex items-center w-full text-left gap-3 p-2 hover:bg-card transition"
-                        >
-                            <img
-                                src={getTmdbImageUrl(movie.poster_url, "w185")}
-                                alt={movie.title}
-                                loading="lazy"
-                                decoding="async"
-                                className="w-9 h-13 object-cover rounded"
-                            />
-                            <div className="text-sm text-ink flex-1 overflow-hidden">
-                                <Text text={movie.title} className="font-semibold" truncate={true}/>
-                                <div className="flex items-center justify-between text-xs text-ink/60">
-                                    <span>{movie.year}</span>
-                                    {movie.rating && <RatingDisplay rating={movie.rating} />}
-                                </div>
-                            </div>
-                        </button>
-                    ))}
+            {dropdownVisible && (
+                <div id={resultsId} className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-[min(18rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain">
+                    <MovieSearchResults
+                        results={results}
+                        loading={status === "loading"}
+                        error={error}
+                        onSelect={handleSelect}
+                        onRetry={retry}
+                    />
                 </div>
             )}
         </div>

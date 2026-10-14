@@ -14,7 +14,7 @@ export default function ReleaseMonthSection({ group }: ReleaseMonthSectionProps)
             </h2>
             <div className="grid min-w-0 gap-4 lg:grid-cols-2">
                 {group.movies.map((movie) => (
-                    <MovieReleaseCard key={movie.tmdb_id} movie={movie} />
+                    <MovieReleaseCard key={movie.tmdbId} movie={movie} />
                 ))}
             </div>
         </section>

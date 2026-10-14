@@ -1,4 +1,11 @@
+import type {Movie} from "./movie.ts";
+
 export interface Genre {
-    id: string;
+    tmdbId: number;
     name: string;
+}
+
+export interface GenreMovies {
+    movies: Movie[];
+    partialError: boolean;
 }

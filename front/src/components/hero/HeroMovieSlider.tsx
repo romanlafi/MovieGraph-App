@@ -20,7 +20,7 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
     const uiTimeoutRef = useRef<number | null>(null);
 
     const handleTrailerClick = () => {
-        navigate(`/movie/${movies[currentIndex].tmdb_id}`);
+        navigate(`/movie/${movies[currentIndex].tmdbId}`);
     };
 
     const handlePrev = () => {
@@ -73,15 +73,15 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
             >
                 {movies.map((movie) => (
                     <div
-                        key={movie.tmdb_id}
+                        key={movie.tmdbId}
                         className="relative min-w-full h-full bg-cover bg-center"
                     >
                         <img
                             src={getTmdbImageUrl(movie.backdrop_url, "w1920")}
                             alt=""
                             aria-hidden="true"
-                            loading={movies[currentIndex]?.tmdb_id === movie.tmdb_id ? "eager" : "lazy"}
-                            fetchPriority={movies[currentIndex]?.tmdb_id === movie.tmdb_id ? "high" : "low"}
+                            loading={movies[currentIndex]?.tmdbId === movie.tmdbId ? "eager" : "lazy"}
+                            fetchPriority={movies[currentIndex]?.tmdbId === movie.tmdbId ? "high" : "low"}
                             decoding="async"
                             className="absolute inset-0 w-full h-full object-cover object-center"
                         />
@@ -91,7 +91,7 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
                             <img
                                 src={getTmdbImageUrl(movie.poster_url)}
                                 alt={movie.title}
-                                loading={movies[currentIndex]?.tmdb_id === movie.tmdb_id ? "eager" : "lazy"}
+                                loading={movies[currentIndex]?.tmdbId === movie.tmdbId ? "eager" : "lazy"}
                                 decoding="async"
                                 className="absolute left-8 bottom-8 w-[100px] md:w-[140px] rounded-lg shadow-lg border border-white/10"
                             />

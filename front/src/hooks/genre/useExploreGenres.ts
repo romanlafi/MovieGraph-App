@@ -1,103 +1,47 @@
-import {useEffect, useState} from "react";
-import {Genre} from "../../types/genre.ts";
-import {Movie} from "../../types/movie.ts";
-import {getGenres, getMoviesByTmdbGenreId} from "../../services/moviesService.ts";
+import {useCallback, useMemo, useRef, useState} from "react";
+import {getGenres} from "../../services/moviesService.ts";
+import {useAsyncResource} from "../useAsyncResource.ts";
 
-const shuffleMovies = (movies: Movie[]): Movie[] => {
-    const shuffled = [...movies];
-    for (let index = shuffled.length - 1; index > 0; index--) {
-        const randomIndex = Math.floor(Math.random() * (index + 1));
-        [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
-    }
-    return shuffled;
-};
-
-const getRandomMoviesForGenre = async (genreId: number): Promise<Movie[]> => {
-    const eligibleMovies: Movie[] = [];
-    const pageSize = 20;
-    const maxPages = 3;
-
-    for (let page = 1; page <= maxPages && eligibleMovies.length < 10; page++) {
-        const pageMovies = await getMoviesByTmdbGenreId(genreId, page, pageSize);
-        eligibleMovies.push(...pageMovies);
-        if (pageMovies.length === 0) continue;
-    }
-
-    return shuffleMovies(eligibleMovies);
-};
+const ITEMS_PER_LOAD = 3;
 
 export function useExploreGenres() {
-    const [allGenres, setAllGenres] = useState<Genre[]>([]);
-    const [visibleGenres, setVisibleGenres] = useState<Genre[]>([]);
-    const [genreMovies, setGenreMovies] = useState<Record<string, Movie[]>>({});
-    const [loading, setLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [hasMoreGenres, setHasMoreGenres] = useState(true);
-    const ITEMS_PER_LOAD = 3;
+    const resource = useAsyncResource(getGenres);
+    const [visibleCount, setVisibleCount] = useState(ITEMS_PER_LOAD);
+    const [pendingCount, setPendingCount] = useState(0);
+    const pendingGenres = useRef(new Set<number>());
+    const allGenres = useMemo(() => [...(resource.data ?? [])]
+        .sort((left, right) => left.name.localeCompare(right.name)), [resource.data]);
 
-    useEffect(() => {
-        const fetchInitial = async () => {
-            try {
-                const genres = (await getGenres()).sort((left, right) => left.name.localeCompare(right.name));
-                setAllGenres(genres);
-                const initialGenres = genres.slice(0, ITEMS_PER_LOAD);
-                setVisibleGenres(initialGenres);
-
-                const moviesByGenre = await Promise.all(
-                    initialGenres.map((genre: Genre) => getRandomMoviesForGenre(Number(genre.id)))
-                );
-                const moviesMap: Record<string, Movie[]> = {};
-                initialGenres.forEach((genre, index) => {
-                    moviesMap[genre.id] = moviesByGenre[index];
-                });
-                setGenreMovies(moviesMap);
-
-                setHasMoreGenres(genres.length > ITEMS_PER_LOAD);
-            } finally {
-                setLoading(false);
-            }
-        };
-        void fetchInitial();
+    const setGenreLoading = useCallback((tmdbGenreId: number, loading: boolean) => {
+        if (loading) pendingGenres.current.add(tmdbGenreId);
+        else pendingGenres.current.delete(tmdbGenreId);
+        setPendingCount(pendingGenres.current.size);
     }, []);
 
-    const loadMoreGenres = async () => {
-        if (loadingMore || !hasMoreGenres) return;
-        setLoadingMore(true);
-        try {
-            const nextGenres = allGenres.slice(visibleGenres.length, visibleGenres.length + ITEMS_PER_LOAD);
+    const loadMoreGenres = () => {
+        if (pendingGenres.current.size > 0) return;
+        const nextGenres = allGenres.slice(visibleCount, visibleCount + ITEMS_PER_LOAD);
+        if (!nextGenres.length) return;
+        nextGenres.forEach(genre => pendingGenres.current.add(genre.tmdbId));
+        setPendingCount(pendingGenres.current.size);
+        setVisibleCount(current => current + nextGenres.length);
+    };
 
-            if (nextGenres.length === 0) {
-                setHasMoreGenres(false);
-                return;
-            }
-
-            const moviesByGenre = await Promise.all(
-                nextGenres.map((genre: Genre) => getRandomMoviesForGenre(Number(genre.id)))
-            );
-
-            setVisibleGenres((prev) => [...prev, ...nextGenres]);
-            setGenreMovies((prev) => {
-                const updated = { ...prev };
-                nextGenres.forEach((genre, index) => {
-                    updated[genre.id] = moviesByGenre[index];
-                });
-                return updated;
-            });
-
-            if (visibleGenres.length + nextGenres.length >= allGenres.length) {
-                setHasMoreGenres(false);
-            }
-        } finally {
-            setLoadingMore(false);
-        }
+    const retry = () => {
+        setVisibleCount(ITEMS_PER_LOAD);
+        pendingGenres.current.clear();
+        setPendingCount(0);
+        resource.retry();
     };
 
     return {
-        visibleGenres,
-        genreMovies,
-        loading,
+        visibleGenres: allGenres.slice(0, visibleCount),
+        loading: resource.loading,
+        error: resource.error,
+        retry,
         loadMoreGenres,
-        loadingMore,
-        hasMoreGenres,
+        loadingMore: pendingCount > 0,
+        hasMoreGenres: visibleCount < allGenres.length,
+        setGenreLoading,
     };
 }

@@ -1,5 +1,5 @@
-import {Movie} from "../../types/movie.ts";
-import {useNavigate} from "react-router-dom";
+import type {Movie} from "../../types/movie.ts";
+import {Link} from "react-router-dom";
 import Title from "../ui/Title.tsx";
 import MovieCarouselOverlay from "./MovieCarouselOverlay.tsx";
 import Text from "../ui/Text.tsx";
@@ -12,25 +12,17 @@ interface Props {
 }
 
 export default function MovieCarousel({ movies, title, subtitle, genreLink = true }: Props) {
-    const navigate = useNavigate();
-
-    const handleTitleClick = () => {
-        if (genreLink && title) {
-            navigate(`/genre/${encodeURIComponent(title)}`);
-        }
-    };
-
     if (!movies.length) return null;
 
     return (
         <section className="bg-panel rounded-xl p-6 shadow space-y-4">
-            <Title
-                title={title}
-                as="h2"
-                size="md"
-                className={`mb-2 ${genreLink ? "cursor-pointer hover:text-accent" : ""}`}
-                onClick={handleTitleClick}
-            />
+            <Title as="h2" size="md" className="mb-2">
+                {genreLink && title ? (
+                    <Link to={`/genre/${encodeURIComponent(title)}`} className="hover:text-accent focus-visible:outline-2 focus-visible:outline-accent">
+                        {title}
+                    </Link>
+                ) : title}
+            </Title>
             <Text text={subtitle} className="text-ink/70"/>
             <MovieCarouselOverlay movies={movies} />
         </section>

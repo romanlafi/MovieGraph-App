@@ -13,7 +13,7 @@ export default function MovieCard({movie}: Props) {
     const navigate = useNavigate();
 
     const handleCardClick = () => {
-        navigate(`/movie/${movie.tmdb_id}`);
+        navigate(`/movie/${movie.tmdbId}`);
     };
 
     return (
@@ -31,7 +31,7 @@ export default function MovieCard({movie}: Props) {
 
             <div className="flex items-center justify-between mt-1">
                 {movie.rating && <RatingDisplay rating={movie.rating}/>}
-                <LikeButton tmdbMovieId={movie.tmdb_id}/>
+                <LikeButton tmdbMovieId={movie.tmdbId}/>
             </div>
         </div>
 

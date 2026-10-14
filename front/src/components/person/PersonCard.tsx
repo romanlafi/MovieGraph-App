@@ -12,7 +12,7 @@ export default function PersonCard({person, showRole = true}: { person: Person; 
     const navigate = useNavigate();
 
     const handleCardClick = () => {
-        navigate(`/person/${person.tmdb_id}`);
+        navigate(`/person/${person.tmdbId}`);
     };
 
     return (

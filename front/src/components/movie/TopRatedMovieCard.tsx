@@ -31,7 +31,7 @@ export default function TopRatedMovieCard({ movie, rank }: TopRatedMovieCardProp
     return (
         <button
             type="button"
-            onClick={() => navigate(`/movie/${movie.tmdb_id}`)}
+            onClick={() => navigate(`/movie/${movie.tmdbId}`)}
             aria-label={`${movie.title}, ranked number ${rank}, rated ${movie.rating?.toFixed(1)}`}
             className={`group grid w-full grid-cols-[6rem_minmax(0,1fr)] items-center gap-4 rounded-2xl border p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-border sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-5 sm:p-4 ${styles.card}`}
         >

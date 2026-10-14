@@ -1,8 +1,7 @@
-import {Movie} from "./movie.ts";
+import type {Movie} from "./movie.ts";
 
 export interface Collection {
-    id: string;
-    tmdb_id: string;
+    tmdbId: number;
     name: string;
     poster_url?: string;
     backdrop_url?: string;

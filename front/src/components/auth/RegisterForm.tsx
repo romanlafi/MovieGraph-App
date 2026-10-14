@@ -5,6 +5,7 @@ import {FaCheckCircle} from "react-icons/fa";
 import {Link, useNavigate} from "react-router-dom";
 import {getGenres} from "../../services/moviesService.ts";
 import {registerUser} from "../../services/authService.ts";
+import type {Genre} from "../../types/genre.ts";
 import TextInput from "../ui/inputs/TextInput.tsx";
 import Button from "../ui/Button.tsx";
 import Textarea from "../ui/inputs/Textarea.tsx";
@@ -23,7 +24,7 @@ export default function RegisterForm() {
         bio: "",
         favorite_genres: [] as string[],
     });
-    const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
+    const [genres, setGenres] = useState<Genre[]>([]);
     const [genresLoading, setGenresLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);

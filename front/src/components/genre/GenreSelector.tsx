@@ -20,7 +20,7 @@ export default function GenreSelector({
             <div className="flex flex-wrap gap-2">
                 {genres.map((genre) => (
                     <SelectableGenreBadge
-                        key={genre.id}
+                        key={genre.tmdbId}
                         genre={genre.name}
                         selected={selected.includes(genre.name)}
                         onClick={onToggle}

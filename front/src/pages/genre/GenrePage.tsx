@@ -2,7 +2,7 @@ import {useParams} from "react-router-dom";
 
 import MovieGrid from "../../components/movie/MovieGrid.tsx";
 import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
-import Button from "../../components/ui/Button.tsx";
+import MoviePagination from "../../components/movie/MoviePagination.tsx";
 import Container from "../../components/layout/Container.tsx";
 import Title from "../../components/ui/Title.tsx";
 
@@ -13,13 +13,13 @@ import Text from "../../components/ui/Text.tsx";
 
 export default function GenrePage() {
     const { genre } = useParams<{ genre: string }>();
-    const { movies, loading, loadMore, loadingMore, hasMore } = useMoviesByGenre(genre ?? "");
+    const { movies, loading, loadMore, loadingMore, hasMore, error } = useMoviesByGenre(genre ?? "");
 
     if (loading) {
         return <LoadingSpinner />;
     }
 
-    if (!movies.length) {
+    if (!movies.length && !error) {
         return (
             <div className="flex justify-center items-center h-[70vh] text-ink">
                 No movies found for this genre.
@@ -35,13 +35,7 @@ export default function GenrePage() {
                     <Text text={genreDescriptions[genre]} size="sm" color="white/70"/>
                 }
                 <MovieGrid movies={movies} />
-                {hasMore && (
-                    <div className="flex justify-center">
-                        <Button onClick={loadMore} disabled={loadingMore}>
-                            Load More
-                        </Button>
-                    </div>
-                )}
+                <MoviePagination error={error} hasMore={hasMore} loadingMore={loadingMore} loadMore={loadMore} />
             </section>
         </Container>
     );

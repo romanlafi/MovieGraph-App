@@ -1,9 +1,8 @@
-import {Collection} from "./collection.ts";
+import type {Collection} from "./collection.ts";
 import type {Person} from "./person.ts";
 
 export interface Movie {
-    id: string;
-    tmdb_id: number;
+    tmdbId: number;
     title: string;
     poster_url: string;
     year?: string;
@@ -20,6 +19,14 @@ export interface Movie {
     backdrop_url?: string;
     tagline?: string;
     origin_country?: string;
-    collection?: Collection
+    collection?: Collection;
     cast?: Person[];
+}
+
+export interface MovieSearchResult {
+    tmdbId: number;
+    title: string;
+    rating: number | null;
+    year: number | null;
+    poster_url: string | null;
 }

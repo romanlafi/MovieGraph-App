@@ -1,6 +1,7 @@
+import type {Movie} from "./movie.ts";
+
 export interface Person {
-    id?: string;
-    tmdb_id: string;
+    tmdbId: number;
     name: string;
     role?: string;
     photo_url: string;
@@ -8,4 +9,9 @@ export interface Person {
     biography?: string;
     birthday?: string;
     place_of_birth?: string;
+}
+
+export interface PersonFilmography {
+    acted: Movie[];
+    directed: Movie[];
 }

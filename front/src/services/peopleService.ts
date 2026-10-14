@@ -1,25 +1,26 @@
-import type {Person} from "../types/person.ts";
+import type {Person, PersonFilmography} from "../types/person.ts";
+import type {CatalogueFilmography, CatalogueMovie, CataloguePerson} from "../types/tmdb.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
-import {CatalogueMovie, CataloguePerson, toMovies, toPerson} from "./catalogueAdapters.ts";
+import {toMovies, toPerson} from "./catalogueAdapters.ts";
 
 export const getPeopleForMovie = async (tmdbMovieId: number): Promise<Person[]> => {
-    const movie = await getTmdbCatalogue<{cast: CataloguePerson[]}>(`movie/${tmdbMovieId}`);
-    return movie.cast.map(toPerson);
+    const movie = await getTmdbCatalogue<CatalogueMovie>(`movie/${tmdbMovieId}`);
+    return (movie.cast ?? []).map(toPerson);
 };
 
-export const getPersonByTmdbId = async (tmdbPersonId: string): Promise<Person> => {
-    return toPerson(await getTmdbCatalogue<CataloguePerson>(`person/${tmdbPersonId}`));
+export const getPersonByTmdbId = async (tmdbPersonId: number, signal?: AbortSignal): Promise<Person> => {
+    return toPerson(await getTmdbCatalogue<CataloguePerson>(`person/${tmdbPersonId}`, undefined, signal));
 };
 
-export const getPersonFilmography = async (tmdbPersonId: string) => {
-    const filmography = await getTmdbCatalogue<{acted: CatalogueMovie[]; directed: CatalogueMovie[]}>(
-        `person/${tmdbPersonId}/filmography`,
+export const getPersonFilmography = async (tmdbPersonId: number, signal?: AbortSignal): Promise<PersonFilmography> => {
+    const filmography = await getTmdbCatalogue<CatalogueFilmography>(
+        `person/${tmdbPersonId}/filmography`, undefined, signal,
     );
     return {acted: toMovies(filmography.acted), directed: toMovies(filmography.directed)};
 };
 
-export const getRelatedPeople = async (tmdbPersonId: string): Promise<Person[]> => {
-    return (await getTmdbCatalogue<CataloguePerson[]>(`person/${tmdbPersonId}/related`)).map(toPerson);
+export const getRelatedPeople = async (tmdbPersonId: number, signal?: AbortSignal): Promise<Person[]> => {
+    return (await getTmdbCatalogue<CataloguePerson[]>(`person/${tmdbPersonId}/related`, undefined, signal)).map(toPerson);
 };
 
 export const getRandomPeople = async (): Promise<Person[]> => {

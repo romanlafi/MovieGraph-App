@@ -14,7 +14,7 @@ export default function MovieReleaseCard({ movie }: MovieReleaseCardProps) {
     return (
         <button
             type="button"
-            onClick={() => navigate(`/movie/${movie.tmdb_id}`)}
+            onClick={() => navigate(`/movie/${movie.tmdbId}`)}
             className="group grid w-full min-w-0 grid-cols-[3rem_5rem_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-xl bg-card p-3 text-left ring-1 ring-border transition hover:bg-border sm:grid-cols-[4rem_6rem_minmax(0,1fr)_auto] sm:gap-5 sm:p-5"
         >
             <div className="flex h-20 w-12 flex-col items-center justify-center rounded-lg bg-canvas ring-1 ring-border sm:h-24 sm:w-16">

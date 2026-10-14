@@ -2,7 +2,8 @@ import type {Movie} from "../types/movie.ts";
 import type {Person} from "../types/person.ts";
 import {getFollowedMovieLikes} from "./followService.ts";
 import {getUserLikes} from "./movieLikesService.ts";
-import {CatalogueMovie, hasMoviePosterAndRating, toMovie} from "./catalogueAdapters.ts";
+import type {CatalogueMovie} from "../types/tmdb.ts";
+import {hasMoviePosterAndRating, toMovie} from "./catalogueAdapters.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
 
 const SOURCE_MOVIE_LIMIT = 3;
@@ -62,14 +63,14 @@ const recommendedPeople = async (likedIds: number[], signal: AbortSignal): Promi
     const details = await Promise.allSettled(likedIds.slice(0, SOURCE_MOVIE_LIMIT).map(tmdbMovieId =>
         getTmdbCatalogue<CatalogueMovie>(`movie/${tmdbMovieId}`, undefined, signal),
     ));
-    const people = new Map<string, {person: Person; appearances: number}>();
+    const people = new Map<number, {person: Person; appearances: number}>();
 
     for (const movie of fulfilledValues(details)) {
         for (const person of toMovie(movie).cast ?? []) {
             if (!person.photo_url) continue;
-            const existing = people.get(person.tmdb_id);
+            const existing = people.get(person.tmdbId);
             if (existing) existing.appearances += 1;
-            else people.set(person.tmdb_id, {person, appearances: 1});
+            else people.set(person.tmdbId, {person, appearances: 1});
         }
     }
 
@@ -98,7 +99,7 @@ export const getPersonalizedRecommendations = async (signal: AbortSignal): Promi
     ]);
 
     const heroDetails = await Promise.allSettled(basedOnLikes.slice(0, 3).map(movie =>
-        getTmdbCatalogue<CatalogueMovie>(`movie/${movie.tmdb_id}`, undefined, signal),
+        getTmdbCatalogue<CatalogueMovie>(`movie/${movie.tmdbId}`, undefined, signal),
     ));
     const hero = fulfilledValues(heroDetails)
         .map(toMovie)

@@ -1,46 +1,8 @@
-import type {Movie} from "../types/movie.ts";
+import type {Movie, MovieSearchResult} from "../types/movie.ts";
 import type {Person} from "../types/person.ts";
 import type {Collection} from "../types/collection.ts";
-
-export interface CataloguePerson {
-    tmdb_id: number;
-    name: string;
-    profile_path: string | null;
-    role?: string | null;
-    character?: string | null;
-    biography?: string | null;
-    birthday?: string | null;
-    place_of_birth?: string | null;
-}
-
-export interface CatalogueCollection {
-    tmdb_id: number;
-    name: string;
-    poster_path: string | null;
-    backdrop_path: string | null;
-    movies?: CatalogueMovie[];
-}
-
-export interface CatalogueMovie {
-    tmdb_id: number;
-    title: string;
-    release_date: string | null;
-    vote_average: number | null;
-    poster_path: string | null;
-    backdrop_path: string | null;
-    overview?: string | null;
-    runtime?: number | null;
-    tagline?: string | null;
-    revenue?: number | null;
-    homepage?: string | null;
-    origin_country?: string[];
-    genres?: {tmdb_id: number; name: string}[];
-    collection?: CatalogueCollection | null;
-    cast?: CataloguePerson[];
-    director?: string | null;
-    production_summary?: string | null;
-    trailer_youtube_key?: string | null;
-}
+import type {Genre} from "../types/genre.ts";
+import type {CatalogueCollection, CatalogueGenre, CatalogueMovie, CataloguePerson, TmdbMovieSearchResult} from "../types/tmdb.ts";
 
 export const hasMoviePosterAndRating = (movie: {
     poster_path: string | null;
@@ -51,8 +13,7 @@ export const toMovies = (movies: CatalogueMovie[]): Movie[] =>
     movies.filter(hasMoviePosterAndRating).map(toMovie);
 
 export const toMovie = (movie: CatalogueMovie): Movie => ({
-    id: String(movie.tmdb_id),
-    tmdb_id: movie.tmdb_id,
+    tmdbId: movie.tmdb_id,
     title: movie.title,
     poster_url: movie.poster_path ?? "",
     backdrop_url: movie.backdrop_path ?? undefined,
@@ -74,8 +35,7 @@ export const toMovie = (movie: CatalogueMovie): Movie => ({
 });
 
 export const toPerson = (person: CataloguePerson): Person => ({
-    id: String(person.tmdb_id),
-    tmdb_id: String(person.tmdb_id),
+    tmdbId: person.tmdb_id,
     name: person.name,
     photo_url: person.profile_path ?? "",
     role: person.role ?? undefined,
@@ -86,10 +46,22 @@ export const toPerson = (person: CataloguePerson): Person => ({
 });
 
 export const toCollection = (collection: CatalogueCollection): Collection => ({
-    id: String(collection.tmdb_id),
-    tmdb_id: String(collection.tmdb_id),
+    tmdbId: collection.tmdb_id,
     name: collection.name,
     poster_url: collection.poster_path ?? undefined,
     backdrop_url: collection.backdrop_path ?? undefined,
     movies: collection.movies ? toMovies(collection.movies) : undefined,
+});
+
+export const toGenre = (genre: CatalogueGenre): Genre => ({
+    tmdbId: genre.tmdb_id,
+    name: genre.name,
+});
+
+export const toMovieSearchResult = (movie: TmdbMovieSearchResult): MovieSearchResult => ({
+    tmdbId: movie.tmdb_id,
+    title: movie.title,
+    rating: movie.rating,
+    year: movie.year,
+    poster_url: movie.poster_url,
 });
