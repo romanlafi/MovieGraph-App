@@ -1,19 +1,11 @@
-import {User} from "../types/user.ts";
-import {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
+import type {User} from "../types/user.ts";
+import {useCallback, useEffect, useRef, useState} from "react";
+import type {ReactNode} from "react";
 import {useAuth} from "../hooks/auth/useAuth.ts";
-import * as React from "react";
+import {FollowContext} from "./FollowContext.ts";
 import {followUser, getMyFollowing, unfollowUser} from "../services/followService.ts";
 
-interface FollowContextType {
-    following: User[];
-    isFollowing: (publicId: string) => boolean;
-    toggleFollow: (publicId: string) => Promise<void>;
-    refreshFollowing: () => Promise<void>;
-}
-
-const FollowContext = createContext<FollowContextType | undefined>(undefined);
-
-export const FollowProvider = ({ children }: { children: React.ReactNode }) => {
+export const FollowProvider = ({ children }: { children: ReactNode }) => {
     const [following, setFollowing] = useState<User[]>([]);
     const { user, token } = useAuth();
     const requestId = useRef(0);
@@ -56,10 +48,3 @@ export const FollowProvider = ({ children }: { children: React.ReactNode }) => {
     );
 };
 
-export const useFollow = () => {
-    const context = useContext(FollowContext);
-    if (!context) {
-        throw new Error("useFollow must be used within a FollowProvider");
-    }
-    return context;
-};

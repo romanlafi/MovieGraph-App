@@ -1,4 +1,4 @@
-import {useFollow} from "../../contexts/FollowContext.tsx";
+import {useFollow} from "../../hooks/user/useFollow.ts";
 import {User} from "../../types/user.ts";
 import {useRef, useState} from "react";
 import {useAuth} from "../../hooks/auth/useAuth.ts";

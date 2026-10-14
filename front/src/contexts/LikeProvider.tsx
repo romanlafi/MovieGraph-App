@@ -1,18 +1,10 @@
-import {createContext, useCallback, useContext, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
+import type {ReactNode} from "react";
 import {useAuth} from "../hooks/auth/useAuth.ts";
-import * as React from "react";
+import {LikeContext} from "./LikeContext.ts";
 import {getUserLikes, likeMovie, unlikeMovie} from "../services/movieLikesService.ts";
 
-interface LikeContextType {
-    likes: number[];
-    isLiked: (tmdbMovieId: number) => boolean;
-    toggleLike: (tmdbMovieId: number) => Promise<void>;
-    refreshLikes: () => Promise<void>;
-}
-
-const LikeContext = createContext<LikeContextType | undefined>(undefined);
-
-export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
+export const LikeProvider = ({ children }: { children: ReactNode }) => {
     const { token, isLoading } = useAuth();
     const [likes, setLikes] = useState<number[]>([]);
     const requestId = useRef(0);
@@ -58,8 +50,3 @@ export const LikeProvider = ({ children }: { children: React.ReactNode }) => {
     );
 };
 
-export const useLikes = () => {
-    const context = useContext(LikeContext);
-    if (!context) throw new Error("useLikes must be used within LikeProvider");
-    return context;
-};

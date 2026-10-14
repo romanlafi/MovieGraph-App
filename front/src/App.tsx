@@ -1,7 +1,7 @@
 import AppRouter from "./routes/AppRouter";
 import {AuthProvider} from "./contexts/AuthProvider.tsx";
-import {LikeProvider} from "./contexts/LikeContext.tsx";
-import {FollowProvider} from "./contexts/FollowContext.tsx";
+import {LikeProvider} from "./contexts/LikeProvider.tsx";
+import {FollowProvider} from "./contexts/FollowProvider.tsx";
 
 
 function App() {
