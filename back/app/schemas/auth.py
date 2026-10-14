@@ -28,6 +28,11 @@ class UserRegistration(BaseModel):
         return genres
 
 
+class RegistrationResult(BaseModel):
+    email: EmailStr
+    username: str
+
+
 class UserProfile(BaseModel):
     public_id: UUID
     email: EmailStr

@@ -1,5 +1,9 @@
 # Worker follows migration
 
+This report records the original phase. For the remote deployment observed on
+2026-10-14, including mounted follows routes and the unverified PRE schema
+revision, see [the current environment status](ENVIRONMENTS.md).
+
 ## Scope
 
 This phase moves the existing follows API implementation into the limited

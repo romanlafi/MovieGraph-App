@@ -1,6 +1,7 @@
 {
   "name": "moviegraph-local",
   "main": "back/app/local_worker.py",
+  "base_dir": "back",
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["python_workers"],
   "env": {

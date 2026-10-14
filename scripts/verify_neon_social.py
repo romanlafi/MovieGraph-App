@@ -1,6 +1,7 @@
 """Verify the configured DEV Hyperdrive and social API using disposable rows."""
 
 from datetime import datetime, timedelta, UTC
+import argparse
 import json
 import os
 from pathlib import Path
@@ -58,7 +59,9 @@ def wait_for_worker(base_url: str, client: httpx.Client) -> None:
     raise RuntimeError("Temporary development Worker did not become ready")
 
 
-def run_verification() -> dict:
+def run_verification(preview_url: str | None = None) -> dict:
+    if preview_url is not None and preview_url != "https://dev-moviegraph-app.romanoscense10.workers.dev":
+        raise RuntimeError("Remote application checks are restricted to the dev preview")
     if shutil.which("npx.cmd" if os.name == "nt" else "npx") is None:
         raise RuntimeError("Node.js/npx is required by the existing Worker toolchain")
     environment = os.environ.copy()
@@ -70,8 +73,11 @@ def run_verification() -> dict:
     signing_secret = secrets.token_urlsafe(48)
     probe_secret = secrets.token_urlsafe(48)
     fixture_id = uuid4()
+    registration_id = uuid4()
+    fixture_ids = [fixture_id]
     worker_name = f"moviegraph-probe-dev-{fixture_id.hex}"
-    report = {"target": "neon-development", "hyperdrive": hyperdrive, "fixture_id": str(fixture_id)}
+    report = {"target": "dev-preview" if preview_url else "neon-pre-verification",
+              "hyperdrive": hyperdrive, "fixture_id": str(fixture_id)}
     requests = {}
     fixture_attempted = False
     fixture = None
@@ -88,6 +94,7 @@ def run_verification() -> dict:
         config = json.loads(CONFIG.read_text(encoding="utf-8"))
         config["name"] = worker_name
         config["main"] = str((CONFIG.parent / config["main"]).resolve())
+        config["base_dir"] = str((CONFIG.parent / config["base_dir"]).resolve())
         config["workers_dev"] = True
         config["vars"].update({"SECRET_KEY": signing_secret, "DB_PROBE_TOKEN": probe_secret})
         with worker_config.open("x", encoding="utf-8") as config_file:
@@ -120,12 +127,14 @@ def run_verification() -> dict:
 
                 print("Checking Neon transactions with a disposable fixture account...", flush=True)
                 admin_headers = {"Authorization": f"Bearer {probe_secret}"}
-                password_hash = bcrypt.hashpw(secrets.token_urlsafe(32).encode("ascii"), bcrypt.gensalt()).decode("ascii")
+                fixture_password = secrets.token_urlsafe(32)
+                password_hash = bcrypt.hashpw(fixture_password.encode("ascii"), bcrypt.gensalt()).decode("ascii")
                 fixture_attempted = True
                 fixture = expect("prepare_fixture", "POST", "/api/internal/social-fixture",
                                  headers=admin_headers, body={"fixture_id": str(fixture_id), "password_hash": password_hash})
                 report["baseline"] = fixture["baseline"]
                 report["runtime"] = fixture["runtime"]
+                report["revision"] = fixture["revision"]
                 catalogue_tables = {"movies", "persons", "genres", "collections", "movie_person", "movie_persons", "movie_genres"}
                 if catalogue_tables.intersection(fixture["baseline"]):
                     raise RuntimeError("Expected the initialized fresh DEV target without catalogue tables")
@@ -156,6 +165,85 @@ def run_verification() -> dict:
                 report.update({"tmdb_movie_id": tmdb_movie_id, "fixture_user_id": fixture["user_id"],
                                "comment_id": comment["comment_id"], "catalogue_tables_created": False,
                                "comment_and_like_without_local_movie": "PASS", "requests": requests})
+                if preview_url is not None:
+                    print("Checking registration, login, follows, comments and likes on the dev preview...", flush=True)
+                    preview_checks = []
+
+                    def preview_request(label, method, path, *, expected=200, **kwargs):
+                        started_at = datetime.now(UTC).isoformat()
+                        started = time.monotonic()
+                        response = client.request(method, preview_url + path, **kwargs)
+                        preview_checks.append({"operation": label, "method": method, "path": path,
+                                               "status": response.status_code, "started_at": started_at,
+                                               "ended_at": datetime.now(UTC).isoformat(),
+                                               "wall_ms": round((time.monotonic() - started) * 1000, 2)})
+                        if response.status_code != expected:
+                            try:
+                                detail = response.json().get("detail")
+                            except (ValueError, AttributeError):
+                                detail = None
+                            safe_details = {"Login protection is unavailable", "Login protection is not configured",
+                                            "Database unavailable or not configured", "Authentication is not configured",
+                                            "Invalid credentials", "Account could not be created"}
+                            reason = f" ({detail})" if isinstance(detail, str) and detail in safe_details else ""
+                            raise RuntimeError(f"dev preview {label}: expected {expected}, got {response.status_code}{reason}")
+                        return response.json()
+
+                    report["preview_url"] = preview_url
+                    report["preview_checks"] = preview_checks
+                    preview_request("unauthenticated_profile", "GET", "/api/v1/users/me", expected=401)
+                    preview_request("unauthenticated_like", "POST", movie_path + "/like", expected=401)
+                    registration_username = f"probe-{registration_id.hex}"
+                    registration_email = f"{registration_username}@example.com"
+                    registration_password = secrets.token_urlsafe(32)
+                    fixture_ids.append(registration_id)
+                    registration = {"username": registration_username, "email": registration_email,
+                                    "password": registration_password, "birthdate": "1990-01-01",
+                                    "bio": "Disposable backend verification", "favorite_genres": ["Drama"]}
+                    preview_request("registration", "POST", "/api/v1/users/", expected=201, json=registration)
+                    preview_request("duplicate_registration", "POST", "/api/v1/users/", expected=409, json=registration)
+                    preview_request("wrong_password", "POST", "/api/v1/users/login", expected=401,
+                                    data={"username": registration_email, "password": "wrong-password"})
+                    login = preview_request("login", "POST", "/api/v1/users/login",
+                                            data={"username": registration_email, "password": registration_password})
+                    own_headers = {"Authorization": "Bearer " + login["access_token"]}
+                    profile = preview_request("profile", "GET", "/api/v1/users/me", headers=own_headers)
+                    if profile["email"] != registration_email or profile["favorite_genres"] != ["Drama"]:
+                        raise RuntimeError("dev profile/preference round-trip failed")
+                    friend_login = preview_request("friend_login", "POST", "/api/v1/users/login",
+                                                   data={"username": fixture["email"], "password": fixture_password})
+                    friend_headers = {"Authorization": "Bearer " + friend_login["access_token"]}
+                    friend = preview_request("friend_profile", "GET", "/api/v1/users/me", headers=friend_headers)
+                    follow_path = "/api/v1/follows/"
+                    follow_body = {"public_id": friend["public_id"]}
+                    for label in ("follow", "duplicate_follow"):
+                        preview_request(label, "POST", follow_path, json=follow_body, headers=own_headers)
+                    following = preview_request("following", "GET", follow_path + "following", headers=own_headers)
+                    if [user["public_id"] for user in following] != [friend["public_id"]]:
+                        raise RuntimeError("dev follow identity mismatch")
+                    preview_request("friend_like", "POST", movie_path + "/like", headers=friend_headers)
+                    if preview_request("followed_likes", "GET", follow_path + "movie-likes", headers=own_headers) != [550]:
+                        raise RuntimeError("dev followed-user likes mismatch")
+                    saved = preview_request("comment", "POST", movie_path + "/comments", headers=own_headers,
+                                            json={"text": "Disposable dev verification " + str(registration_id)})
+                    listed = preview_request("comments", "GET", movie_path + "/comments")
+                    if not any(row["comment_id"] == saved["comment_id"] and row["username"] == registration_username for row in listed):
+                        raise RuntimeError("dev comment readback mismatch")
+                    for label in ("like", "duplicate_like"):
+                        preview_request(label, "POST", movie_path + "/like", headers=own_headers)
+                    if preview_request("like_state", "GET", movie_path + "/like", headers=own_headers)["liked"] is not True:
+                        raise RuntimeError("dev like state mismatch")
+                    if preview_request("liked_ids", "GET", "/api/v1/movies/likes", headers=own_headers) != [550]:
+                        raise RuntimeError("dev liked IDs mismatch")
+                    for label in ("unlike", "duplicate_unlike"):
+                        preview_request(label, "DELETE", movie_path + "/like", headers=own_headers)
+                    if preview_request("empty_liked_ids", "GET", "/api/v1/movies/likes", headers=own_headers) != []:
+                        raise RuntimeError("dev unlike failed")
+                    for label in ("unfollow", "duplicate_unfollow"):
+                        preview_request(label, "DELETE", follow_path, json=follow_body, headers=own_headers)
+                    if preview_request("empty_following", "GET", follow_path + "following", headers=own_headers) != []:
+                        raise RuntimeError("dev unfollow failed")
+                    report["preview_behaviour"] = "PASS"
             except Exception:
                 if not fixture_attempted:
                     log.flush()
@@ -167,15 +255,15 @@ def run_verification() -> dict:
                 try:
                     if fixture_attempted:
                         print("Removing only the disposable account and its social rows...", flush=True)
-                        cleanup = client.delete(f"{base_url}/api/internal/social-fixture/{fixture_id}",
-                                                headers={"Authorization": f"Bearer {probe_secret}"})
-                        if cleanup.status_code == 200:
+                        for cleanup_id in reversed(fixture_ids):
+                            cleanup = client.delete(f"{base_url}/api/internal/social-fixture/{cleanup_id}",
+                                                    headers={"Authorization": f"Bearer {probe_secret}"})
+                            if cleanup.status_code != 200:
+                                raise RuntimeError(f"Fixture cleanup failed for UUID {cleanup_id}: HTTP {cleanup.status_code}")
                             report["after_cleanup"] = cleanup.json()["after"]
                             report.setdefault("runtime", {})["delete"] = cleanup.json()["delete"]
-                            if fixture is not None and report["after_cleanup"] != fixture["baseline"]:
-                                raise RuntimeError("Development baseline row counts changed after fixture cleanup")
-                        else:
-                            raise RuntimeError(f"Fixture cleanup failed for UUID {fixture_id}: HTTP {cleanup.status_code}")
+                        if fixture is not None and report["after_cleanup"] != fixture["baseline"]:
+                            raise RuntimeError("Development baseline row counts changed after fixture cleanup")
                 finally:
                     if process is not None:
                         stop_process_tree(process)
@@ -201,13 +289,21 @@ def run_verification() -> dict:
                                         raise RuntimeError(f"Temporary Worker cleanup remains pending for {worker_name}")
                         finally:
                             worker_config.unlink()
+                            output_directory = ROOT / "output"
+                            output_directory.mkdir(exist_ok=True)
+                            (output_directory / "backend-dev-verification.json").write_text(
+                                json.dumps(report, indent=2), encoding="utf-8",
+                            )
             return report
 
 
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--preview-url", help="Also exercise the existing dev preview using disposable accounts")
+    arguments = parser.parse_args()
     try:
-        report = run_verification()
+        report = run_verification(arguments.preview_url)
     except Exception as error:
         if isinstance(error, RuntimeError):
             print(str(error), flush=True)

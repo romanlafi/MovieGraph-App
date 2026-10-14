@@ -1,6 +1,5 @@
 """Isolated DEV fixture administration; never installed in application Workers."""
 
-from importlib import import_module
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, HTTPException, Request
@@ -8,10 +7,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy import event, func, inspect, MetaData, select, Table, text
 from sqlalchemy.exc import SQLAlchemyError
 
-from .routes import database, prefix, runtime
+from app.db import database, runtime
+from app.db.diagnostics import require_probe_access
 
 
-require_probe_access = import_module(f"{prefix}db.diagnostics").require_probe_access
 router = APIRouter(prefix="/api/internal", include_in_schema=False)
 
 
@@ -21,8 +20,8 @@ class FixtureCreate(BaseModel):
 
 
 def fixture_identity(fixture_id: UUID) -> tuple[str, str]:
-    username = f"social-probe-{fixture_id.hex}"
-    return f"{username}@example.invalid", username
+    username = f"probe-{fixture_id.hex}"
+    return f"{username}@example.com", username
 
 
 def inventory(session) -> dict[str, int]:
@@ -96,6 +95,7 @@ def prepare_fixture(config, fixture: FixtureCreate) -> dict:
     return {
         "user_id": user_id, "email": email, "username": username,
         "baseline": baseline,
+        "revision": "20261009_00",
         "runtime": {name: "PASS" for name in ("select", "insert", "update", "rollback", "session_cleanup")},
     }
 
@@ -110,6 +110,7 @@ def remove_fixture(config, fixture_id: UUID) -> dict:
                 session.execute(text("DELETE FROM comments WHERE user_id=:id"), {"id": user_id})
                 session.execute(text("DELETE FROM user_movie_likes WHERE user_id=:id"), {"id": user_id})
                 session.execute(text("DELETE FROM user_follows WHERE follower_id=:id OR followed_id=:id"), {"id": user_id})
+                session.execute(text("DELETE FROM user_genre_preferences WHERE user_id=:id"), {"id": user_id})
                 session.execute(text("DELETE FROM users WHERE id=:id AND email=:email AND username=:username"),
                                 {"id": user_id, "email": fixture_email, "username": fixture_username})
         session.commit()

@@ -27,7 +27,7 @@ class AssetsBinding:
 
 class PreviewWorkerTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app(include_legacy_api=False, include_social_api=True, include_assets=True)
+        self.app = create_app(include_social_api=True, include_assets=True)
         self.handler = next(route.endpoint for route in self.app.routes if getattr(route, "path", None) == "/{path:path}")
 
     def request(self, path: str, env=None, query_string=b""):

@@ -1,4 +1,4 @@
-"""Only installed by db_probe_worker.py; absent from the normal Worker."""
+"""Protected diagnostic routes, absent from the application Worker."""
 
 import asyncio
 from hmac import compare_digest

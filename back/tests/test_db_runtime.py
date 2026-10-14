@@ -132,18 +132,18 @@ assert not hasattr(app.db.database, 'engine')
             dependency.close()
             scope.return_value.__exit__.assert_called_once()
 
-    def test_legacy_app_starts_without_database_url(self):
+    def test_cpython_app_starts_without_database_url(self):
         result = isolated('''
 from fastapi.testclient import TestClient
 from app.main import app
 with TestClient(app) as client:
     assert client.get('/api/health').status_code == 200
-    assert client.get('/api/v1/movies/genres').status_code == 503
+    assert client.get('/api/v1/movies/550/comments').status_code == 503
 ''', {k: v for k, v in LOCAL_CONFIG.items() if k != "DATABASE_URL"})
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def diagnostic_client(self, env):
-        app = create_app(include_legacy_api=False)
+        app = create_app()
         install_diagnostics(app)
         @app.middleware("http")
         async def bind(request, call_next):
@@ -152,7 +152,7 @@ with TestClient(app) as client:
         return TestClient(app)
 
     def test_diagnostic_routes_fail_closed_and_no_secrets(self):
-        with TestClient(create_app(include_legacy_api=False)) as client:
+        with TestClient(create_app()) as client:
             self.assertEqual(client.get("/api/internal/db-health").status_code, 404)
             self.assertEqual(client.post("/api/internal/db-probe").status_code, 404)
         for env in ({}, {**DEV, "APP_ENV": "production"}, {**DEV, "DB_PROBE_ENABLED": "false"},
@@ -198,12 +198,12 @@ from unittest.mock import patch
 sys.modules['workers'] = SimpleNamespace(asgi=SimpleNamespace(entrypoint=lambda app: app))
 sys.path.insert(0, str(Path('app').resolve()))
 with patch('sqlalchemy.create_engine', side_effect=AssertionError('Eager engine')):
-    worker = runpy.run_path('app/db_probe_worker.py')
+    worker = runpy.run_path('app/diagnostics_worker.py')
     from fastapi.testclient import TestClient
     with TestClient(worker['app']) as client:
         assert client.get('/api/health').status_code == 200
         assert client.get('/api/internal/db-health').status_code == 404
-        assert client.get('/api/v1/users/me').status_code == 404
+        assert client.get('/api/v1/users/me').status_code == 401
 assert not any(m.startswith(('models', 'app.models', 'passlib', 'bcrypt',
                              'core.config', 'services.postgres', 'psycopg2')) for m in sys.modules)
 ''')

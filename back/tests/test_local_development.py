@@ -1,5 +1,4 @@
 import importlib.util
-import os
 import json
 from pathlib import Path
 import sys
@@ -45,6 +44,7 @@ class LocalDevelopmentTests(unittest.TestCase):
         self.assertEqual(production["previews"]["vars"]["APP_ENV"], "pre")
         self.assertEqual(staging["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
         self.assertTrue((ROOT / production["main"]).is_file())
+        self.assertEqual(production["base_dir"], "back")
         self.assertEqual(production["assets"]["run_worker_first"], [
             "/api", "/api/*", "/docs", "/docs/*", "/redoc", "/openapi.json",
         ])
@@ -61,6 +61,7 @@ class LocalDevelopmentTests(unittest.TestCase):
         for path in (ROOT / "tools" / "diagnostics").glob("wrangler*.jsonc"):
             config = json.loads(path.read_text())
             self.assertTrue((path.parent / config["main"]).resolve().is_file())
+            self.assertEqual((path.parent / config["base_dir"]).resolve(), ROOT / "back")
             self.assertEqual(config["hyperdrive"][0]["id"], "24054140a3aa418ba1bd24b015f3d04b")
 
     def test_docker_timeout_gives_an_actionable_message_without_credentials(self):
@@ -152,6 +153,7 @@ class LocalDevelopmentTests(unittest.TestCase):
 
     def test_wranger_local_never_contains_a_remote_hyperdrive_id(self):
         config = json.loads((ROOT / "wrangler.local.jsonc").read_text())
+        self.assertEqual(config["base_dir"], "back")
         self.assertEqual(config["env"]["local"]["hyperdrive"], [
             {"binding": "HYPERDRIVE", "id": "0" * 32},
         ])
@@ -160,21 +162,19 @@ class LocalDevelopmentTests(unittest.TestCase):
         self.assertNotIn("pg_data:", compose)
 
     def test_local_worker_mounts_account_and_follow_routes(self):
-        application_path = ROOT / "back" / "app"
         backend_path = ROOT / "back"
-        python_path = os.pathsep.join((str(application_path), str(backend_path)))
         result = isolated("""
 import sys, types
 workers = types.ModuleType('workers')
 workers.asgi = types.SimpleNamespace(entrypoint=lambda app: app)
 sys.modules['workers'] = workers
-import local_worker
+from app import local_worker
 paths = {route.path for route in local_worker.app.routes}
 assert '/api/v1/users/' in paths
 assert '/api/v1/users/login' in paths
 assert '/api/v1/users/me' in paths
 assert '/api/v1/follows/movie-likes' in paths
-""", {"PYTHONPATH": python_path})
+""", {"PYTHONPATH": str(backend_path)})
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_worker_and_frontend_are_cleaned_when_startup_fails(self):

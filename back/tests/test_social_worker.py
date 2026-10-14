@@ -6,6 +6,7 @@ import importlib.util
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+from types import ModuleType
 import unittest
 from unittest.mock import patch
 from uuid import uuid4
@@ -20,7 +21,8 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.application import create_app
-from app.social import routes, store
+from app.social import dependencies
+from app.social.repositories import movies as movie_repository
 from test_foundation import isolated
 
 
@@ -60,9 +62,9 @@ class SocialWorkerTests(unittest.TestCase):
                        (2, 'second@example.test', 'second', 'unused', '00000000-0000-4000-8000-000000000002')
             """))
         config = SimpleNamespace(url=make_url(self.database_url), worker=False)
-        self.config_patch = patch.object(routes.runtime, "request_database_config", return_value=config)
+        self.config_patch = patch.object(dependencies.runtime, "request_database_config", return_value=config)
         self.config_resolver = self.config_patch.start()
-        self.app = create_app(include_legacy_api=False, include_social_api=True,
+        self.app = create_app(include_social_api=True,
                               include_account_api=True, include_follows_api=True)
         self.env = {"SECRET_KEY": SECRET, "JWT_ALGORITHM": "HS256"}
 
@@ -155,8 +157,14 @@ class SocialWorkerTests(unittest.TestCase):
 
         duplicate_email = self.client.post("/api/v1/users/", json={**account, "username": "another"})
         self.assertEqual(duplicate_email.status_code, 409)
+        self.assertEqual(duplicate_email.json(), {"detail": {
+            "error": "email_conflict", "message": "Email already registered",
+        }})
         duplicate_username = self.client.post("/api/v1/users/", json={**account, "email": "other@example.com"})
         self.assertEqual(duplicate_username.status_code, 409)
+        self.assertEqual(duplicate_username.json(), {"detail": {
+            "error": "user_conflict", "message": "Username already registered",
+        }})
 
         invalid_login = self.client.post("/api/v1/users/login", data={
             "username": account["email"], "password": "incorrect",
@@ -217,6 +225,30 @@ class SocialWorkerTests(unittest.TestCase):
             "username": "first@example.test", "password": "invalid",
         })
         self.assertEqual(response.status_code, 503)
+
+    def test_worker_rate_limit_options_are_plain_javascript_objects(self):
+        from app.social.accounts import enforce_login_rate_limit
+
+        plain_options = SimpleNamespace(key="converted")
+        converter = SimpleNamespace(fromEntries=object())
+        javascript = ModuleType("js")
+        javascript.Object = converter
+        ffi = ModuleType("pyodide.ffi")
+        ffi.to_js = unittest.mock.Mock(return_value=plain_options)
+        limiter = SimpleNamespace(limit=unittest.mock.AsyncMock(return_value=SimpleNamespace(success=True)))
+        request = Request({"type": "http", "headers": [], "env": {
+            "APP_ENV": "pre", "LOGIN_IP_RATE_LIMITER": limiter,
+            "LOGIN_ACCOUNT_RATE_LIMITER": limiter,
+        }})
+        with patch("app.social.accounts.sys.platform", "emscripten"), patch.dict("sys.modules", {
+            "js": javascript, "pyodide.ffi": ffi,
+        }):
+            asyncio.run(enforce_login_rate_limit(request, "fixture@example.com"))
+        self.assertEqual(ffi.to_js.call_count, 2)
+        for call in ffi.to_js.call_args_list:
+            self.assertIs(call.kwargs["dict_converter"], converter.fromEntries)
+            self.assertNotIn("fixture@example.com", call.args[0]["key"])
+        self.assertTrue(all(call.args[0] is plain_options for call in limiter.limit.await_args_list))
 
     def test_worker_follow_routes_preserve_contract_and_authentication(self):
         with self.engine.begin() as connection:
@@ -303,7 +335,7 @@ class SocialWorkerTests(unittest.TestCase):
             """))
             raise SQLAlchemyError("private-database-url-and-password")
 
-        with patch.object(store, "create_comment", side_effect=fail_after_insert):
+        with patch.object(movie_repository, "create_comment", side_effect=fail_after_insert):
             response = self.client.post("/api/v1/movies/550/comments", json={"text": "failure"}, headers=self.headers)
         self.assertEqual(response.status_code, 503)
         self.assertNotIn("private-database", response.text)
@@ -318,7 +350,7 @@ class SocialWorkerTests(unittest.TestCase):
             async def use_session():
                 nonlocal active, maximum_active
                 request = Request({"type": "http", "app": self.app, "env": self.env})
-                dependency = routes.get_social_session(request)
+                dependency = dependencies.get_social_session(request)
                 try:
                     session = await anext(dependency)
                     active += 1
@@ -347,15 +379,51 @@ def guarded_import(name, *args, **kwargs):
 builtins.__import__ = guarded_import
 from app.application import create_app
 from fastapi.testclient import TestClient
-with TestClient(create_app(include_legacy_api=False, include_social_api=True)) as client:
+with TestClient(create_app(include_social_api=True)) as client:
     assert client.get('/api/health').status_code == 200
     assert client.post('/api/v1/movies/550/like').status_code == 401
     assert client.get('/api/v1/follows/following').status_code == 404
     assert client.get('/api/internal/db-health').status_code == 404
     assert '/api/v1/users/login' not in client.app.openapi()['paths']
-account_app = create_app(include_legacy_api=False, include_social_api=True, include_account_api=True)
+account_app = create_app(include_social_api=True, include_account_api=True)
 assert '/api/v1/users/login' in account_app.openapi()['paths']
 assert not any(name.startswith('app.models') for name in sys.modules)
+""")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_worker_package_preserves_optional_routes_and_authentication(self):
+        result = isolated("""
+import sys
+import types
+from fastapi.testclient import TestClient
+
+workers = types.ModuleType('workers')
+workers.asgi = types.SimpleNamespace(entrypoint=lambda app: app)
+sys.modules['workers'] = workers
+from app.application import create_app
+from app.social import dependencies
+from app import worker
+assert dependencies.get_social_session.__module__ == 'app.social.dependencies'
+assert worker.Default is worker.app
+assert 'social.dependencies' not in sys.modules
+
+for include_accounts in (False, True):
+    for include_follows in (False, True):
+        app = create_app(
+            include_social_api=True,
+            include_account_api=include_accounts, include_follows_api=include_follows,
+        )
+        paths = app.openapi()['paths']
+        assert ('/api/v1/users/login' in paths) == include_accounts
+        assert ('/api/v1/follows/following' in paths) == include_follows
+        assert '/api/v1/movies/{tmdb_movie_id}/comments' in paths
+        assert '/api/tmdb/movie/{tmdb_movie_id}' in paths
+        with TestClient(app) as client:
+            assert client.get('/api/health').json() == {'status': 'ok'}
+            assert client.post('/api/v1/movies/550/like').status_code == 401
+            assert client.get('/api/v1/users/me').status_code == (401 if include_accounts else 404)
+            assert client.get('/api/v1/follows/following').status_code == (401 if include_follows else 404)
+assert 'app.models.movie' not in sys.modules
 """)
         self.assertEqual(result.returncode, 0, result.stderr)
 

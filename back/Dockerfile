@@ -17,4 +17,4 @@ COPY . .
 
 ENV PYTHONPATH=/app
 
-CMD ["sh", "-c", "python resources/create_tables.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

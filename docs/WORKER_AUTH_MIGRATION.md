@@ -2,6 +2,10 @@
 
 ## Scope and implementation
 
+This report records the account migration phase. For the remote deployment
+observed on 2026-10-14 and the differences from the current repository, see
+[the current environment status](ENVIRONMENTS.md).
+
 The limited MovieGraph Worker now has an optional account API for the existing
 frontend contract:
 

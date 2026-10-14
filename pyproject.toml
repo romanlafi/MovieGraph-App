@@ -11,6 +11,6 @@ dev = ["workers-py", "workers-runtime-sdk"]
 [tool.setuptools]
 packages = []
 
-# Legacy psycopg2 and Passlib remain local in back/requirements.txt. The Worker
+# The trusted migration driver remains local in back/requirements.txt. The Worker
 # uses Pyodide-supported bcrypt directly; catalogue HTTP uses native workers.fetch.
 # HTTPX remains a local-only dependency.

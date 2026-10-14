@@ -4,7 +4,6 @@ import importlib.util
 import os
 from pathlib import Path
 import sys
-from types import SimpleNamespace
 from unittest.mock import patch
 
 from fastapi import FastAPI
@@ -21,10 +20,10 @@ if str(BACK) not in sys.path:
 os.environ.setdefault("SECRET_KEY", "social-tests-only")
 os.environ.setdefault("TMDB_API_KEY", "social-tests-only")
 
-from app.api.v1.comments import router as comments_router
-from app.api.v1.movie_likes import router as likes_router
-from app.db.database import Base, get_db
-from app.deps.auth import get_current_user
+from app.social.movies import router as movies_router
+from app.db.database import Base
+from app.social.contracts import SocialUser
+from app.social.dependencies import get_authenticated_user, get_social_session
 from app.models.collection import Collection
 from app.models.comment import Comment
 from app.models.genre import Genre
@@ -33,9 +32,7 @@ from app.models.movie_person import MoviePerson
 from app.models.person import Person
 from app.models.user import User
 from app.models.user_movie_like import UserMovieLike
-from app.schemas.comment import CommentCreate
-from app.services.postgres.comment_service import list_movie_comments
-from app.services.postgres.like_service import is_movie_liked, list_user_likes
+from app.social.repositories.movies import list_movie_comments, is_movie_liked, list_user_likes
 from app.services.social_migration_integrity import (
     expected_tmdb_like_pairs,
     invalid_legacy_like_rows,
@@ -43,8 +40,7 @@ from app.services.social_migration_integrity import (
 )
 from resources.social_migration_audit import inspect_database, require_development_target
 from resources.initialize_neon_dev import request_development_url
-from app.services.postgres.comment_service import create_comment
-from app.services.postgres.like_service import like_movie, unlike_movie
+from app.social.repositories.movies import create_comment, like_movie, unlike_movie
 
 social_migration_path = BACK / "migrations" / "versions" / "20261006_01_social_tmdb_ids.py"
 social_migration_spec = importlib.util.spec_from_file_location("social_tmdb_migration", social_migration_path)
@@ -66,15 +62,16 @@ class SocialTmdbIdTests(unittest.TestCase):
             session.commit()
 
         app = FastAPI()
-        app.include_router(comments_router, prefix="/api/v1")
-        app.include_router(likes_router, prefix="/api/v1")
+        app.include_router(movies_router)
 
         def db_override():
             with self.SessionLocal() as session:
                 yield session
 
-        app.dependency_overrides[get_db] = db_override
-        app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(id=1, email="fixture@example.test")
+        app.dependency_overrides[get_social_session] = db_override
+        app.dependency_overrides[get_authenticated_user] = lambda: SocialUser(
+            id=1, email="fixture@example.test", username="fixture",
+        )
         self.client = TestClient(app)
 
     def tearDown(self):
@@ -228,9 +225,9 @@ class SocialTmdbIdTests(unittest.TestCase):
                     session.commit()
                     saved_comment = create_comment(
                         session,
-                        "fresh@example.test",
+                        SocialUser(id=1, email="fresh@example.test", username="fresh"),
                         900002,
-                        CommentCreate(text="fresh install"),
+                        "fresh install",
                     )
                     self.assertEqual(saved_comment.username, "fresh")
                     self.assertEqual(list_movie_comments(session, 900002)[0].text, "fresh install")

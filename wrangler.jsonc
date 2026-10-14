@@ -1,7 +1,8 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "moviegraph-app",
-  "main": "back/app/preview_worker.py",
+  "main": "back/app/worker.py",
+  "base_dir": "back",
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["python_workers"],
   "vars": {"APP_ENV": "production", "JWT_ALGORITHM": "HS256"},
@@ -21,6 +22,10 @@
     {"binding": "HYPERDRIVE", "id": "4cbe52bd629d47c8b2b69a3529691f78"}
   ],
   "previews": {
+    "observability": {
+      "enabled": true,
+      "logs": {"enabled": true, "invocation_logs": true, "persist": true}
+    },
     "vars": {
       "APP_ENV": "pre",
       "JWT_ALGORITHM": "HS256"

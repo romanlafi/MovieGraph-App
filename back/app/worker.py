@@ -1,11 +1,13 @@
-"""Health and TMDB gateway; legacy API awaits verified Hyperdrive integration."""
+"""Deployed API and assets; Wrangler selects production or preview bindings."""
 
 from workers import asgi
 
-from application import create_app
+from app.application import create_app
 
-# Wrangler loads modules beside this entrypoint. Keep its source directory
-# separate from local virtual environments and configuration files.
-# Do not import the native legacy DB/auth stack until runtime validation.
-app = create_app(include_legacy_api=False)
+app = create_app(
+    include_social_api=True,
+    include_account_api=True,
+    include_follows_api=True,
+    include_assets=True,
+)
 Default = asgi.entrypoint(app)

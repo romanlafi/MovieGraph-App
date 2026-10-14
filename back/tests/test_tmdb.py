@@ -26,7 +26,7 @@ class TMDBTests(unittest.TestCase):
     def setUp(self):
         self.transport = AsyncMock(return_value=(200, json.dumps({"results": [MOVIE]})))
         self.gateway = TMDBClient(TMDBSettings(api_key="private-key"), self.transport)
-        self.app = create_app(include_legacy_api=False)
+        self.app = create_app()
         self.app.dependency_overrides[get_tmdb_client] = lambda: self.gateway
         self.client = TestClient(self.app)
 
@@ -87,7 +87,7 @@ class TMDBTests(unittest.TestCase):
         self.assertEqual(self.client.get("/api/tmdb/movie/348").status_code, 502)
 
     def test_missing_credentials_leave_health_available(self):
-        app = create_app(include_legacy_api=False)
+        app = create_app()
         with patch.dict("os.environ", {}, clear=True), TestClient(app) as client:
             self.assertEqual(client.get("/api/health").status_code, 200)
             self.assertEqual(client.get("/api/tmdb/search/movie?q=alien").status_code, 503)
@@ -166,7 +166,7 @@ async def transport(url, headers, timeout):
     else:
         data = {'id': 999999, 'name': 'Unseen'}
     return 200, json.dumps(data)
-app = create_app(include_legacy_api=False)
+app = create_app()
 app.dependency_overrides[get_tmdb_client] = lambda: TMDBClient(TMDBSettings(api_key='test'), transport)
 with TestClient(app) as client:
     for path in ('search/movie?q=unseen', 'movie/999999', 'person/999999'):
@@ -179,14 +179,12 @@ assert not any(m.startswith(('app.db', 'app.models', 'app.services.postgres', 's
     def test_actual_worker_entrypoint_with_mocked_tmdb(self):
         result = isolated('''
 import json, runpy, sys
-from pathlib import Path
 from types import SimpleNamespace
 sys.modules['workers'] = SimpleNamespace(asgi=SimpleNamespace(entrypoint=lambda app: app))
-sys.path.insert(0, str(Path('app').resolve()))
 worker = runpy.run_path('app/worker.py')
 from fastapi.testclient import TestClient
-from catalogue.client import TMDBClient, TMDBSettings
-from catalogue.routes import get_tmdb_client
+from app.catalogue.client import TMDBClient, TMDBSettings
+from app.catalogue.routes import get_tmdb_client
 async def transport(url, headers, timeout):
     return 200, json.dumps({'id': 348, 'title': 'Alien'})
 app = worker['app']
@@ -194,9 +192,9 @@ app.dependency_overrides[get_tmdb_client] = lambda: TMDBClient(TMDBSettings(api_
 with TestClient(app) as client:
     assert client.get('/api/health').status_code == 200
     assert client.get('/api/tmdb/movie/348').json()['tmdb_id'] == 348
-    assert client.get('/api/v1/users/me').status_code == 404
-assert not any(m.startswith(('app.db', 'db.', 'app.models', 'models.', 'sqlalchemy',
-                             'passlib', 'bcrypt', 'services.postgres')) for m in sys.modules)
+    assert client.get('/api/v1/users/me').status_code == 401
+assert not any(m.startswith(('app.models', 'models.', 'passlib', 'bcrypt',
+                             'app.services.postgres')) for m in sys.modules)
 ''')
         self.assertEqual(result.returncode, 0, result.stderr)
 

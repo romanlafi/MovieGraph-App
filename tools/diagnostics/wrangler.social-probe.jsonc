@@ -1,6 +1,7 @@
 {
   "name": "moviegraph-social-probe-dev",
-  "main": "../../back/app/social_probe_worker.py",
+  "main": "../../back/app/diagnostics_worker.py",
+  "base_dir": "../../back",
   "compatibility_date": "2026-10-02",
   "compatibility_flags": ["python_workers"],
   "vars": {

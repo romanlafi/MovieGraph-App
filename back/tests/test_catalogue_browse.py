@@ -20,7 +20,7 @@ class CatalogueBrowseTests(unittest.TestCase):
     def setUp(self):
         self.transport = AsyncMock()
         self.gateway = TMDBClient(TMDBSettings(read_token="private-token"), self.transport)
-        self.app = create_app(include_legacy_api=False)
+        self.app = create_app()
         self.app.dependency_overrides[get_tmdb_client] = lambda: self.gateway
         self.client = TestClient(self.app)
 
@@ -71,15 +71,18 @@ class CatalogueBrowseTests(unittest.TestCase):
         self.respond({"results": [movie(550)]})
         for kind, expected in (("top-rated", "/movie/top_rated"), ("latest", "/discover/movie"),
                                ("genre", "/discover/movie"), ("popular", "/movie/popular")):
+            self.transport.reset_mock()
             response = self.client.get("/api/tmdb/movies", params={"kind": kind, "tmdb_genre_id": 18})
             self.assertEqual(response.status_code, 200)
-            url = self.transport.call_args.args[0]
+            url = self.transport.await_args_list[0].args[0]
             self.assertIn(expected, url)
             if kind == "genre":
                 self.assertIn("with_genres=18", url)
             if kind == "latest":
                 self.assertIn("primary_release_date.lte=", url)
                 self.assertIn("vote_count.gte=10", url)
+                self.assertTrue(any("append_to_response=credits" in call.args[0]
+                                    for call in self.transport.await_args_list[1:]))
 
     def test_collection_and_filmography_preserve_tmdb_identity_and_deduplicate(self):
         self.respond({"id": 10, "name": "Collection", "parts": [movie(2), {**movie(1), "release_date": "2000-01-01"}]})
@@ -120,7 +123,7 @@ from app.catalogue.routes import get_tmdb_client
 async def transport(url, headers, timeout):
     data = {'id': 10, 'name': 'Collection', 'parts': [], 'results': [], 'genres': [], 'cast': [], 'crew': []}
     return 200, json.dumps(data)
-app = create_app(include_legacy_api=False)
+app = create_app()
 app.dependency_overrides[get_tmdb_client] = lambda: TMDBClient(TMDBSettings(api_key='test'), transport)
 with TestClient(app) as client:
     for path in ('movies?kind=latest', 'movies?kind=genre&tmdb_genre_id=18', 'movies/featured', 'genres',
