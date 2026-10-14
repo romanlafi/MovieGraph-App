@@ -21,6 +21,8 @@ class MovieCard(BaseModel):
     vote_average: float | None = None
     poster_path: str | None = None
     backdrop_path: str | None = None
+    director: str | None = None
+    production_summary: str | None = None
 
 
 class CollectionSummary(BaseModel):

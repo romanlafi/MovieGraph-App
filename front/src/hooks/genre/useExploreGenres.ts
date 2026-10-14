@@ -33,7 +33,7 @@ export function useExploreGenres() {
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMoreGenres, setHasMoreGenres] = useState(true);
-    const ITEMS_PER_LOAD = 3; // Cambia según quieras
+    const ITEMS_PER_LOAD = 3;
 
     useEffect(() => {
         const fetchInitial = async () => {

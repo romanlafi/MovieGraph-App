@@ -73,11 +73,11 @@ export function useMovieDetail(tmdbMovieId: string) {
         if (!movie?.tmdb_id) return;
 
         try {
-            await postComment(movie.tmdb_id, text);
-            const updatedComments = await getCommentsByMovie(movie.tmdb_id);
-            setComments(updatedComments);
+            const comment = await postComment(movie.tmdb_id, text);
+            setComments((currentComments) => [comment, ...currentComments]);
         } catch (error) {
             console.error("Error submitting comment", error);
+            throw error;
         }
     };
 

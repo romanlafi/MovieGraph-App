@@ -234,7 +234,33 @@ class TMDBClient:
         try:
             rows = [movie for batch in batches for movie in self._movies(batch["results"])]
             start = offset % 20
-            return rows[start:start + limit]
+            selected = rows[start:start + limit]
+            if kind == "latest":
+                credits = await asyncio.gather(
+                    *(self._get(f"/movie/{movie.tmdb_id}", append_to_response="credits")
+                      for movie in selected),
+                    return_exceptions=True,
+                )
+                enriched = []
+                for movie, response in zip(selected, credits):
+                    credits_data = response.get("credits", {}) if isinstance(response, dict) else {}
+                    crew = credits_data.get("crew", [])
+                    if not isinstance(crew, list):
+                        crew = []
+                    directors = [person["name"] for person in crew
+                                 if isinstance(person, dict) and person.get("job") == "Director"
+                                 and person.get("name")]
+                    companies = response.get("production_companies", []) if isinstance(response, dict) else []
+                    if not isinstance(companies, list):
+                        companies = []
+                    production_companies = [company["name"] for company in companies
+                                            if isinstance(company, dict) and company.get("name")]
+                    enriched.append(movie.model_copy(update={
+                        "director": ", ".join(directors) or None,
+                        "production_summary": ", ".join(production_companies) or None,
+                    }))
+                return enriched
+            return selected
         except (KeyError, TypeError):
             raise TMDBError(502, "Invalid TMDB response") from None
 

@@ -38,6 +38,7 @@ export interface CatalogueMovie {
     collection?: CatalogueCollection | null;
     cast?: CataloguePerson[];
     director?: string | null;
+    production_summary?: string | null;
     trailer_youtube_key?: string | null;
 }
 
@@ -67,6 +68,7 @@ export const toMovie = (movie: CatalogueMovie): Movie => ({
     genres: movie.genres?.map(genre => genre.name),
     collection: movie.collection ? toCollection(movie.collection) : undefined,
     director: movie.director ?? undefined,
+    production_companies: movie.production_summary ?? undefined,
     trailer_url: movie.trailer_youtube_key ?? undefined,
     cast: movie.cast?.map(toPerson),
 });

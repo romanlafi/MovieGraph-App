@@ -1,6 +1,6 @@
 import CommentForm from "./CommentForm.tsx";
-import CommentCarousel from "./CommentCarousel.tsx";
-import { Comment } from "../../types/comment.ts";
+import CommentList from "./CommentList.tsx";
+import type { Comment } from "../../types/comment.ts";
 import {useAuth} from "../../hooks/auth/useAuth.ts";
 import Title from "../ui/Title.tsx";
 
@@ -13,18 +13,23 @@ export default function CommentSection({ comments, onSubmit }: CommentSectionPro
     const { token } = useAuth();
 
     return (
-        <div className="bg-panel p-4 rounded-lg space-y-4">
-            <Title title="Comments" size="sm" />
-            <div className="flex flex-col md:flex-row gap-4">
-                {token && (
-                    <div className="md:w-1/3">
-                        <CommentForm onSubmit={onSubmit} />
-                    </div>
-                )}
-                <div className={`${token ? "md:w-2/3" : "w-full"}`}>
-                    <CommentCarousel comments={comments} />
-                </div>
+        <section className="space-y-6 rounded-2xl border border-border bg-panel p-4 sm:p-6">
+            <header className="flex items-center justify-between gap-3">
+                <Title title="Comments" size="sm" />
+                <span className="rounded-full bg-card px-3 py-1 text-sm text-muted">
+                    {comments.length} {comments.length === 1 ? "comment" : "comments"}
+                </span>
+            </header>
+            {token ? (
+                <CommentForm onSubmit={onSubmit} />
+            ) : (
+                <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted">
+                    Sign in from the header to join the conversation.
+                </p>
+            )}
+            <div className="border-t border-border pt-6">
+                <CommentList comments={comments} />
             </div>
-        </div>
-    )
+        </section>
+    );
 }

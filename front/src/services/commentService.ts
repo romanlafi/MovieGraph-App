@@ -6,6 +6,7 @@ export const getCommentsByMovie = async (tmdbMovieId: number): Promise<Comment[]
     return res.data;
 }
 
-export const postComment = async (tmdbMovieId: number, text: string) => {
-    await api.post(`/movies/${tmdbMovieId}/comments`, { text });
+export const postComment = async (tmdbMovieId: number, text: string): Promise<Comment> => {
+    const res = await api.post<Comment>(`/movies/${tmdbMovieId}/comments`, { text });
+    return res.data;
 }

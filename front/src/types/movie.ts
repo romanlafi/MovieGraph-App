@@ -12,6 +12,7 @@ export interface Movie {
     released?: string;
     runtime?: string;
     director?: string;
+    production_companies?: string;
     box_office?: number;
     website?: string;
     plot?: string;
