@@ -1,5 +1,5 @@
 import {Person} from "@/types/person";
-import {useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import Text from "@/components/ui/Text.tsx";
 import PersonImage from "./PersonImage.tsx";
 
@@ -9,16 +9,10 @@ export default function PersonCard({person, showRole = true}: { person: Person; 
     const isDirector = roles.includes("DIRECTOR");
     const isActor = roles.includes("ACTOR") && !!person.character;
 
-    const navigate = useNavigate();
-
-    const handleCardClick = () => {
-        navigate(`/person/${person.tmdbId}`);
-    };
-
     return (
-        <div
-            onClick={() => handleCardClick()}
-            className="w-[100px] shrink-0 text-center group cursor-pointer transition-transform duration-200 ease-out hover:scale-96">
+        <Link
+            to={`/person/${person.tmdbId}`}
+            className="block w-[100px] shrink-0 text-center group transition-transform duration-200 ease-out hover:scale-96 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
             <PersonImage
                 name={person.name}
                 photoPath={person.photo_url}
@@ -38,6 +32,6 @@ export default function PersonCard({person, showRole = true}: { person: Person; 
                     {isActor && <em>as {person.character}</em>}
                 </Text>
             )}
-        </div>
+        </Link>
     );
 }

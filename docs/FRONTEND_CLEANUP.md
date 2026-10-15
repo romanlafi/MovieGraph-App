@@ -238,9 +238,20 @@ Se retiran cuatro funciones sin consumidores en el código activo: `getPeopleFor
 
 No hay cambios de esquema ni migración de datos. El catálogo sigue siendo TMDB y el estado social MovieGraph. Validación de esta fase: búsqueda de consumidores, lint y build.
 
-## Siguientes fases propuestas
+## Decimosexta fase: navegación accesible en tarjetas
 
-1. Revisar accesibilidad de tarjetas y navegación, preservando la interacción con likes y follows.
-2. Revisar utilidades y exports de servicios sin consumidores.
+`MovieCard` y `PersonCard` navegaban con `div` y `onClick`, sin semántica de enlace ni acceso con teclado. Ahora usan `Link` de React Router, con foco visible, destino TMDB explícito y la misma navegación. El enlace de película contiene imagen y título; el botón de like queda fuera para mantener acciones separadas. La imagen del póster es decorativa porque el título ya nombra el enlace.
 
-Cada fase ejecutará `npm run lint` y `npm run build`. Los cambios de comportamiento asíncrono necesitarán además validación de éxito, fallo y cambio de ruta o consulta durante la petición.
+Se elimina el `useNavigate`, el manejador de click y el `stopPropagation` que solo impedía que el like activara el contenedor clicable. Likes siguen usando el mismo servicio MovieGraph e ID TMDB. No cambian URLs ni comportamiento del catálogo.
+
+Validación: `npm run lint`, `npm run build` y `git diff --check` pasan.
+## Decimoséptima fase: servicios y tipos
+
+- Eliminadas constantes de rutas de API sin consumidores.
+- Limitado el tipo de lista de películas a los dos endpoints reales (`top-rated` y `latest`), evitando valores inválidos en el servicio.
+- Revisada la frontera de tipos: se mantienen los DTO de TMDB separados de los modelos de UI porque los adaptadores convierten nombres, formatos y estructuras externas.
+- Se mantienen las propiedades `tmdbId` y `tmdbMovieId` en modelos y contratos de UI: distinguen IDs externos de IDs de usuario/comentario y evitan el ambiguo `id`.
+
+## Decimoctava fase: paginación por género
+
+La página de género resolvía el nombre a ID TMDB dentro de cada carga de página, repitiendo la petición de géneros al paginar. `useMoviesByGenre` ahora resuelve el género una vez y pasa el ID al servicio de películas; si falla la resolución, el mismo control de reintento vuelve a cargar los géneros. Las URLs y el estado visual no cambian.

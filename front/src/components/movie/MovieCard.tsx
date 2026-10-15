@@ -1,5 +1,5 @@
 import {Movie} from "@/types/movie.ts";
-import {useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import RatingDisplay from "@/components/ui/RatingDisplay.tsx";
 import LikeButton from "./LikeButton.tsx";
 import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
@@ -10,25 +10,19 @@ interface Props {
 }
 
 export default function MovieCard({movie}: Props) {
-    const navigate = useNavigate();
-
-    const handleCardClick = () => {
-        navigate(`/movie/${movie.tmdbId}`);
-    };
-
     return (
         <div
-            onClick={() => handleCardClick()}
-            className="w-[140px] shrink-0 bg-card p-2 rounded cursor-pointer hover:scale-98 hover:bg-border transition duration-200 ease-out shadow hover:shadow-xl">
-            <img
-                src={getTmdbImageUrl(movie.poster_url)}
-                alt={movie.title}
-                loading="lazy"
-                decoding="async"
-                className="w-full aspect-[2/3] object-cover rounded mb-2"
-            />
-            <Text text={movie.title} size="sm" truncate={true} />
-
+            className="w-[140px] shrink-0 bg-card p-2 rounded hover:scale-98 hover:bg-border transition duration-200 ease-out shadow hover:shadow-xl">
+            <Link to={`/movie/${movie.tmdbId}`} className="block rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                <img
+                    src={getTmdbImageUrl(movie.poster_url)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full aspect-[2/3] object-cover rounded mb-2"
+                />
+                <Text text={movie.title} size="sm" truncate={true} />
+            </Link>
             <div className="flex items-center justify-between mt-1">
                 {movie.rating && <RatingDisplay rating={movie.rating}/>}
                 <LikeButton tmdbMovieId={movie.tmdbId}/>

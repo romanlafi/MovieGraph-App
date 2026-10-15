@@ -32,10 +32,7 @@ export default function LikeButton({ tmdbMovieId, movieTitle = "movie", classNam
     return (
         <button
             type="button"
-            onClick={(e) => {
-                e.stopPropagation();
-                void handleToggleLike();
-            }}
+            onClick={() => void handleToggleLike()}
             aria-label={`${liked ? "Unlike" : "Like"} ${movieTitle}`}
             aria-pressed={liked}
             aria-busy={isPending}
