@@ -1,10 +1,10 @@
 from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from app.db.database import Base
+from migrations.legacy_models.base import LegacyBase
 
 
-class UserMovieLike(Base):
+class UserMovieLike(LegacyBase):
     __tablename__ = "user_movie_likes"
     __table_args__ = (
         CheckConstraint("tmdb_movie_id > 0", name="ck_user_movie_likes_tmdb_movie_id_positive"),

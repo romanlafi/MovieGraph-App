@@ -34,9 +34,11 @@ import sys
 from unittest.mock import patch
 with patch('sqlalchemy.create_engine', side_effect=AssertionError('Eager engine')):
     import app.db.database
-    import app.models.movie
+    import migrations.legacy_models.movie
 assert not any(m in sys.modules for m in ('app.core.config','psycopg2','pg8000'))
 assert not hasattr(app.db.database, 'engine')
+assert not hasattr(app.db.database, 'Base')
+assert migrations.legacy_models.movie.Movie.metadata is migrations.legacy_models.base.LegacyBase.metadata
 ''')
         self.assertEqual(result.returncode, 0, result.stderr)
 

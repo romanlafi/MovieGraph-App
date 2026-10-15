@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint
 
-from app.db.database import Base
+from migrations.legacy_models.base import LegacyBase
 
 
-class Like(Base):
+class Like(LegacyBase):
     __tablename__ = "likes"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))

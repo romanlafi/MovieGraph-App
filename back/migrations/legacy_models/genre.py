@@ -1,21 +1,21 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
-from app.db.database import Base
+from migrations.legacy_models.base import LegacyBase
 
 movie_genres = Table(
-    "movie_genres", Base.metadata,
+    "movie_genres", LegacyBase.metadata,
     Column("movie_id", ForeignKey("movies.id"), primary_key=True),
     Column("genre_id", ForeignKey("genres.id"), primary_key=True)
 )
 
 user_genres = Table(
-    "user_genres", Base.metadata,
+    "user_genres", LegacyBase.metadata,
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("genre_id", ForeignKey("genres.id"), primary_key=True)
 )
 
-class Genre(Base):
+class Genre(LegacyBase):
     __tablename__ = "genres"
 
     id = Column(Integer, primary_key=True)

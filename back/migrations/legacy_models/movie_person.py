@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlalchemy.orm import relationship
 
-from app.db.database import Base
+from migrations.legacy_models.base import LegacyBase
 
 
-class MoviePerson(Base):
+class MoviePerson(LegacyBase):
     __tablename__ = "movie_persons"
 
     id = Column(Integer, primary_key=True, index=True)

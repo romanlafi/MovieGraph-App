@@ -150,7 +150,7 @@ import importlib.abc, json, sys
 class BlockLegacy(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
         blocked = ('sqlalchemy', 'psycopg2', 'passlib', 'bcrypt', 'jose',
-                   'app.db', 'app.models', 'app.deps', 'app.core.config',
+                   'app.db', 'migrations.legacy_models', 'app.deps', 'app.core.config',
                    'app.services.postgres', 'app.services.tmdb_service')
         if any(fullname == p or fullname.startswith(p + '.') for p in blocked):
             raise AssertionError('Catalogue tried to import ' + fullname)
@@ -174,7 +174,7 @@ with TestClient(app) as client:
     for path in ('search/movie?q=unseen', 'movie/999999', 'person/999999'):
         response = client.get('/api/tmdb/' + path)
         assert response.status_code == 200, response.text
-assert not any(m.startswith(('app.db', 'app.models', 'app.services.postgres', 'sqlalchemy')) for m in sys.modules)
+assert not any(m.startswith(('app.db', 'migrations.legacy_models', 'app.services.postgres', 'sqlalchemy')) for m in sys.modules)
 ''')
         self.assertEqual(result.returncode, 0, result.stderr)
 
@@ -195,7 +195,7 @@ with TestClient(app) as client:
     assert client.get('/api/health').status_code == 200
     assert client.get('/api/tmdb/movie/348').json()['tmdb_id'] == 348
     assert client.get('/api/v1/users/me').status_code == 401
-assert not any(m.startswith(('app.models', 'models.', 'passlib', 'bcrypt',
+assert not any(m.startswith(('migrations.legacy_models', 'models.', 'passlib', 'bcrypt',
                              'app.services.postgres')) for m in sys.modules)
 ''')
         self.assertEqual(result.returncode, 0, result.stderr)

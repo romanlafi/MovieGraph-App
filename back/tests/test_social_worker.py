@@ -373,7 +373,7 @@ import builtins
 import sys
 original_import = builtins.__import__
 def guarded_import(name, *args, **kwargs):
-    if name.startswith(('app.models', 'app.core.config', 'app.deps.auth', 'app.api.v1', 'passlib', 'psycopg2')):
+    if name.startswith(('migrations.legacy_models', 'app.core.config', 'app.deps.auth', 'app.api.v1', 'passlib', 'psycopg2')):
         raise AssertionError('Forbidden legacy import: ' + name)
     return original_import(name, *args, **kwargs)
 builtins.__import__ = guarded_import
@@ -387,7 +387,7 @@ with TestClient(create_app(include_social_api=True)) as client:
     assert '/api/v1/users/login' not in client.app.openapi()['paths']
 account_app = create_app(include_social_api=True, include_account_api=True)
 assert '/api/v1/users/login' in account_app.openapi()['paths']
-assert not any(name.startswith('app.models') for name in sys.modules)
+assert not any(name.startswith('migrations.legacy_models') for name in sys.modules)
 """)
         self.assertEqual(result.returncode, 0, result.stderr)
 
@@ -423,7 +423,7 @@ for include_accounts in (False, True):
             assert client.post('/api/v1/movies/550/like').status_code == 401
             assert client.get('/api/v1/users/me').status_code == (401 if include_accounts else 404)
             assert client.get('/api/v1/follows/following').status_code == (401 if include_follows else 404)
-assert 'app.models.movie' not in sys.modules
+assert 'migrations.legacy_models.movie' not in sys.modules
 """)
         self.assertEqual(result.returncode, 0, result.stderr)
 

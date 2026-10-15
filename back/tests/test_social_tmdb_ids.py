@@ -21,17 +21,17 @@ os.environ.setdefault("SECRET_KEY", "social-tests-only")
 os.environ.setdefault("TMDB_API_KEY", "social-tests-only")
 
 from app.social.movies import router as movies_router
-from app.db.database import Base
+from migrations.legacy_models.base import LegacyBase
 from app.social.contracts import SocialUser
 from app.social.dependencies import get_authenticated_user, get_social_session
-from app.models.collection import Collection
-from app.models.comment import Comment
-from app.models.genre import Genre
-from app.models.movie import Movie
-from app.models.movie_person import MoviePerson
-from app.models.person import Person
-from app.models.user import User
-from app.models.user_movie_like import UserMovieLike
+from migrations.legacy_models.collection import Collection
+from migrations.legacy_models.comment import Comment
+from migrations.legacy_models.genre import Genre
+from migrations.legacy_models.movie import Movie
+from migrations.legacy_models.movie_person import MoviePerson
+from migrations.legacy_models.person import Person
+from migrations.legacy_models.user import User
+from migrations.legacy_models.user_movie_like import UserMovieLike
 from app.social.repositories.movies import list_movie_comments, is_movie_liked, list_user_likes
 from app.services.social_migration_integrity import (
     expected_tmdb_like_pairs,
@@ -55,7 +55,7 @@ class SocialTmdbIdTests(unittest.TestCase):
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
-        Base.metadata.create_all(self.engine)
+        LegacyBase.metadata.create_all(self.engine)
         self.SessionLocal = sessionmaker(bind=self.engine, autoflush=False)
         with self.SessionLocal() as session:
             session.add(User(id=1, email="fixture@example.test", username="fixture", password="hash"))
@@ -76,7 +76,7 @@ class SocialTmdbIdTests(unittest.TestCase):
 
     def tearDown(self):
         self.client.close()
-        Base.metadata.drop_all(self.engine)
+        LegacyBase.metadata.drop_all(self.engine)
         self.engine.dispose()
 
     def test_unseen_tmdb_movie_supports_comment_and_like_without_catalogue_writes(self):

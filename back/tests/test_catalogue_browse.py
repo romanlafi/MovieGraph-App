@@ -113,7 +113,7 @@ class CatalogueBrowseTests(unittest.TestCase):
 import importlib.abc, json, sys
 class BlockDatabase(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
-        if fullname.startswith(('sqlalchemy', 'app.db', 'app.models', 'app.services.postgres', 'app.services.tmdb_service')):
+        if fullname.startswith(('sqlalchemy', 'app.db', 'migrations.legacy_models', 'app.services.postgres', 'app.services.tmdb_service')):
             raise AssertionError(fullname)
 sys.meta_path.insert(0, BlockDatabase())
 from fastapi.testclient import TestClient

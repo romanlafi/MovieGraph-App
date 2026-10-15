@@ -3,10 +3,10 @@ from datetime import datetime
 from sqlalchemy import CheckConstraint, Column, Integer, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 
-from app.db.database import Base
+from migrations.legacy_models.base import LegacyBase
 
 
-class Comment(Base):
+class Comment(LegacyBase):
     __tablename__ = "comments"
     __table_args__ = (CheckConstraint("tmdb_movie_id > 0", name="ck_comments_tmdb_movie_id_positive"),)
 

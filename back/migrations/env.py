@@ -3,8 +3,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from app.db.database import Base
-from app.models import comment, collection, genre, like, movie, movie_person, person, user, user_movie_like, user_movie_like_source
+from migrations.legacy_models.base import LegacyBase
+from migrations.legacy_models import comment, collection, genre, like, movie, movie_person, person, user, user_movie_like, user_movie_like_source
 from resources.migration_target import validate_migration_environment
 
 
@@ -15,7 +15,7 @@ if config.config_file_name is not None:
 database_url = validate_migration_environment()
 
 config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
-target_metadata = Base.metadata
+target_metadata = LegacyBase.metadata
 
 
 def run_migrations_offline() -> None:

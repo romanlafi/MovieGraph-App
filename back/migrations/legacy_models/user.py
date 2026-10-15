@@ -1,25 +1,25 @@
 from sqlalchemy import Column, Integer, String, Date, Table, ForeignKey
 from sqlalchemy.orm import relationship
 
-from app.db.database import Base
-from app.models.genre import user_genres
+from migrations.legacy_models.base import LegacyBase
+from migrations.legacy_models.genre import user_genres
 
 
 user_follows = Table(
     "user_follows",
-    Base.metadata,
+    LegacyBase.metadata,
     Column("follower_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("followed_id", Integer, ForeignKey("users.id"), primary_key=True),
 )
 
 user_likes = Table(
     "user_likes",
-    Base.metadata,
+    LegacyBase.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("movie_id", Integer, ForeignKey("movies.id"), primary_key=True),
 )
 
-class User(Base):
+class User(LegacyBase):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)

@@ -6,13 +6,10 @@ from collections.abc import Iterator
 from fastapi import HTTPException, Request
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import declarative_base, Session
+from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from .runtime import DatabaseConfig, DatabaseConfigurationError, request_database_config
-
-
-Base = declarative_base()
 
 
 def create_database_engine(config: DatabaseConfig) -> Engine:
