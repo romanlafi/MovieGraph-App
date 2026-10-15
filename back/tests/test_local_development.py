@@ -179,11 +179,10 @@ assert '/api/v1/follows/movie-likes' in paths
 
     def test_worker_and_frontend_are_cleaned_when_startup_fails(self):
         worker = Mock()
-        with patch.object(local.shutil, "which", return_value="npm"), \
-                patch.object(local, "port_is_open", return_value=False), \
+        with patch.object(local, "port_is_open", return_value=False), \
                 patch.object(local.subprocess, "Popen", return_value=worker), \
                 patch.object(local, "wait_for_port", side_effect=RuntimeError("startup failed")), \
                 patch.object(local, "stop_process_tree") as cleanup:
             with self.assertRaises(RuntimeError):
-                local.run_application({})
+                local.run_application({}, worker_only=True)
             cleanup.assert_called_once_with(worker)
