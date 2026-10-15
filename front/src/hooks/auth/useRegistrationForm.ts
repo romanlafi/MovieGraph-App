@@ -1,7 +1,7 @@
 import {useRef, useState} from "react";
 import axios from "axios";
-import {registerUser} from "../../services/authService.ts";
-import type {RegisterUserData} from "../../types/auth.ts";
+import {registerUser} from "@/services/authService.ts";
+import type {RegisterUserData} from "@/types/auth.ts";
 
 type RegistrationValues = Required<RegisterUserData>;
 type TextField = Exclude<keyof RegistrationValues, "favorite_genres">;

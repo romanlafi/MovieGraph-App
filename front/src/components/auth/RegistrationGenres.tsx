@@ -1,6 +1,6 @@
-import {useAsyncResource} from "../../hooks/useAsyncResource.ts";
-import {getGenres} from "../../services/moviesService.ts";
-import GenreSelector from "../genre/GenreSelector.tsx";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import {getGenres} from "@/services/moviesService.ts";
+import GenreSelector from "@/components/genre/GenreSelector.tsx";
 
 interface Props {
     selected: string[];

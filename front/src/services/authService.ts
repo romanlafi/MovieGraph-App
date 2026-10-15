@@ -1,7 +1,7 @@
 import {api} from "./api.ts";
-import {API_AUTH} from "../data/apiConstants.ts";
-import type {LoginResponse, RegisterUserData, RegistrationResult} from "../types/auth.ts";
-import type {User} from "../types/user.ts";
+import {API_AUTH} from "@/data/apiConstants.ts";
+import type {LoginResponse, RegisterUserData, RegistrationResult} from "@/types/auth.ts";
+import type {User} from "@/types/user.ts";
 
 export const registerUser = async (data: RegisterUserData): Promise<RegistrationResult> => {
     const res = await api.post<RegistrationResult>(API_AUTH, data);

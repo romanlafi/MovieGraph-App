@@ -1,8 +1,8 @@
-import type {MovieSearchResult} from "../../types/movie.ts";
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
-import RatingDisplay from "../ui/RatingDisplay.tsx";
-import Button from "../ui/Button.tsx";
-import Text from "../ui/Text.tsx";
+import type {MovieSearchResult} from "@/types/movie.ts";
+import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
+import RatingDisplay from "@/components/ui/RatingDisplay.tsx";
+import Button from "@/components/ui/Button.tsx";
+import Text from "@/components/ui/Text.tsx";
 
 interface MovieSearchResultsProps {
     results: MovieSearchResult[];

@@ -1,4 +1,4 @@
-import {getTopRatedMovies} from "../../services/moviesService.ts";
+import {getTopRatedMovies} from "@/services/moviesService.ts";
 import {usePaginatedMovies} from "./usePaginatedMovies.ts";
 
 const PAGE_SIZE = 10;

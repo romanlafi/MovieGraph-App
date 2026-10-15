@@ -1,9 +1,9 @@
 import CommentForm from "./CommentForm.tsx";
 import CommentList from "./CommentList.tsx";
-import type { Comment } from "../../types/comment.ts";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
-import Title from "../ui/Title.tsx";
-import ErrorState from "../ui/ErrorState.tsx";
+import type { Comment } from "@/types/comment.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
+import Title from "@/components/ui/Title.tsx";
+import ErrorState from "@/components/ui/ErrorState.tsx";
 
 interface CommentSectionProps {
     comments: Comment[];

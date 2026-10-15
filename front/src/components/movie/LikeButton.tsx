@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {FaHeart, FaRegHeart, FaSpinner} from "react-icons/fa";
-import {useLikes} from "../../hooks/movie/useLikes.ts";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
+import {useLikes} from "@/hooks/movie/useLikes.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 import {clsx} from "clsx";
 
 interface LikeButtonProps {

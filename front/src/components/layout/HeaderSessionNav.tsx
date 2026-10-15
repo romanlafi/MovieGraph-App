@@ -1,5 +1,5 @@
 import {FaRedo, FaSignInAlt, FaSpinner, FaUser, FaUsers} from "react-icons/fa";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 import NavItem from "./NavItem.tsx";
 
 interface Props {

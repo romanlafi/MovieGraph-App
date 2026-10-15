@@ -1,4 +1,4 @@
-import type {Movie} from "../../types/movie.ts";
+import type {Movie} from "@/types/movie.ts";
 import MovieMedia from "./MovieMedia.tsx";
 import MovieMetadata from "./MovieMetadata.tsx";
 

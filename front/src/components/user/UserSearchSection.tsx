@@ -1,8 +1,8 @@
 import {FaSearch} from "react-icons/fa";
-import TextInput from "../ui/inputs/TextInput.tsx";
-import Button from "../ui/Button.tsx";
+import TextInput from "@/components/ui/inputs/TextInput.tsx";
+import Button from "@/components/ui/Button.tsx";
 import UserGrid from "./UserGrid.tsx";
-import {useUserSearch} from "../../hooks/user/useUserSearch.ts";
+import {useUserSearch} from "@/hooks/user/useUserSearch.ts";
 
 interface Props {
     onFollowChange: () => void;

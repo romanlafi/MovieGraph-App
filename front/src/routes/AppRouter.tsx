@@ -1,18 +1,18 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import MainLayout from "../components/layout/MainLayout.tsx";
-import Home from "../pages/Home";
-import NotFound from "../pages/NotFound";
-import MovieDetail from "../pages/detail/MovieDetail.tsx";
-import GenrePage from "../pages/genre/GenrePage.tsx";
-import Register from "../pages/Register.tsx";
-import UserPage from "../pages/social/UserPage.tsx";
-import SocialPage from "../pages/social/SocialPage.tsx";
-import ExploreGenresPage from "../pages/genre/ExploreGenresPage.tsx";
-import CollectionsPage from "../pages/categories/CollectionsPage.tsx";
-import RecommendationsPage from "../pages/categories/RecommendationsPage.tsx";
-import PersonDetail from "../pages/detail/PersonDetail.tsx";
-import TopRatedPage from "../pages/categories/TopRatedPage.tsx";
-import LatestReleasesPage from "../pages/categories/LatestReleasesPage.tsx";
+import MainLayout from "@/components/layout/MainLayout.tsx";
+import Home from "@/pages/Home";
+import NotFound from "@/pages/NotFound";
+import MovieDetail from "@/pages/detail/MovieDetail.tsx";
+import GenrePage from "@/pages/genre/GenrePage.tsx";
+import Register from "@/pages/Register.tsx";
+import UserPage from "@/pages/social/UserPage.tsx";
+import SocialPage from "@/pages/social/SocialPage.tsx";
+import ExploreGenresPage from "@/pages/genre/ExploreGenresPage.tsx";
+import CollectionsPage from "@/pages/categories/CollectionsPage.tsx";
+import RecommendationsPage from "@/pages/categories/RecommendationsPage.tsx";
+import PersonDetail from "@/pages/detail/PersonDetail.tsx";
+import TopRatedPage from "@/pages/categories/TopRatedPage.tsx";
+import LatestReleasesPage from "@/pages/categories/LatestReleasesPage.tsx";
 
 const router = createBrowserRouter([
   {

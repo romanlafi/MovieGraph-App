@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import type {Movie} from "../../types/movie.ts";
+import type {Movie} from "@/types/movie.ts";
 
 type MoviePageLoader = (page: number, limit: number, signal: AbortSignal) => Promise<Movie[]>;
 

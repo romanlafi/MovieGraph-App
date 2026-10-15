@@ -1,8 +1,8 @@
 import {useCallback} from "react";
-import {getRelatedPeople} from "../../services/peopleService.ts";
-import {useAsyncResource} from "../../hooks/useAsyncResource.ts";
-import {relatedPeoplePerson} from "../../data/carouselCategories.ts";
-import AsyncSection from "../layout/AsyncSection.tsx";
+import {getRelatedPeople} from "@/services/peopleService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import {relatedPeoplePerson} from "@/data/carouselCategories.ts";
+import AsyncSection from "@/components/layout/AsyncSection.tsx";
 import PersonCarousel from "./PersonCarousel.tsx";
 
 export default function PersonCollaboratorsSection({tmdbPersonId}: {tmdbPersonId: number}) {

@@ -1,7 +1,7 @@
 import {useMemo} from "react";
-import {useAuth} from "../auth/useAuth.ts";
-import {useAsyncResource} from "../useAsyncResource.ts";
-import {getMyFollowers, getMyFollowing} from "../../services/followService.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import {getMyFollowers, getMyFollowing} from "@/services/followService.ts";
 
 export function useUserNetwork(enabled = true) {
     const {token, user} = useAuth();

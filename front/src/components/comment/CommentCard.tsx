@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Comment } from "../../types/comment.ts";
+import type { Comment } from "@/types/comment.ts";
 import { format } from "date-fns";
 
 const COLLAPSED_COMMENT_LENGTH = 240;

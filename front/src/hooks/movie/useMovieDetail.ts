@@ -1,6 +1,6 @@
 import {useMemo} from "react";
-import {getMovieByTmdbId} from "../../services/moviesService.ts";
-import {useAsyncResource} from "../useAsyncResource.ts";
+import {getMovieByTmdbId} from "@/services/moviesService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
 
 export function useMovieDetail(tmdbMovieId: number | null) {
     const load = useMemo(() => tmdbMovieId === null ? null

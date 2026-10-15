@@ -1,12 +1,12 @@
-import Container from "../components/layout/Container.tsx";
-import LoadingSpinner from "../components/ui/LoadingSpinner.tsx";
-import ErrorState from "../components/ui/ErrorState.tsx";
-import HeroMovieSlider from "../components/hero/HeroMovieSlider.tsx";
-import HeroCollection from "../components/hero/HeroCollection.tsx";
-import MovieCarousel from "../components/movie/MovieCarousel.tsx";
-import PersonCarousel from "../components/person/PersonCarousel.tsx";
-import {explorePeople, latestMovies, topMovies} from "../data/carouselCategories.ts";
-import {useHomeData} from "../hooks/useHomeData.ts";
+import Container from "@/components/layout/Container.tsx";
+import LoadingSpinner from "@/components/ui/LoadingSpinner.tsx";
+import ErrorState from "@/components/ui/ErrorState.tsx";
+import HeroMovieSlider from "@/components/hero/HeroMovieSlider.tsx";
+import HeroCollection from "@/components/hero/HeroCollection.tsx";
+import MovieCarousel from "@/components/movie/MovieCarousel.tsx";
+import PersonCarousel from "@/components/person/PersonCarousel.tsx";
+import {explorePeople, latestMovies, topMovies} from "@/data/carouselCategories.ts";
+import {useHomeData} from "@/hooks/useHomeData.ts";
 
 export default function Home() {
     const {featuredMovies, latestReleases, featuredPeople, featuredCollection, topRated, loading, error, retry} = useHomeData();

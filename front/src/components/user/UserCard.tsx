@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 import FollowButton from "./FollowButton.tsx";
-import {User} from "../../types/user.ts";
+import {User} from "@/types/user.ts";
 
 interface Props {
     user: User;

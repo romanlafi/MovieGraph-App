@@ -1,5 +1,5 @@
 import {api} from "./api.ts";
-import type {TmdbMovieSearchPage} from "../types/tmdb.ts";
+import type {TmdbMovieSearchPage} from "@/types/tmdb.ts";
 import {hasMoviePosterAndRating, toMovieSearchResult} from "./catalogueAdapters.ts";
 
 export const searchTmdbMovies = async (query: string, page = 1, signal?: AbortSignal) => {

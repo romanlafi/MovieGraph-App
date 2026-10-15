@@ -1,6 +1,6 @@
 import {useMemo} from "react";
-import {getLatestMovies} from "../../services/moviesService.ts";
-import {groupMoviesByReleaseMonth} from "../../utils/releaseCalendar.ts";
+import {getLatestMovies} from "@/services/moviesService.ts";
+import {groupMoviesByReleaseMonth} from "@/utils/releaseCalendar.ts";
 import {usePaginatedMovies} from "./usePaginatedMovies.ts";
 
 const PAGE_SIZE = 10;

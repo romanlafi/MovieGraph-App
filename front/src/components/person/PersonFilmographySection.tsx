@@ -1,9 +1,9 @@
 import {useCallback} from "react";
-import {getPersonFilmography} from "../../services/peopleService.ts";
-import {useAsyncResource} from "../../hooks/useAsyncResource.ts";
-import {actedMovies, directedMovies} from "../../data/carouselCategories.ts";
-import AsyncSection from "../layout/AsyncSection.tsx";
-import MovieCarousel from "../movie/MovieCarousel.tsx";
+import {getPersonFilmography} from "@/services/peopleService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import {actedMovies, directedMovies} from "@/data/carouselCategories.ts";
+import AsyncSection from "@/components/layout/AsyncSection.tsx";
+import MovieCarousel from "@/components/movie/MovieCarousel.tsx";
 
 export default function PersonFilmographySection({tmdbPersonId}: {tmdbPersonId: number}) {
     const load = useCallback((signal: AbortSignal) => getPersonFilmography(tmdbPersonId, signal), [tmdbPersonId]);

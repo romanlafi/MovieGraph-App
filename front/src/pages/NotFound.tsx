@@ -1,5 +1,5 @@
 import {Link} from "react-router-dom";
-import Title from "../components/ui/Title.tsx";
+import Title from "@/components/ui/Title.tsx";
 
 export default function NotFound() {
     return (

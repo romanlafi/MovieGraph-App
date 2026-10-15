@@ -1,8 +1,8 @@
-import type {Movie} from "../../types/movie.ts";
+import type {Movie} from "@/types/movie.ts";
 import {FaCalendarAlt, FaClock, FaCoins, FaGlobe} from "react-icons/fa";
-import {parseCountryCodes} from "../../utils/parseCountryCodes.ts";
-import {formatCurrency} from "../../utils/formatters.ts";
-import CountryFlag from "../ui/CountryFlag.tsx";
+import {parseCountryCodes} from "@/utils/parseCountryCodes.ts";
+import {formatCurrency} from "@/utils/formatters.ts";
+import CountryFlag from "@/components/ui/CountryFlag.tsx";
 
 export default function MovieFacts({movie}: {movie: Movie}) {
     const countries = parseCountryCodes(movie.origin_country);

@@ -1,4 +1,4 @@
-import {useMovieComments} from "../../hooks/movie/useMovieComments.ts";
+import {useMovieComments} from "@/hooks/movie/useMovieComments.ts";
 import CommentSection from "./CommentSection.tsx";
 
 export default function MovieCommentsSection({tmdbMovieId}: {tmdbMovieId: number}) {

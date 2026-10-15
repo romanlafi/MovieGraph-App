@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
-import Button from "../ui/Button.tsx";
+import Button from "@/components/ui/Button.tsx";
 
 const MAX_COMMENT_LENGTH = 2000;
 

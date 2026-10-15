@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import type { Movie } from "../../types/movie.ts";
-import { getMovieReleaseDate } from "../../utils/releaseCalendar.ts";
-import { getTmdbImageUrl } from "../../utils/tmdbImageHelper.ts";
+import type { Movie } from "@/types/movie.ts";
+import { getMovieReleaseDate } from "@/utils/releaseCalendar.ts";
+import { getTmdbImageUrl } from "@/utils/tmdbImageHelper.ts";
 
 interface MovieReleaseCardProps {
     movie: Movie;

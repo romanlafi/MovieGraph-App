@@ -1,7 +1,7 @@
 import {Link} from "react-router-dom";
 import {FaUsers} from "react-icons/fa";
-import Button from "../ui/Button.tsx";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
+import Button from "@/components/ui/Button.tsx";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 
 export default function SocialSessionState() {
     const {token, isLoading, retrySession} = useAuth();

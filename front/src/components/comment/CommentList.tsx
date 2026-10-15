@@ -1,5 +1,5 @@
 import { FaRegCommentDots } from "react-icons/fa";
-import type { Comment } from "../../types/comment.ts";
+import type { Comment } from "@/types/comment.ts";
 import CommentCard from "./CommentCard.tsx";
 
 interface CommentListProps {

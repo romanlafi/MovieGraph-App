@@ -1,4 +1,4 @@
-import type {Movie} from "../../types/movie.ts";
+import type {Movie} from "@/types/movie.ts";
 import MovieHorizontalCard from "./MovieHorizontalCard.tsx";
 import TopRatedMovieCard from "./TopRatedMovieCard.tsx";
 

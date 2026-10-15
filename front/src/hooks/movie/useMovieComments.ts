@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import type {Comment} from "../../types/comment.ts";
-import {getCommentsByMovie, postComment} from "../../services/commentService.ts";
-import {useAsyncResource} from "../useAsyncResource.ts";
+import type {Comment} from "@/types/comment.ts";
+import {getCommentsByMovie, postComment} from "@/services/commentService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
 
 export function useMovieComments(tmdbMovieId: number) {
     const load = useCallback((signal: AbortSignal) => getCommentsByMovie(tmdbMovieId, signal), [tmdbMovieId]);

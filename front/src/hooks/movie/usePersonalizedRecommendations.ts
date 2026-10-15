@@ -1,5 +1,5 @@
-import {getPersonalizedRecommendations} from "../../services/recommendationsService.ts";
-import {useAsyncResource} from "../useAsyncResource.ts";
+import {getPersonalizedRecommendations} from "@/services/recommendationsService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
 
 export function usePersonalizedRecommendations() {
     const {data, loading, error, retry} = useAsyncResource(getPersonalizedRecommendations);

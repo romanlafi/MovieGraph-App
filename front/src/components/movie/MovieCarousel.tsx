@@ -1,8 +1,8 @@
-import type {Movie} from "../../types/movie.ts";
+import type {Movie} from "@/types/movie.ts";
 import {Link} from "react-router-dom";
-import Title from "../ui/Title.tsx";
+import Title from "@/components/ui/Title.tsx";
 import MovieCarouselOverlay from "./MovieCarouselOverlay.tsx";
-import Text from "../ui/Text.tsx";
+import Text from "@/components/ui/Text.tsx";
 
 interface Props {
     movies: Movie[];

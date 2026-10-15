@@ -1,9 +1,9 @@
-import {Movie} from "../../types/movie.ts";
+import {Movie} from "@/types/movie.ts";
 import {useNavigate} from "react-router-dom";
-import RatingDisplay from "../ui/RatingDisplay.tsx";
+import RatingDisplay from "@/components/ui/RatingDisplay.tsx";
 import LikeButton from "./LikeButton.tsx";
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
-import Text from "../ui/Text.tsx";
+import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
+import Text from "@/components/ui/Text.tsx";
 
 interface Props {
     movie: Movie;

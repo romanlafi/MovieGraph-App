@@ -1,6 +1,6 @@
-import {Movie} from "../../types/movie.ts";
+import {Movie} from "@/types/movie.ts";
 import MovieCard from "./MovieCard.tsx";
-import Title from "../ui/Title.tsx";
+import Title from "@/components/ui/Title.tsx";
 
 interface MovieGridProps {
     title?: string;

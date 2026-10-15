@@ -1,8 +1,8 @@
-import MoviePagination from "../../components/movie/MoviePagination.tsx";
-import Container from "../../components/layout/Container.tsx";
-import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
-import ReleaseMonthSection from "../../components/movie/ReleaseMonthSection.tsx";
-import { useLatestMovies } from "../../hooks/movie/useLatestMovies.ts";
+import MoviePagination from "@/components/movie/MoviePagination.tsx";
+import Container from "@/components/layout/Container.tsx";
+import LoadingSpinner from "@/components/ui/LoadingSpinner.tsx";
+import ReleaseMonthSection from "@/components/movie/ReleaseMonthSection.tsx";
+import { useLatestMovies } from "@/hooks/movie/useLatestMovies.ts";
 
 export default function LatestReleasesPage() {
     const {groups, loading, loadMore, loadingMore, hasMore, error} = useLatestMovies();

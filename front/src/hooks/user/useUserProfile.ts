@@ -1,9 +1,9 @@
 import {useEffect, useMemo} from "react";
 import {useNavigate} from "react-router-dom";
-import {getUserByEmail, getUserByPublicId} from "../../services/followService.ts";
-import {isNotFoundError} from "../../utils/apiErrors.ts";
-import {useAsyncResource} from "../useAsyncResource.ts";
-import {useAuth} from "../auth/useAuth.ts";
+import {getUserByEmail, getUserByPublicId} from "@/services/followService.ts";
+import {isNotFoundError} from "@/utils/apiErrors.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 
 const publicIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 

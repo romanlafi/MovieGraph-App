@@ -1,7 +1,7 @@
 import {FaCalendarAlt, FaFilm, FaFolderOpen, FaHome, FaStar, FaTimes, FaTrophy} from "react-icons/fa";
 import {NavLink} from "react-router-dom";
 import {useEffect, useRef} from "react";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 
 export default function CategoryOverlay({open, onClose}: {open: boolean; onClose: () => void}) {
     const {user} = useAuth();

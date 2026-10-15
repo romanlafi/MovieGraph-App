@@ -1,7 +1,7 @@
 import {FaSignOutAlt} from "react-icons/fa";
-import {User} from "../../types/user.ts";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
-import Button from "../ui/Button.tsx";
+import {User} from "@/types/user.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
+import Button from "@/components/ui/Button.tsx";
 import FollowButton from "./FollowButton.tsx";
 
 interface Props {

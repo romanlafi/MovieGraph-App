@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import type {MovieSearchResult} from "../../types/movie.ts";
-import {searchTmdbMovies} from "../../services/tmdbService.ts";
+import type {MovieSearchResult} from "@/types/movie.ts";
+import {searchTmdbMovies} from "@/services/tmdbService.ts";
 
 type MovieSearchStatus = "idle" | "loading" | "success" | "error";
 

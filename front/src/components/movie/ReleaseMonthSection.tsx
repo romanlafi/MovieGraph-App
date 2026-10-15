@@ -1,4 +1,4 @@
-import type { ReleaseMonthGroup } from "../../utils/releaseCalendar.ts";
+import type { ReleaseMonthGroup } from "@/utils/releaseCalendar.ts";
 import MovieReleaseCard from "./MovieReleaseCard.tsx";
 
 interface ReleaseMonthSectionProps {

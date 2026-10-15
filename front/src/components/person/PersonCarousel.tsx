@@ -1,8 +1,8 @@
-import type {Person} from "../../types/person";
+import type {Person} from "@/types/person";
 import PersonCard from "./PersonCard";
-import Title from "../ui/Title.tsx";
-import Text from "../ui/Text.tsx";
-import HorizontalScroller from "../layout/HorizontalScroller.tsx";
+import Title from "@/components/ui/Title.tsx";
+import Text from "@/components/ui/Text.tsx";
+import HorizontalScroller from "@/components/layout/HorizontalScroller.tsx";
 
 interface Props {
     title?: string;

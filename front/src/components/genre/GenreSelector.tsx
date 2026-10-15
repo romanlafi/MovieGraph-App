@@ -1,4 +1,4 @@
-import {Genre} from "../../types/genre.ts";
+import {Genre} from "@/types/genre.ts";
 import SelectableGenreBadge from "./SelectableGenreBadge.tsx";
 
 interface GenreSelectorProps {

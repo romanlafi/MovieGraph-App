@@ -1,8 +1,8 @@
 import {useState, useEffect, useSyncExternalStore, ReactNode} from "react";
 import axios from "axios";
-import {User} from "../types/user.ts";
-import {fetchUser} from "../services/authService.ts";
-import {clearSessionToken, getSessionToken, setSessionToken, subscribeToSession} from "../services/session.ts";
+import {User} from "@/types/user.ts";
+import {fetchUser} from "@/services/authService.ts";
+import {clearSessionToken, getSessionToken, setSessionToken, subscribeToSession} from "@/services/session.ts";
 import {AuthContext} from "./AuthContext.ts";
 
 interface RestoredSession {

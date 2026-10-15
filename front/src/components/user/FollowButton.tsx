@@ -1,7 +1,7 @@
-import {useFollow} from "../../hooks/user/useFollow.ts";
-import {User} from "../../types/user.ts";
+import {useFollow} from "@/hooks/user/useFollow.ts";
+import {User} from "@/types/user.ts";
 import {useRef, useState} from "react";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 import {FaCheck, FaUserPlus} from "react-icons/fa";
 
 export default function FollowButton({ user, onFollowChange }: { user: User; onFollowChange?: () => void }) {

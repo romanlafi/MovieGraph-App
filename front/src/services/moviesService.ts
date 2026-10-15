@@ -1,8 +1,8 @@
-import type {Movie} from "../types/movie.ts";
-import type {Genre} from "../types/genre.ts";
-import type {Collection} from "../types/collection.ts";
+import type {Movie} from "@/types/movie.ts";
+import type {Genre} from "@/types/genre.ts";
+import type {Collection} from "@/types/collection.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
-import type {CatalogueCollection, CatalogueGenre, CatalogueMovie} from "../types/tmdb.ts";
+import type {CatalogueCollection, CatalogueGenre, CatalogueMovie} from "@/types/tmdb.ts";
 import {toCollection, toGenre, toMovie, toMovies} from "./catalogueAdapters.ts";
 
 export const getMoviesByGenre = async (genreName: string, page = 1, limit = 10, signal?: AbortSignal): Promise<Movie[]> => {

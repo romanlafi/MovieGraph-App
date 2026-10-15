@@ -1,10 +1,10 @@
-import {Collection} from "../../types/collection.ts";
-import {Movie} from "../../types/movie.ts";
-import MovieCarouselOverlay from "../movie/MovieCarouselOverlay.tsx";
-import RatingDisplay from "../ui/RatingDisplay.tsx";
-import {getAverageRating} from "../../utils/ratingHelpers.ts";
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
-import Title from "../ui/Title.tsx";
+import {Collection} from "@/types/collection.ts";
+import {Movie} from "@/types/movie.ts";
+import MovieCarouselOverlay from "@/components/movie/MovieCarouselOverlay.tsx";
+import RatingDisplay from "@/components/ui/RatingDisplay.tsx";
+import {getAverageRating} from "@/utils/ratingHelpers.ts";
+import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
+import Title from "@/components/ui/Title.tsx";
 
 interface HeroCollectionProps {
     collection: Collection;

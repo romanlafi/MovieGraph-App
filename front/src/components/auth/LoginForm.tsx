@@ -1,7 +1,7 @@
-import {useLoginForm} from "../../hooks/auth/useLoginForm.ts";
-import Button from "../ui/Button.tsx";
+import {useLoginForm} from "@/hooks/auth/useLoginForm.ts";
+import Button from "@/components/ui/Button.tsx";
 import {Link} from "react-router-dom";
-import TextInput from "../ui/inputs/TextInput.tsx";
+import TextInput from "@/components/ui/inputs/TextInput.tsx";
 
 export default function LoginForm({onSuccess}: {onSuccess: () => void}) {
     const {credentials, updateField, submit, error, isSubmitting} = useLoginForm(onSuccess);

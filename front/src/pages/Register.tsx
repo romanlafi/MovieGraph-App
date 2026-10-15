@@ -1,5 +1,5 @@
-import RegisterForm from "../components/auth/RegisterForm.tsx";
-import Container from "../components/layout/Container.tsx";
+import RegisterForm from "@/components/auth/RegisterForm.tsx";
+import Container from "@/components/layout/Container.tsx";
 
 export default function Register() {
     return (

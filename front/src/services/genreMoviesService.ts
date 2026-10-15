@@ -1,5 +1,5 @@
-import type {Movie} from "../types/movie.ts";
-import type {GenreMovies} from "../types/genre.ts";
+import type {Movie} from "@/types/movie.ts";
+import type {GenreMovies} from "@/types/genre.ts";
 import {getMoviesByTmdbGenreId} from "./moviesService.ts";
 
 const shuffleMovies = (movies: Movie[]): Movie[] => {

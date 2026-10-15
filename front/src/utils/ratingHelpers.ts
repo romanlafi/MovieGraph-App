@@ -1,4 +1,4 @@
-import {Movie} from "../types/movie.ts";
+import {Movie} from "@/types/movie.ts";
 
 export function getAverageRating(movies: Movie[]): number | null {
     const ratedMovies = movies.filter(

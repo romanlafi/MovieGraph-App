@@ -1,5 +1,5 @@
 import {useContext} from "react";
-import {LikeContext} from "../../contexts/LikeContext.ts";
+import {LikeContext} from "@/contexts/LikeContext.ts";
 
 export const useLikes = () => {
     const context = useContext(LikeContext);

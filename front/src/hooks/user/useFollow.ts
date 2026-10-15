@@ -1,5 +1,5 @@
 import {useContext} from "react";
-import {FollowContext} from "../../contexts/FollowContext.ts";
+import {FollowContext} from "@/contexts/FollowContext.ts";
 
 export const useFollow = () => {
     const context = useContext(FollowContext);

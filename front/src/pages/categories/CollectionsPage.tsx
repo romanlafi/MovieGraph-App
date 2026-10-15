@@ -1,9 +1,9 @@
-import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
-import HeroCollection from "../../components/hero/HeroCollection.tsx";
-import Container from "../../components/layout/Container.tsx";
-import ErrorState from "../../components/ui/ErrorState.tsx";
-import LoadMoreButton from "../../components/ui/LoadMoreButton.tsx";
-import {useCollections} from "../../hooks/collection/useCollections.ts";
+import LoadingSpinner from "@/components/ui/LoadingSpinner.tsx";
+import HeroCollection from "@/components/hero/HeroCollection.tsx";
+import Container from "@/components/layout/Container.tsx";
+import ErrorState from "@/components/ui/ErrorState.tsx";
+import LoadMoreButton from "@/components/ui/LoadMoreButton.tsx";
+import {useCollections} from "@/hooks/collection/useCollections.ts";
 
 export default function ExploreCollectionsPage() {
     const {visibleCollections, loading, error, hasMore, loadMore, retry} = useCollections();

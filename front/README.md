@@ -66,6 +66,9 @@ En la cabecera, `Header` compone marca, búsqueda, navegación y paneles.
 `useHeaderPanels` gestiona apertura, cierre, cambios de ruta y foco;
 `HeaderSessionNav` presenta los accesos según el estado de sesión.
 
+Usa `@/` para imports entre carpetas y rutas relativas para archivos vecinos.
+Vite y TypeScript comparten el alias `@` hacia `src/`.
+
 `public/` conserva recursos con URL pública estable y los archivos de marca.
 Elimina archivos sin uso después de comprobar imports, rutas de recursos y
 configuración. Crea carpetas cuando tengan contenido concreto.

@@ -1,11 +1,11 @@
 import {useParams} from "react-router-dom";
-import Container from "../../components/layout/Container.tsx";
-import UserProfileCard from "../../components/user/UserProfileCard.tsx";
-import ProfileNetworkSection from "../../components/user/ProfileNetworkSection.tsx";
-import Button from "../../components/ui/Button.tsx";
-import {useUserProfile} from "../../hooks/user/useUserProfile.ts";
-import {useUserNetwork} from "../../hooks/user/useUserNetwork.ts";
-import NotFound from "../NotFound.tsx";
+import Container from "@/components/layout/Container.tsx";
+import UserProfileCard from "@/components/user/UserProfileCard.tsx";
+import ProfileNetworkSection from "@/components/user/ProfileNetworkSection.tsx";
+import Button from "@/components/ui/Button.tsx";
+import {useUserProfile} from "@/hooks/user/useUserProfile.ts";
+import {useUserNetwork} from "@/hooks/user/useUserNetwork.ts";
+import NotFound from "@/pages/NotFound.tsx";
 
 export default function UserPage() {
     const {publicId} = useParams();

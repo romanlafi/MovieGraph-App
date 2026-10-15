@@ -1,6 +1,6 @@
 import type {ReactNode} from "react";
-import ErrorState from "../ui/ErrorState.tsx";
-import Title from "../ui/Title.tsx";
+import ErrorState from "@/components/ui/ErrorState.tsx";
+import Title from "@/components/ui/Title.tsx";
 
 interface AsyncSectionProps {
     title: string;

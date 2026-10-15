@@ -1,6 +1,6 @@
-import {Person} from "../../types/person";
+import {Person} from "@/types/person";
 import {useNavigate} from "react-router-dom";
-import Text from "../ui/Text.tsx";
+import Text from "@/components/ui/Text.tsx";
 import PersonImage from "./PersonImage.tsx";
 
 export default function PersonCard({person, showRole = true}: { person: Person; showRole?: boolean }) {

@@ -1,16 +1,16 @@
 import {useParams} from "react-router-dom";
-import MovieHeaderCard from "../../components/movie/MovieHeaderCard.tsx";
-import MovieCastSection from "../../components/movie/MovieCastSection.tsx";
-import MovieCollectionSection from "../../components/movie/MovieCollectionSection.tsx";
-import MovieRelatedSection from "../../components/movie/MovieRelatedSection.tsx";
-import MovieCommentsSection from "../../components/comment/MovieCommentsSection.tsx";
-import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
-import Container from "../../components/layout/Container.tsx";
-import ErrorState from "../../components/ui/ErrorState.tsx";
-import NotFound from "../NotFound.tsx";
-import {useMovieDetail} from "../../hooks/movie/useMovieDetail.ts";
-import {parseTmdbId} from "../../utils/parseTmdbId.ts";
-import {isNotFoundError} from "../../utils/apiErrors.ts";
+import MovieHeaderCard from "@/components/movie/MovieHeaderCard.tsx";
+import MovieCastSection from "@/components/movie/MovieCastSection.tsx";
+import MovieCollectionSection from "@/components/movie/MovieCollectionSection.tsx";
+import MovieRelatedSection from "@/components/movie/MovieRelatedSection.tsx";
+import MovieCommentsSection from "@/components/comment/MovieCommentsSection.tsx";
+import LoadingSpinner from "@/components/ui/LoadingSpinner.tsx";
+import Container from "@/components/layout/Container.tsx";
+import ErrorState from "@/components/ui/ErrorState.tsx";
+import NotFound from "@/pages/NotFound.tsx";
+import {useMovieDetail} from "@/hooks/movie/useMovieDetail.ts";
+import {parseTmdbId} from "@/utils/parseTmdbId.ts";
+import {isNotFoundError} from "@/utils/apiErrors.ts";
 
 export default function MovieDetail() {
     const {tmdbMovieId: tmdbMovieIdParam} = useParams<{tmdbMovieId: string}>();

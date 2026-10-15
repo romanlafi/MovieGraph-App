@@ -1,6 +1,6 @@
 import {useAsyncResource} from "./useAsyncResource.ts";
-import {getLatestMovies, getRandomCollection, getRandomMovies, getTopRatedMovies} from "../services/moviesService.ts";
-import {getRandomPeople} from "../services/peopleService.ts";
+import {getLatestMovies, getRandomCollection, getRandomMovies, getTopRatedMovies} from "@/services/moviesService.ts";
+import {getRandomPeople} from "@/services/peopleService.ts";
 
 const loadFeatured = (signal: AbortSignal) => getRandomMovies(5, signal);
 const loadLatest = (signal: AbortSignal) => getLatestMovies(1, 10, signal);

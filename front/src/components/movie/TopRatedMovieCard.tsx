@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { FaMedal } from "react-icons/fa";
-import type { Movie } from "../../types/movie.ts";
-import { getTmdbImageUrl } from "../../utils/tmdbImageHelper.ts";
-import RatingDisplay from "../ui/RatingDisplay.tsx";
+import type { Movie } from "@/types/movie.ts";
+import { getTmdbImageUrl } from "@/utils/tmdbImageHelper.ts";
+import RatingDisplay from "@/components/ui/RatingDisplay.tsx";
 
 interface TopRatedMovieCardProps {
     movie: Movie;

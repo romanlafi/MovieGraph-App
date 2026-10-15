@@ -1,9 +1,9 @@
 import {useCallback} from "react";
-import type {Collection} from "../../types/collection.ts";
-import {getMoviesByCollection} from "../../services/moviesService.ts";
-import {useAsyncResource} from "../../hooks/useAsyncResource.ts";
-import AsyncSection from "../layout/AsyncSection.tsx";
-import HeroCollection from "../hero/HeroCollection.tsx";
+import type {Collection} from "@/types/collection.ts";
+import {getMoviesByCollection} from "@/services/moviesService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import AsyncSection from "@/components/layout/AsyncSection.tsx";
+import HeroCollection from "@/components/hero/HeroCollection.tsx";
 
 export default function MovieCollectionSection({collection}: {collection: Collection}) {
     const load = useCallback((signal: AbortSignal) => getMoviesByCollection(collection.tmdbId, 1, 10, signal), [collection.tmdbId]);

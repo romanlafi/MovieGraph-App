@@ -1,8 +1,8 @@
 import {useCallback} from "react";
-import {getRelatedMovies} from "../../services/moviesService.ts";
-import {useAsyncResource} from "../../hooks/useAsyncResource.ts";
-import {relatedFilms} from "../../data/carouselCategories.ts";
-import AsyncSection from "../layout/AsyncSection.tsx";
+import {getRelatedMovies} from "@/services/moviesService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import {relatedFilms} from "@/data/carouselCategories.ts";
+import AsyncSection from "@/components/layout/AsyncSection.tsx";
 import MovieCarousel from "./MovieCarousel.tsx";
 
 export default function MovieRelatedSection({tmdbMovieId}: {tmdbMovieId: number}) {

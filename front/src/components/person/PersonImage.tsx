@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {FaUser} from "react-icons/fa";
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
+import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
 
 interface Props {
     name: string;

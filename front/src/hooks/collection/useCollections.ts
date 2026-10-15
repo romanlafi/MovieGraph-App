@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
-import type {Collection} from "../../types/collection.ts";
-import {getCollections} from "../../services/moviesService.ts";
+import type {Collection} from "@/types/collection.ts";
+import {getCollections} from "@/services/moviesService.ts";
 
 const PAGE_SIZE = 5;
 

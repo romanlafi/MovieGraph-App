@@ -1,9 +1,9 @@
-import type {User} from "../types/user.ts";
+import type {User} from "@/types/user.ts";
 import {useCallback, useEffect, useRef, useState} from "react";
 import type {ReactNode} from "react";
-import {useAuth} from "../hooks/auth/useAuth.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 import {FollowContext} from "./FollowContext.ts";
-import {followUser, getMyFollowing, unfollowUser} from "../services/followService.ts";
+import {followUser, getMyFollowing, unfollowUser} from "@/services/followService.ts";
 
 export const FollowProvider = ({ children }: { children: ReactNode }) => {
     const [following, setFollowing] = useState<User[]>([]);

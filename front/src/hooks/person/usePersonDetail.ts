@@ -1,6 +1,6 @@
 import {useMemo} from "react";
-import {getPersonByTmdbId} from "../../services/peopleService.ts";
-import {useAsyncResource} from "../useAsyncResource.ts";
+import {getPersonByTmdbId} from "@/services/peopleService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
 
 export function usePersonDetail(tmdbPersonId: number | null) {
     const load = useMemo(() => tmdbPersonId === null ? null

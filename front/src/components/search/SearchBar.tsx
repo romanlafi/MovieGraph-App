@@ -1,7 +1,7 @@
 import {useEffect, useId, useRef, useState} from "react";
-import {useMovieSearch} from "../../hooks/movie/useMovieSearch.ts";
+import {useMovieSearch} from "@/hooks/movie/useMovieSearch.ts";
 import {useNavigate} from "react-router-dom";
-import TextInput from "../ui/inputs/TextInput.tsx";
+import TextInput from "@/components/ui/inputs/TextInput.tsx";
 import MovieSearchResults from "./MovieSearchResults.tsx";
 
 export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: boolean; onSelect?: () => void}) {

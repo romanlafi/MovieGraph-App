@@ -1,9 +1,9 @@
-import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
-import LoadMoreButton from "../../components/ui/LoadMoreButton.tsx";
-import ErrorState from "../../components/ui/ErrorState.tsx";
-import Container from "../../components/layout/Container.tsx";
-import GenreMoviesSection from "../../components/genre/GenreMoviesSection.tsx";
-import {useExploreGenres} from "../../hooks/genre/useExploreGenres.ts";
+import LoadingSpinner from "@/components/ui/LoadingSpinner.tsx";
+import LoadMoreButton from "@/components/ui/LoadMoreButton.tsx";
+import ErrorState from "@/components/ui/ErrorState.tsx";
+import Container from "@/components/layout/Container.tsx";
+import GenreMoviesSection from "@/components/genre/GenreMoviesSection.tsx";
+import {useExploreGenres} from "@/hooks/genre/useExploreGenres.ts";
 
 export default function ExploreGenresPage() {
     const {visibleGenres, loading, error, retry, loadMoreGenres, loadingMore, hasMoreGenres, setGenreLoading} = useExploreGenres();

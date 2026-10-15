@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import type {ReactNode} from "react";
-import {useAuth} from "../hooks/auth/useAuth.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 import {LikeContext} from "./LikeContext.ts";
-import {getUserLikes, likeMovie, unlikeMovie} from "../services/movieLikesService.ts";
+import {getUserLikes, likeMovie, unlikeMovie} from "@/services/movieLikesService.ts";
 
 export const LikeProvider = ({ children }: { children: ReactNode }) => {
     const { token, isLoading } = useAuth();

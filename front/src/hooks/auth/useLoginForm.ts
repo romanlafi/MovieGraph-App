@@ -1,6 +1,6 @@
 import {useRef, useState} from "react";
 import axios from "axios";
-import {loginUser} from "../../services/authService.ts";
+import {loginUser} from "@/services/authService.ts";
 import {useAuth} from "./useAuth.ts";
 
 export function useLoginForm(onSuccess: () => void) {

@@ -1,5 +1,5 @@
-import type {Person} from "../../types/person.ts";
-import DetailMediaLayout from "../layout/DetailMediaLayout.tsx";
+import type {Person} from "@/types/person.ts";
+import DetailMediaLayout from "@/components/layout/DetailMediaLayout.tsx";
 import PersonImage from "./PersonImage.tsx";
 import PersonMetadata from "./PersonMetadata.tsx";
 

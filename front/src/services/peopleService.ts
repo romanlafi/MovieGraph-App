@@ -1,5 +1,5 @@
-import type {Person, PersonFilmography} from "../types/person.ts";
-import type {CatalogueFilmography, CatalogueMovie, CataloguePerson} from "../types/tmdb.ts";
+import type {Person, PersonFilmography} from "@/types/person.ts";
+import type {CatalogueFilmography, CatalogueMovie, CataloguePerson} from "@/types/tmdb.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
 import {toMovies, toPerson} from "./catalogueAdapters.ts";
 

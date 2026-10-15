@@ -1,9 +1,9 @@
 import {FaCheckCircle} from "react-icons/fa";
 import {Link, useNavigate} from "react-router-dom";
-import {useRegistrationForm} from "../../hooks/auth/useRegistrationForm.ts";
-import TextInput from "../ui/inputs/TextInput.tsx";
-import Button from "../ui/Button.tsx";
-import Textarea from "../ui/inputs/Textarea.tsx";
+import {useRegistrationForm} from "@/hooks/auth/useRegistrationForm.ts";
+import TextInput from "@/components/ui/inputs/TextInput.tsx";
+import Button from "@/components/ui/Button.tsx";
+import Textarea from "@/components/ui/inputs/Textarea.tsx";
 import RegistrationGenres from "./RegistrationGenres.tsx";
 
 export default function RegisterForm() {

@@ -1,10 +1,10 @@
-import { Movie } from "../../types/movie.ts";
+import { Movie } from "@/types/movie.ts";
 import {useEffect, useRef, useState} from "react";
 import {FaChevronLeft, FaChevronRight, FaPlay} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
-import Title from "../ui/Title.tsx";
-import Text from "../ui/Text.tsx";
+import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
+import Title from "@/components/ui/Title.tsx";
+import Text from "@/components/ui/Text.tsx";
 
 
 interface HeroSliderProps {

@@ -1,7 +1,7 @@
-import type {Person} from "../../types/person.ts";
+import type {Person} from "@/types/person.ts";
 import {FaBirthdayCake, FaMapMarkerAlt} from "react-icons/fa";
-import Title from "../ui/Title.tsx";
-import Text from "../ui/Text.tsx";
+import Title from "@/components/ui/Title.tsx";
+import Text from "@/components/ui/Text.tsx";
 
 export default function PersonMetadata({person}: {person: Person}) {
     return (

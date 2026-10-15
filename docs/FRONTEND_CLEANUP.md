@@ -222,6 +222,14 @@ Es una reorganización de presentación y control de interfaz. El catálogo sigu
 
 Validación: lint, build, auditoría de imports y comprobación de whitespace pasan. Playwright con API simulada comprueba exclusión entre paneles, foco y Escape, clic fuera, búsqueda móvil/escritorio, selección de película, menú con teclado, bloqueo y restauración de scroll, cierre al navegar, sesión pendiente/fallida/reintento y destino del perfil. Script local: `output/playwright/header-panels-check.cjs`. También pasa la regresión existente de autenticación `output/playwright/auth-layers-check.cjs`, incluidos login correcto y cierre del panel. No se realizan peticiones ni escrituras al backend real. Queda pendiente validación con lector de pantalla y Worker real.
 
+## Decimocuarta fase: imports con alias de proyecto
+
+Se configura `@/` como ruta estable a `src/` tanto en Vite como en TypeScript. Los imports entre carpetas usan el alias y los imports de archivos vecinos mantienen `./`. Se actualizan 315 imports para eliminar rutas con `../` y reducir la dependencia de la ubicación de cada archivo.
+
+Vite resuelve el alias desde la ubicación de su configuración, y TypeScript limita los tipos globales de Node a la configuración de Vite para no cambiar los tipos del navegador. No cambian rutas públicas, peticiones, comportamiento, esquema ni datos persistidos.
+
+Validación: `npm run lint` y `npm run build` pasan. `git diff --check` no detecta errores de whitespace.
+
 ## Siguientes fases propuestas
 
 1. Revisar accesibilidad de tarjetas y navegación, preservando la interacción con likes y follows.

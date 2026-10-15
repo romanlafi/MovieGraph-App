@@ -1,4 +1,4 @@
-import LoadMoreButton from "../ui/LoadMoreButton.tsx";
+import LoadMoreButton from "@/components/ui/LoadMoreButton.tsx";
 
 interface MoviePaginationProps {
     error: string | null;

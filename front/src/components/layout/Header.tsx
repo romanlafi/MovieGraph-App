@@ -1,12 +1,12 @@
 import {FaBars, FaSearch, FaTimes} from "react-icons/fa";
 import {Link} from "react-router-dom";
-import LoginForm from "../auth/LoginForm.tsx";
-import SearchBar from "../search/SearchBar.tsx";
+import LoginForm from "@/components/auth/LoginForm.tsx";
+import SearchBar from "@/components/search/SearchBar.tsx";
 import NavItem from "./NavItem.tsx";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
 import CategoryOverlay from "./CategoryOverlay.tsx";
 import HeaderSessionNav from "./HeaderSessionNav.tsx";
-import {useHeaderPanels} from "../../hooks/useHeaderPanels.ts";
+import {useHeaderPanels} from "@/hooks/useHeaderPanels.ts";
 
 export default function Header() {
     const {token} = useAuth();

@@ -1,6 +1,6 @@
 import {api} from "./api.ts";
-import {User} from "../types/user.ts";
-import {API_FOLLOWS} from "../data/apiConstants.ts";
+import {User} from "@/types/user.ts";
+import {API_FOLLOWS} from "@/data/apiConstants.ts";
 
 export const searchUsers = async (query: string, signal?: AbortSignal): Promise<User[]> => {
     const res = await api.get<User[]>(`${API_FOLLOWS}search`, {params: {query}, signal});

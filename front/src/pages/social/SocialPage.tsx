@@ -1,9 +1,9 @@
-import Container from "../../components/layout/Container.tsx";
-import SocialSessionState from "../../components/user/SocialSessionState.tsx";
-import UserSearchSection from "../../components/user/UserSearchSection.tsx";
-import UserNetworkSection from "../../components/user/UserNetworkSection.tsx";
-import {useAuth} from "../../hooks/auth/useAuth.ts";
-import {useUserNetwork} from "../../hooks/user/useUserNetwork.ts";
+import Container from "@/components/layout/Container.tsx";
+import SocialSessionState from "@/components/user/SocialSessionState.tsx";
+import UserSearchSection from "@/components/user/UserSearchSection.tsx";
+import UserNetworkSection from "@/components/user/UserNetworkSection.tsx";
+import {useAuth} from "@/hooks/auth/useAuth.ts";
+import {useUserNetwork} from "@/hooks/user/useUserNetwork.ts";
 
 export default function SocialPage() {
     const {token, user} = useAuth();

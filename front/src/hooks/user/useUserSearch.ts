@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
-import type {User} from "../../types/user.ts";
-import {searchUsers} from "../../services/followService.ts";
+import type {User} from "@/types/user.ts";
+import {searchUsers} from "@/services/followService.ts";
 
 export function useUserSearch() {
     const [query, setQuery] = useState("");

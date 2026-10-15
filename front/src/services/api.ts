@@ -1,5 +1,5 @@
 import axios from "axios";
-import {BASE_URL} from "../data/apiConstants.ts";
+import {BASE_URL} from "@/data/apiConstants.ts";
 import {clearSessionToken, getSessionToken} from "./session.ts";
 
 export const api = axios.create({

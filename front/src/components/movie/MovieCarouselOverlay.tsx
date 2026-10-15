@@ -1,6 +1,6 @@
 import MovieCard from "./MovieCard.tsx";
-import type {Movie} from "../../types/movie.ts";
-import HorizontalScroller from "../layout/HorizontalScroller.tsx";
+import type {Movie} from "@/types/movie.ts";
+import HorizontalScroller from "@/components/layout/HorizontalScroller.tsx";
 
 interface Props {
     movies: Movie[];

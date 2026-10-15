@@ -1,8 +1,8 @@
-import {useTopRatedMovies} from "../../hooks/movie/useTopRatedMovies.ts";
-import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
-import Container from "../../components/layout/Container.tsx";
-import MoviePagination from "../../components/movie/MoviePagination.tsx";
-import MovieRanking from "../../components/movie/MovieRanking.tsx";
+import {useTopRatedMovies} from "@/hooks/movie/useTopRatedMovies.ts";
+import LoadingSpinner from "@/components/ui/LoadingSpinner.tsx";
+import Container from "@/components/layout/Container.tsx";
+import MoviePagination from "@/components/movie/MoviePagination.tsx";
+import MovieRanking from "@/components/movie/MovieRanking.tsx";
 
 export default function TopRatedPage() {
     const {movies, loading, loadMore, loadingMore, hasMore, error} = useTopRatedMovies();

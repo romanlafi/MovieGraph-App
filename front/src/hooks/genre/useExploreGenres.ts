@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useRef, useState} from "react";
-import {getGenres} from "../../services/moviesService.ts";
-import {useAsyncResource} from "../useAsyncResource.ts";
+import {getGenres} from "@/services/moviesService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
 
 const ITEMS_PER_LOAD = 3;
 

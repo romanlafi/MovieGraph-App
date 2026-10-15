@@ -1,10 +1,10 @@
 import {useCallback, useEffect} from "react";
-import type {Genre} from "../../types/genre.ts";
-import {getRandomMoviesForGenre} from "../../services/genreMoviesService.ts";
-import {useAsyncResource} from "../../hooks/useAsyncResource.ts";
-import {genreDescriptions} from "../../data/genreDescriptions.ts";
-import AsyncSection from "../layout/AsyncSection.tsx";
-import MovieCarousel from "../movie/MovieCarousel.tsx";
+import type {Genre} from "@/types/genre.ts";
+import {getRandomMoviesForGenre} from "@/services/genreMoviesService.ts";
+import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
+import {genreDescriptions} from "@/data/genreDescriptions.ts";
+import AsyncSection from "@/components/layout/AsyncSection.tsx";
+import MovieCarousel from "@/components/movie/MovieCarousel.tsx";
 
 interface GenreMoviesSectionProps {
     genre: Genre;

@@ -1,7 +1,7 @@
 import {useMemo} from "react";
-import type {Person} from "../../types/person.ts";
-import PersonCarousel from "../person/PersonCarousel.tsx";
-import {castAndCrew} from "../../data/carouselCategories.ts";
+import type {Person} from "@/types/person.ts";
+import PersonCarousel from "@/components/person/PersonCarousel.tsx";
+import {castAndCrew} from "@/data/carouselCategories.ts";
 
 export default function MovieCastSection({cast}: {cast: Person[]}) {
     const people = useMemo(() => [...cast].sort((left, right) => {

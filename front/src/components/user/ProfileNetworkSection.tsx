@@ -1,8 +1,8 @@
 import {Link} from "react-router-dom";
 import {FaUsers} from "react-icons/fa";
-import Button from "../ui/Button.tsx";
+import Button from "@/components/ui/Button.tsx";
 import UserGrid from "./UserGrid.tsx";
-import type {useUserNetwork} from "../../hooks/user/useUserNetwork.ts";
+import type {useUserNetwork} from "@/hooks/user/useUserNetwork.ts";
 
 interface Props {
     network: ReturnType<typeof useUserNetwork>;

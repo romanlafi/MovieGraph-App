@@ -1,8 +1,8 @@
-import type {Movie} from "../types/movie.ts";
-import type {Person} from "../types/person.ts";
+import type {Movie} from "@/types/movie.ts";
+import type {Person} from "@/types/person.ts";
 import {getFollowedMovieLikes} from "./followService.ts";
 import {getUserLikes} from "./movieLikesService.ts";
-import type {CatalogueMovie} from "../types/tmdb.ts";
+import type {CatalogueMovie} from "@/types/tmdb.ts";
 import {hasMoviePosterAndRating, toMovie} from "./catalogueAdapters.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
 

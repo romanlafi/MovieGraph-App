@@ -1,8 +1,8 @@
-import type {Movie, MovieSearchResult} from "../types/movie.ts";
-import type {Person} from "../types/person.ts";
-import type {Collection} from "../types/collection.ts";
-import type {Genre} from "../types/genre.ts";
-import type {CatalogueCollection, CatalogueGenre, CatalogueMovie, CataloguePerson, TmdbMovieSearchResult} from "../types/tmdb.ts";
+import type {Movie, MovieSearchResult} from "@/types/movie.ts";
+import type {Person} from "@/types/person.ts";
+import type {Collection} from "@/types/collection.ts";
+import type {Genre} from "@/types/genre.ts";
+import type {CatalogueCollection, CatalogueGenre, CatalogueMovie, CataloguePerson, TmdbMovieSearchResult} from "@/types/tmdb.ts";
 
 export const hasMoviePosterAndRating = (movie: {
     poster_path: string | null;
