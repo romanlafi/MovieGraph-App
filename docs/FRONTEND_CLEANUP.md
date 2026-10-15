@@ -156,9 +156,65 @@ Validación: `npm run lint`, `npm run build` y comprobación de diff pasan. Play
 
 Scripts locales: `output/playwright/social-modules-check.cjs` y `output/playwright/social-hooks-check.cjs`, ignorados por Git. Sigue pendiente validación contra Worker real y revisión con lector de pantalla.
 
+## Novena fase: estructura y archivos sin uso
+
+La estructura comparte ahora un único `components/layout/`: `MainLayout` pasa allí desde `src/layout/`, junto a la cabecera y los contenedores. Se elimina `components/common/`, repartiendo sus piezas por responsabilidad: `LikeButton` en `movie/`, `NavItem` en `layout/`, y `CountryFlag` y `RatingDisplay` en `ui/`. `LoadingSpinner` también pasa de `layout/` a `ui/`. Se actualizan todos los imports sin mantener archivos puente.
+
+Se retiran `App.css` y los iconos de plantilla React/Vite, las copias de iconos sin referencias de `src/assets/`, el archivo vacío `ProfileEdit.tsx` y los componentes sin consumidores `UserMenu` y `ScrollToTop`. El router activo ya usa `ScrollRestoration`; el perfil activo ofrece logout desde `UserProfileCard`. Se eliminan las carpetas que quedan vacías: `src/layout/`, `src/assets/` y `components/common/`. Se conservan los recursos públicos de marca y `vite-env.d.ts`, incluido por TypeScript aunque no tenga un import explícito.
+
+`front/README.md` documenta las carpetas y dónde colocar componentes nuevos. La selección de archivos eliminados se basa en el grafo de imports desde `main.tsx`, comprobado con el parser de TypeScript, y en búsquedas de referencias en código, HTML, configuración y documentación. El script local `output/frontend/structure-audit.cjs`, ignorado por Git, comprueba también imports relativos sin resolver.
+
+Este cambio solo reorganiza archivos y retira código que no participa en la aplicación. Catálogo TMDB y estado social MovieGraph conservan servicios, identificadores, URLs y comportamiento. No se modifican esquemas ni se migran datos. Validación: lint, build y auditoría de imports; no se añaden nuevos escenarios funcionales porque no cambia la lógica de ejecución.
+
+## Décima fase: composición y carga de Home
+
+El diseño inicial de esta fase se sustituye por el ajuste de carga global documentado más abajo.
+
+`Home` compone las secciones en el orden existente: películas destacadas, estrenos, personas, colección y mejor valoradas. `HomeFeaturedSection`, `HomePeopleSection` y `HomeCollectionSection` poseen sus lecturas; `HomeMovieSection` comparte la presentación y lectura de los dos carruseles de películas con sus títulos, subtítulos y cargadores estables.
+
+Se elimina `useHomeData`, con sus seis estados, promesa retenida, conversión de resultados de `Promise.allSettled` y control manual de desmontaje. Las cinco lecturas reutilizan `useAsyncResource` y `AsyncSection`, ya usados en detalles y géneros. No se añaden nuevos hooks de carga ni un segundo mecanismo de estados asíncronos.
+
+Cambios visibles deliberados: cada sección aparece al llegar sus datos; una lectura lenta ya no retrasa toda la página. Un fallo muestra el error y un reintento propio, sin volver a pedir las otras cuatro secciones. Las secciones vacías continúan ocultas. Las lecturas de destacados, colección aleatoria y personas aceptan `AbortSignal` opcional, por lo que navegar cancela el trabajo pendiente. Una respuesta vacía de colecciones se transforma en `null` y no intenta adaptar un elemento inexistente.
+
+Los tamaños siguen siendo cinco películas destacadas, diez estrenos y diez mejor valoradas; se conservan títulos, subtítulos, orden y selección de colección aleatoria. Todo el contenido es catálogo TMDB leído por `/api/tmdb/*`. No se modifican contratos HTTP, estado social, esquemas ni datos persistidos.
+
+Validación: `npm run lint`, `npm run build` y auditoría de imports pasan. Playwright comprueba con respuestas simuladas carga independiente mientras otra petición sigue pendiente, fallo parcial, reintento de una sola sección, colección vacía, parámetros de lectura, orden de los cinco bloques, viewport móvil, catálogo completamente vacío, cinco errores recuperables y cancelación al navegar por la SPA. Script local: `output/playwright/home-sections-check.cjs`, ignorado por Git. Queda pendiente comprobar estos estados contra TMDB/Worker reales.
+
+## Undécima fase: capas de formularios de autenticación
+
+`LoginForm` y `RegisterForm` se ocupan de presentar campos, validación nativa y navegación. El estado, las modificaciones de valores, el envío y los mensajes de error pasan a `useLoginForm` y `useRegistrationForm`. Los campos se actualizan por claves tipadas, evitando interpretar cualquier `name` del DOM como una propiedad válida del formulario. No se introduce un framework de formularios ni una capa genérica de mutaciones.
+
+El registro agrupa envío, error y éxito en un estado explícito. Ambos hooks bloquean envíos simultáneos mediante una referencia síncrona, incluso antes de que React actualice el botón. Los mensajes de registro se extraen de datos `unknown`, comprobando cadenas y `detail.message` sin afirmar mediante un cast que cualquier respuesta tiene ese formato. Respuestas de validación con listas u objetos inesperados conservan el mensaje de fallback.
+
+`RegistrationGenres` reutiliza `useAsyncResource` para consultar géneros y cancelar al desmontar. Conserva el fieldset, la selección por nombres y el aviso no bloqueante si el catálogo está vacío o falla. Las preferencias enviadas son estado MovieGraph; las opciones visibles siguen siendo catálogo TMDB.
+
+`authService` declara las respuestas de registro, login y perfil con los contratos de la API real; `types/auth.ts` incluye `RegistrationResult` y `LoginResponse`. `birthdate` es obligatorio en el tipo de registro, de acuerdo con el formulario y el backend existentes. No cambian las URLs, el JSON de registro, el envío URL-encoded de login ni el almacenamiento de sesión. El enlace a `/register` pasa a ser un enlace único, eliminando el botón anidado.
+
+Validación: lint y build pasan. Playwright con respuestas simuladas comprueba login 401/503/correcto, codificación de credenciales, validación nativa de email, selección y deselección de géneros, bloqueo de doble envío, JSON exacto de registro, errores de texto/anidados/validación/malformados, éxito sin login automático, persistencia de sesión y cierre del panel al entrar, fallo no bloqueante del catálogo y cancelación al navegar. Script local: `output/playwright/auth-layers-check.cjs`, ignorado por Git. Las mutaciones de prueba son simuladas; no hay cambios de esquema ni migración de datos. Queda pendiente comprobar contra Worker real.
+
+## Ajuste de Home: carga global y menos coordinación
+
+Se recupera el loader de página mientras las cinco lecturas están pendientes y el contenido aparece junto al terminar. `useHomeData` reúne cinco recursos cancelables de `useAsyncResource`, entrega datos preparados para los componentes y deriva `loading` y `error` de sus estados. Los fallos también terminan la espera. Un único aviso con reintento sustituye los cinco bloques de error por sección; el botón consulta solo los recursos fallidos y utiliza el loader global.
+
+Se eliminan el `Set` de secciones completadas, cinco callbacks, cuatro efectos de aviso y el contenido montado pero oculto. También se retiran los cuatro componentes de `components/home/`, que solo envolvían componentes ya reutilizables. `Home` compone directamente los carruseles y los heroes existentes, sin bloques `AsyncSection` repetidos. No cambian las peticiones, los tamaños, el orden, los IDs TMDB ni la persistencia. No hay cambios de esquema ni migración de datos.
+
+Validación: lint, build y auditoría de imports. Los escenarios anteriores de aparición progresiva ya no describen el comportamiento deseado.
+
+## Duodécima fase: páginas legibles y datos preparados
+
+Se aplica el criterio acordado para Home a cuatro páginas. `RecommendationsPage` compone los componentes existentes sin comprobar de nuevo arrays vacíos que esos componentes ya ocultan. Su hook reutiliza `useAsyncResource` para carga y cancelación, entrega arrays preparados y expone un aviso con reintento si falla la operación completa; antes ese fallo solo se registraba en consola. El algoritmo de recomendaciones sigue en el servicio, sin alterar sus fuentes ni sus resultados.
+
+`LatestReleasesPage` recibe los grupos mensuales preparados y memoizados desde `useLatestMovies`. `TopRatedPage` compone `MovieRanking` y la paginación. El componente de ranking concentra el podio y la lista, conserva posiciones, clases y encabezados accesibles, y elimina la conversión de índice a rango mediante un cast.
+
+`UserPage` delega en `useUserProfile` la lectura cancelable, la distinción entre UUID y enlace antiguo por email, la redirección canónica, el 404, el reintento, la identificación del perfil propio y el cierre de sesión con navegación. Reutiliza `useAsyncResource`, eliminando estados y control de desmontaje duplicados. La página conserva la presentación y la red privada solo para el propietario. Las dos lecturas de perfil en `followService` declaran su respuesta `User` en Axios.
+
+Catálogo y agrupaciones siguen siendo datos TMDB; perfiles y relaciones son estado MovieGraph. No hay cambios de esquema, migración de datos ni modificaciones de endpoints. Las páginas de detalle, social, géneros y colecciones ya tienen una composición breve y se conservan en esta fase.
+
+Validación: lint, build, auditoría de imports y comprobación de whitespace pasan. Navegador con API simulada: perfil propio/ajeno, red privada, enlace por email, 503 y reintento, 404, respuesta tardía al cambiar de perfil, ranking/paginación/vacío/error/móvil, grupos por mes tras paginar y recomendaciones con secciones vacías. Script local: `output/playwright/clean-pages-check.cjs`. La comprobación existente `output/playwright/page-hooks-check.cjs` confirma Strict Mode, respuestas tardías y cancelación de recomendaciones. No se realizan escrituras ni peticiones al backend real. Queda pendiente la validación contra Worker real.
+
 ## Siguientes fases propuestas
 
 1. Revisar accesibilidad de tarjetas y navegación, preservando la interacción con likes y follows.
-2. Revisar la composición de Home y los estados compartidos de carga y error restantes.
+2. Separar el control de paneles y la navegación de sesión de la cabecera.
 
 Cada fase ejecutará `npm run lint` y `npm run build`. Los cambios de comportamiento asíncrono necesitarán además validación de éxito, fallo y cambio de ruta o consulta durante la petición.

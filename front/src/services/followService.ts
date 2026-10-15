@@ -31,12 +31,12 @@ export const unfollowUser = async (publicId: string): Promise<void> => {
 };
 
 export const getUserByEmail = async (email: string, signal?: AbortSignal): Promise<User> => {
-    const res = await api.get(`${API_FOLLOWS}by_email`, { params: { email }, signal });
+    const res = await api.get<User>(`${API_FOLLOWS}by_email`, { params: { email }, signal });
     return res.data;
 };
 
 export const getUserByPublicId = async (publicId: string, signal?: AbortSignal): Promise<User> => {
-    const res = await api.get(`${API_FOLLOWS}users/${encodeURIComponent(publicId)}`, {signal});
+    const res = await api.get<User>(`${API_FOLLOWS}users/${encodeURIComponent(publicId)}`, {signal});
     return res.data;
 };
 

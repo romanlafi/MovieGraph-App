@@ -45,6 +45,10 @@ No se han eliminado las tablas legacy.
 
 ## Informes del refactor
 
+La estructura y los criterios para organizar componentes del frontend están en
+[`front/README.md`](front/README.md). Las fases realizadas y sus validaciones
+se documentan en [`docs/FRONTEND_CLEANUP.md`](docs/FRONTEND_CLEANUP.md).
+
 La API social en `back/app/social/` separa las rutas de cuentas (`accounts.py`),
 follows (`follows.py`) y comentarios/likes (`movies.py`). `dependencies.py`
 centraliza autenticación y sesiones por petición; `routes.py` instala los grupos
