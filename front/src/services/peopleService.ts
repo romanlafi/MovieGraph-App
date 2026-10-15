@@ -23,6 +23,6 @@ export const getRelatedPeople = async (tmdbPersonId: number, signal?: AbortSigna
     return (await getTmdbCatalogue<CataloguePerson[]>(`person/${tmdbPersonId}/related`, undefined, signal)).map(toPerson);
 };
 
-export const getRandomPeople = async (): Promise<Person[]> => {
-    return (await getTmdbCatalogue<CataloguePerson[]>("people/featured")).map(toPerson);
+export const getRandomPeople = async (signal?: AbortSignal): Promise<Person[]> => {
+    return (await getTmdbCatalogue<CataloguePerson[]>("people/featured", undefined, signal)).map(toPerson);
 };

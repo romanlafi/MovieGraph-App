@@ -46,11 +46,11 @@ export const getCollections = async (signal?: AbortSignal): Promise<Collection[]
     return (await getTmdbCatalogue<CatalogueCollection[]>("collections", undefined, signal)).map(toCollection);
 };
 
-export const getRandomMovies = async (limit = 5): Promise<Movie[]> => {
-    return toMovies(await getTmdbCatalogue<CatalogueMovie[]>("movies/featured", {limit}));
+export const getRandomMovies = async (limit = 5, signal?: AbortSignal): Promise<Movie[]> => {
+    return toMovies(await getTmdbCatalogue<CatalogueMovie[]>("movies/featured", {limit}, signal));
 };
 
-export const getRandomCollection = async (): Promise<Collection> => {
-    const collections = await getTmdbCatalogue<CatalogueCollection[]>("collections", {random_one: true});
-    return toCollection(collections[0]);
+export const getRandomCollection = async (signal?: AbortSignal): Promise<Collection | null> => {
+    const collections = await getTmdbCatalogue<CatalogueCollection[]>("collections", {random_one: true}, signal);
+    return collections.length ? toCollection(collections[0]) : null;
 };
