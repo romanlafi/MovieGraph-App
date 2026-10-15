@@ -255,3 +255,26 @@ Validación: `npm run lint`, `npm run build` y `git diff --check` pasan.
 ## Decimoctava fase: paginación por género
 
 La página de género resolvía el nombre a ID TMDB dentro de cada carga de página, repitiendo la petición de géneros al paginar. `useMoviesByGenre` ahora resuelve el género una vez y pasa el ID al servicio de películas; si falla la resolución, el mismo control de reintento vuelve a cargar los géneros. Las URLs y el estado visual no cambian.
+# Validación del registro — 15 de octubre de 2026
+
+El registro valida todos los campos antes de enviar: usuario de 2–40 caracteres,
+email válido, contraseña de al menos 12 caracteres y hasta 72 bytes UTF-8,
+fecha de nacimiento válida y sin fechas futuras, biografía opcional de hasta
+500 caracteres y hasta 20 géneros opcionales con nombres válidos. Los límites
+de texto cuentan caracteres Unicode, como el backend, y la contraseña comprueba
+además el tamaño real en UTF-8. La comprobación de fecha futura es una ayuda
+adicional del formulario; las restricciones del backend siguen siendo autoritativas.
+
+Los errores aparecen junto a cada campo al salir de él o enviar el formulario.
+El envío inválido se bloquea y el foco va al primer campo que necesita corregirse.
+Las respuestas 422 se asignan a los campos correspondientes, y los conflictos
+409 distinguen correo y usuario ya registrados. Los controles se bloquean durante
+el envío. Los valores enviados por el servidor en los errores de validación no se
+incluyen en los mensajes de la interfaz.
+
+Validación: lint y build completos, ocho pruebas con `npm --prefix front test`,
+100 pruebas del backend y comprobación Playwright con respuestas simuladas para
+campos obligatorios, foco, límites Unicode/UTF-8, biografía, fecha futura,
+422/409/503, corrección y reintento, éxito y disposición móvil/escritorio.
+La comprobación en navegador no crea usuarios reales. Sin cambios de esquema
+ni migraciones de datos.

@@ -5,10 +5,18 @@ import TextInput from "@/components/ui/inputs/TextInput.tsx";
 import Button from "@/components/ui/Button.tsx";
 import Textarea from "@/components/ui/inputs/Textarea.tsx";
 import RegistrationGenres from "./RegistrationGenres.tsx";
+import {PASSWORD_MIN_LENGTH, todayDate} from "@/utils/registrationValidation.ts";
+import type {RegistrationField} from "@/utils/registrationValidation.ts";
 
 export default function RegisterForm() {
-    const {form, updateField, toggleGenre, submit, error, isSubmitting, isRegistered} = useRegistrationForm();
+    const {form, updateField, toggleGenre, touchField, fieldErrors, submit, error, isSubmitting, isRegistered} = useRegistrationForm();
     const navigate = useNavigate();
+    const fieldProps = (field: RegistrationField) => ({
+        onBlur: () => touchField(field),
+        disabled: isSubmitting,
+        "aria-invalid": Boolean(fieldErrors[field]),
+        "aria-describedby": `register-${field}-feedback`,
+    });
 
     return (
         <section className="mx-auto max-w-3xl rounded-xl bg-panel p-6 shadow sm:p-8">
@@ -34,72 +42,101 @@ export default function RegisterForm() {
                         </div>
                     )}
 
-                    <form onSubmit={event => { event.preventDefault(); void submit(); }} className="space-y-5">
+                    <form noValidate onSubmit={async event => {
+                        event.preventDefault();
+                        const element = event.currentTarget;
+                        if (!await submit()) requestAnimationFrame(() => element.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
+                    }} className="space-y-5">
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <TextInput
-                                id="register-username"
-                                label="Username"
-                                type="text"
-                                name="username"
-                                autoComplete="username"
-                                placeholder="Your username"
-                                className="!bg-card"
-                                value={form.username}
-                                onChange={event => updateField("username", event.target.value)}
-                                required
-                            />
-                            <TextInput
-                                id="register-email"
-                                label="Email"
-                                type="email"
-                                name="email"
-                                autoComplete="email"
-                                placeholder="you@example.com"
-                                className="!bg-card"
-                                value={form.email}
-                                onChange={event => updateField("email", event.target.value)}
-                                required
-                                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
-                                onInvalid={(event) => event.currentTarget.setCustomValidity("Please enter a valid email address.")}
-                                onInput={(event) => event.currentTarget.setCustomValidity("")}
-                            />
-                            <TextInput
-                                id="register-password"
-                                label="Password"
-                                type="password"
-                                name="password"
-                                autoComplete="new-password"
-                                placeholder="Choose a password"
-                                className="!bg-card"
-                                value={form.password}
-                                onChange={event => updateField("password", event.target.value)}
-                                required
-                            />
-                            <TextInput
-                                id="register-birthdate"
-                                label="Date of birth"
-                                type="date"
-                                name="birthdate"
-                                autoComplete="bday"
-                                className="!bg-card"
-                                value={form.birthdate}
-                                onChange={event => updateField("birthdate", event.target.value)}
-                                required
-                            />
+                            <div>
+                                <TextInput
+                                    id="register-username"
+                                    label="Username"
+                                    type="text"
+                                    name="username"
+                                    autoComplete="username"
+                                    placeholder="Your username"
+                                    className="!bg-card"
+                                    value={form.username}
+                                    onChange={event => updateField("username", event.target.value)}
+                                    {...fieldProps("username")}
+                                    required
+                                />
+                                <p id="register-username-feedback" className={`mt-1 text-xs ${fieldErrors.username ? "text-red-300" : "text-muted"}`}>
+                                    {fieldErrors.username ?? "Between 2 and 40 characters."}
+                                </p>
+                            </div>
+                            <div>
+                                <TextInput
+                                    id="register-email"
+                                    label="Email"
+                                    type="email"
+                                    name="email"
+                                    autoComplete="email"
+                                    placeholder="you@example.com"
+                                    className="!bg-card"
+                                    value={form.email}
+                                    onChange={event => updateField("email", event.target.value)}
+                                    {...fieldProps("email")}
+                                    required
+                                />
+                                <p id="register-email-feedback" className="mt-1 text-xs text-red-300">{fieldErrors.email}</p>
+                            </div>
+                            <div>
+                                <TextInput
+                                    id="register-password"
+                                    label="Password"
+                                    type="password"
+                                    name="password"
+                                    autoComplete="new-password"
+                                    placeholder="Choose a password"
+                                    className="!bg-card"
+                                    value={form.password}
+                                    onChange={event => updateField("password", event.target.value)}
+                                    minLength={PASSWORD_MIN_LENGTH}
+                                    {...fieldProps("password")}
+                                    required
+                                />
+                                <p id="register-password-feedback" className={`mt-1 text-xs ${fieldErrors.password ? "text-red-300" : "text-muted"}`}>
+                                    {fieldErrors.password ?? "Use at least 12 characters for your password."}
+                                </p>
+                            </div>
+                            <div>
+                                <TextInput
+                                    id="register-birthdate"
+                                    label="Date of birth"
+                                    type="date"
+                                    name="birthdate"
+                                    autoComplete="bday"
+                                    className="!bg-card"
+                                    value={form.birthdate}
+                                    onChange={event => updateField("birthdate", event.target.value)}
+                                    max={todayDate()}
+                                    {...fieldProps("birthdate")}
+                                    required
+                                />
+                                <p id="register-birthdate-feedback" className="mt-1 text-xs text-red-300">{fieldErrors.birthdate}</p>
+                            </div>
                         </div>
 
-                        <Textarea
-                            id="register-bio"
-                            label="Bio (optional)"
-                            name="bio"
-                            placeholder="A little about you"
-                            className="!bg-card"
-                            value={form.bio}
-                            onChange={event => updateField("bio", event.target.value)}
-                            rows={3}
-                        />
+                        <div>
+                            <Textarea
+                                id="register-bio"
+                                label="Bio (optional)"
+                                name="bio"
+                                placeholder="A little about you"
+                                className="!bg-card"
+                                value={form.bio}
+                                onChange={event => updateField("bio", event.target.value)}
+                                {...fieldProps("bio")}
+                                rows={3}
+                            />
+                            <p id="register-bio-feedback" className={`mt-1 text-xs ${fieldErrors.bio ? "text-red-300" : "text-muted"}`}>
+                                {fieldErrors.bio ?? `${Array.from(form.bio).length}/500 characters`}
+                            </p>
+                        </div>
 
-                        <RegistrationGenres selected={form.favorite_genres} onToggle={toggleGenre} />
+                        <RegistrationGenres selected={form.favorite_genres} onToggle={toggleGenre} error={fieldErrors.favorite_genres} disabled={isSubmitting} />
 
                         <Button type="submit" disabled={isSubmitting} className="w-full py-2">
                             {isSubmitting ? "Creating account…" : "Create account"}
