@@ -212,9 +212,19 @@ Catálogo y agrupaciones siguen siendo datos TMDB; perfiles y relaciones son est
 
 Validación: lint, build, auditoría de imports y comprobación de whitespace pasan. Navegador con API simulada: perfil propio/ajeno, red privada, enlace por email, 503 y reintento, 404, respuesta tardía al cambiar de perfil, ranking/paginación/vacío/error/móvil, grupos por mes tras paginar y recomendaciones con secciones vacías. Script local: `output/playwright/clean-pages-check.cjs`. La comprobación existente `output/playwright/page-hooks-check.cjs` confirma Strict Mode, respuestas tardías y cancelación de recomendaciones. No se realizan escrituras ni peticiones al backend real. Queda pendiente la validación contra Worker real.
 
+## Decimotercera fase: responsabilidades de la cabecera
+
+`Header` compone marca, búsqueda, navegación y paneles. El estado y los efectos de apertura/cierre pasan a `useHeaderPanels`: cierre al navegar, clic fuera, Escape con devolución de foco y cierre de la búsqueda móvil al pasar a escritorio. El estado sigue siendo una única selección de panel; no se añaden estados paralelos ni coordinación por callbacks entre componentes.
+
+`HeaderSessionNav` reúne los accesos de sesión: login anónimo, restauración pendiente o fallida con reintento, enlace al perfil y acceso social. Consume el contexto existente, sin nuevas lecturas HTTP. La cabecera deja de mezclar esas ramas con los controles de búsqueda y categorías. Los paneles conservan su markup, clases, identificadores y atributos ARIA; `CategoryOverlay` sigue siendo el mismo diálogo nativo.
+
+Es una reorganización de presentación y control de interfaz. El catálogo sigue perteneciendo a TMDB y las cuentas a MovieGraph. No cambian contratos HTTP ni hay cambios de esquema o migración de datos.
+
+Validación: lint, build, auditoría de imports y comprobación de whitespace pasan. Playwright con API simulada comprueba exclusión entre paneles, foco y Escape, clic fuera, búsqueda móvil/escritorio, selección de película, menú con teclado, bloqueo y restauración de scroll, cierre al navegar, sesión pendiente/fallida/reintento y destino del perfil. Script local: `output/playwright/header-panels-check.cjs`. También pasa la regresión existente de autenticación `output/playwright/auth-layers-check.cjs`, incluidos login correcto y cierre del panel. No se realizan peticiones ni escrituras al backend real. Queda pendiente validación con lector de pantalla y Worker real.
+
 ## Siguientes fases propuestas
 
 1. Revisar accesibilidad de tarjetas y navegación, preservando la interacción con likes y follows.
-2. Separar el control de paneles y la navegación de sesión de la cabecera.
+2. Revisar utilidades y exports de servicios sin consumidores.
 
 Cada fase ejecutará `npm run lint` y `npm run build`. Los cambios de comportamiento asíncrono necesitarán además validación de éxito, fallo y cambio de ruta o consulta durante la petición.

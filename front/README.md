@@ -62,6 +62,10 @@ En autenticación, `LoginForm` y `RegisterForm` presentan los campos;
 `authService` define las llamadas HTTP y `types/auth.ts` sus contratos.
 `RegistrationGenres` posee la lectura cancelable del catálogo de géneros.
 
+En la cabecera, `Header` compone marca, búsqueda, navegación y paneles.
+`useHeaderPanels` gestiona apertura, cierre, cambios de ruta y foco;
+`HeaderSessionNav` presenta los accesos según el estado de sesión.
+
 `public/` conserva recursos con URL pública estable y los archivos de marca.
 Elimina archivos sin uso después de comprobar imports, rutas de recursos y
 configuración. Crea carpetas cuando tengan contenido concreto.
