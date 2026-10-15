@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom";
 import {Movie} from "../../types/movie.ts";
 import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
-import RatingDisplay from "../common/RatingDisplay.tsx";
+import RatingDisplay from "../ui/RatingDisplay.tsx";
 import Title from "../ui/Title.tsx";
 import Text from "../ui/Text.tsx";
 

@@ -1,4 +1,4 @@
-import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
+import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
 import LoadMoreButton from "../../components/ui/LoadMoreButton.tsx";
 import ErrorState from "../../components/ui/ErrorState.tsx";
 import Container from "../../components/layout/Container.tsx";

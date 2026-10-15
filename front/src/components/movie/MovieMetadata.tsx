@@ -1,7 +1,7 @@
 import type {Movie} from "../../types/movie.ts";
 import GenreBadge from "../genre/GenreBadge.tsx";
-import RatingDisplay from "../common/RatingDisplay.tsx";
-import LikeButton from "../common/LikeButton.tsx";
+import RatingDisplay from "../ui/RatingDisplay.tsx";
+import LikeButton from "./LikeButton.tsx";
 import Title from "../ui/Title.tsx";
 import Text from "../ui/Text.tsx";
 import MovieFacts from "./MovieFacts.tsx";

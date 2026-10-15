@@ -1,6 +1,6 @@
 import {useParams} from "react-router-dom";
 import Container from "../../components/layout/Container.tsx";
-import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
+import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
 import ErrorState from "../../components/ui/ErrorState.tsx";
 import PersonHeaderCard from "../../components/person/PersonHeaderCard.tsx";
 import PersonFilmographySection from "../../components/person/PersonFilmographySection.tsx";

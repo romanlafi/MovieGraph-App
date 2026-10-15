@@ -1,6 +1,6 @@
 import type {MovieSearchResult} from "../../types/movie.ts";
 import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
-import RatingDisplay from "../common/RatingDisplay.tsx";
+import RatingDisplay from "../ui/RatingDisplay.tsx";
 import Button from "../ui/Button.tsx";
 import Text from "../ui/Text.tsx";
 

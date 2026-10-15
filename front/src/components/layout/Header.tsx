@@ -3,7 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import {Link, useLocation} from "react-router-dom";
 import LoginForm from "../auth/LoginForm.tsx";
 import SearchBar from "../search/SearchBar.tsx";
-import NavItem from "../common/NavItem.tsx";
+import NavItem from "./NavItem.tsx";
 import {useAuth} from "../../hooks/auth/useAuth.ts";
 import CategoryOverlay from "./CategoryOverlay.tsx";
 

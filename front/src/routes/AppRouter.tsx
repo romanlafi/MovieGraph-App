@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import MainLayout from "../layout/MainLayout";
+import MainLayout from "../components/layout/MainLayout.tsx";
 import Home from "../pages/Home";
 import NotFound from "../pages/NotFound";
 import MovieDetail from "../pages/detail/MovieDetail.tsx";

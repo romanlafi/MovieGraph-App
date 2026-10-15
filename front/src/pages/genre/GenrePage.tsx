@@ -1,7 +1,7 @@
 import {useParams} from "react-router-dom";
 
 import MovieGrid from "../../components/movie/MovieGrid.tsx";
-import LoadingSpinner from "../../components/layout/LoadingSpinner.tsx";
+import LoadingSpinner from "../../components/ui/LoadingSpinner.tsx";
 import MoviePagination from "../../components/movie/MoviePagination.tsx";
 import Container from "../../components/layout/Container.tsx";
 import Title from "../../components/ui/Title.tsx";

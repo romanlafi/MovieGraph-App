@@ -1,7 +1,7 @@
 import {Movie} from "../../types/movie.ts";
 import {useNavigate} from "react-router-dom";
-import RatingDisplay from "../common/RatingDisplay.tsx";
-import LikeButton from "../common/LikeButton.tsx";
+import RatingDisplay from "../ui/RatingDisplay.tsx";
+import LikeButton from "./LikeButton.tsx";
 import {getTmdbImageUrl} from "../../utils/tmdbImageHelper.ts";
 import Text from "../ui/Text.tsx";
 
