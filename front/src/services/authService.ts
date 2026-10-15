@@ -1,19 +1,19 @@
 import {api} from "./api.ts";
 import {API_AUTH} from "../data/apiConstants.ts";
-import {RegisterUserData} from "../types/auth.ts";
-import {User} from "../types/user.ts";
+import type {LoginResponse, RegisterUserData, RegistrationResult} from "../types/auth.ts";
+import type {User} from "../types/user.ts";
 
-export const registerUser = async (data: RegisterUserData) => {
-    const res = await api.post(API_AUTH, data);
+export const registerUser = async (data: RegisterUserData): Promise<RegistrationResult> => {
+    const res = await api.post<RegistrationResult>(API_AUTH, data);
     return res.data;
-}
+};
 
 export const loginUser = async (email: string, password: string): Promise<string> => {
     const formData = new URLSearchParams();
     formData.append("username", email);
     formData.append("password", password);
 
-    const res = await api.post(`${API_AUTH}login`, formData, {
+    const res = await api.post<LoginResponse>(`${API_AUTH}login`, formData, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -22,10 +22,10 @@ export const loginUser = async (email: string, password: string): Promise<string
 };
 
 export const fetchUser = async (token: string, signal?: AbortSignal): Promise<User> => {
-    const res = await api.get(`${API_AUTH}me`, {
+    const res = await api.get<User>(`${API_AUTH}me`, {
         signal,
         timeout: 15000,
         headers: {Authorization: `Bearer ${token}`},
     });
     return res.data;
-}
+};

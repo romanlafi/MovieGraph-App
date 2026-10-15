@@ -13,7 +13,17 @@ export interface RegisterUserData {
     username: string;
     email: string;
     password: string;
-    birthdate?: string;
+    birthdate: string;
     bio?: string;
     favorite_genres?: string[];
+}
+
+export interface RegistrationResult {
+    email: string;
+    username: string;
+}
+
+export interface LoginResponse {
+    access_token: string;
+    token_type: string;
 }
