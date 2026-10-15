@@ -16,3 +16,9 @@ scripts/__pycache__/
 /output
 
 .claude
+
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.scannerwork/

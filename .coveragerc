@@ -1,0 +1,18 @@
+[run]
+source = back/app
+branch = True
+relative_files = True
+parallel = True
+patch = subprocess
+
+[paths]
+source =
+    back/app
+    app
+
+[report]
+show_missing = True
+include_namespace_packages = True
+
+[xml]
+output = coverage.xml

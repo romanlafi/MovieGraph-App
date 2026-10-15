@@ -24,7 +24,7 @@ PERSON = {"id": 578, "name": "Ridley Scott", "biography": "Director"}
 
 class TMDBTests(unittest.TestCase):
     def setUp(self):
-        self.transport = AsyncMock(return_value=(200, json.dumps({"results": [MOVIE]})))
+        self.transport = AsyncMock(return_value=(200, json.dumps({"results": [MOVIE], "page": 1, "total_pages": 1})))
         self.gateway = TMDBClient(TMDBSettings(api_key="private-key"), self.transport)
         self.app = create_app()
         self.app.dependency_overrides[get_tmdb_client] = lambda: self.gateway
@@ -34,11 +34,13 @@ class TMDBTests(unittest.TestCase):
         self.transport.return_value = (200, json.dumps({"results": [
             {**MOVIE, "poster_path": None}, {**MOVIE, "vote_average": 0},
             {**MOVIE, "overview": None}, *[MOVIE] * 8,
-        ], "api_key": "private-key"}))
+        ], "page": 2, "total_pages": 3, "api_key": "private-key"}))
         response = self.client.get("/api/tmdb/search/movie", params={"q": " alien ", "page": 2})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 5)
-        self.assertEqual(response.json()[0], {"tmdb_id": 348, "title": "Alien",
+        self.assertEqual(response.json()["page"], 2)
+        self.assertEqual(response.json()["total_pages"], 3)
+        self.assertEqual(len(response.json()["results"]), 5)
+        self.assertEqual(response.json()["results"][0], {"tmdb_id": 348, "title": "Alien",
                          "rating": 8.2, "year": 1979, "poster_url": "/alien.jpg"})
         self.assertNotIn("private-key", response.text)
         url, headers, timeout = self.transport.call_args.args
@@ -160,7 +162,7 @@ from app.catalogue.routes import get_tmdb_client
 async def transport(url, headers, timeout):
     if '/search/' in url:
         data = {'results': [{'id': 999999, 'title': 'Unseen', 'poster_path': '/p.jpg',
-                            'vote_average': 8, 'overview': ''}]}
+                            'vote_average': 8, 'overview': ''}], 'page': 1, 'total_pages': 1}
     elif '/movie/' in url:
         data = {'id': 999999, 'title': 'Unseen'}
     else:

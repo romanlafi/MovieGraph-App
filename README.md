@@ -19,6 +19,9 @@ de PostgreSQL/JWT locales se generan automáticamente. No necesitas una URL Neon
 Guías actuales: [desarrollo local](docs/LOCAL_DEVELOPMENT.md) y
 [entornos/configuración/despliegue](docs/ENVIRONMENTS.md).
 
+La configuración de GitHub Actions, los informes de cobertura y los pasos para
+activar SonarCloud están en [CI y cobertura](docs/SONARCLOUD.md).
+
 Cloudflare Builds se ejecuta desde la raíz del repositorio (`/`) con
 `npm run build:cloudflare`, que instala las herramientas y construye React.
 Producción usa `npm run deploy:production`; las ramas de preview usan
