@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 from pydantic import ValidationError
 
 from .schemas import (CollectionDetail, CollectionSummary, Filmography, Genre,
-                      MovieCard, MovieDetail, MovieSearchResult, PersonCard, PersonDetail)
+                      MovieCard, MovieDetail, MovieSearchPage, MovieSearchResult, PersonCard, PersonDetail)
 
 
 class TMDBError(Exception):
@@ -112,23 +112,27 @@ class TMDBClient:
         except ValueError:
             raise TMDBError(502, "Invalid TMDB response") from None
 
-    async def search_movies(self, query: str, page: int = 1) -> list[MovieSearchResult]:
+    async def search_movies(self, query: str, page: int = 1) -> MovieSearchPage:
         query = query.strip()
         if not 2 <= len(query) <= 200 or not 1 <= page <= 500:
             raise TMDBError(422, "Query must contain 2–200 characters and page must be 1–500")
         data = await self._get("/search/movie", query=query, page=page, include_adult="false")
         try:
-            # Preserve the existing autocomplete selection and five-result limit.
+            # Keep each autocomplete page small while allowing the UI to continue paging.
             results = data["results"]
             if not isinstance(results, list):
                 raise ValueError
             selected = [m for m in results if m.get("poster_path") and m.get("vote_average")
                         and m.get("overview") is not None][:5]
-            return [MovieSearchResult(
-                tmdb_id=m["id"], title=m["title"], rating=m["vote_average"],
-                year=int(m["release_date"][:4]) if m.get("release_date") else None,
-                poster_url=m["poster_path"],
-            ) for m in selected]
+            return MovieSearchPage(
+                results=[MovieSearchResult(
+                    tmdb_id=m["id"], title=m["title"], rating=m["vote_average"],
+                    year=int(m["release_date"][:4]) if m.get("release_date") else None,
+                    poster_url=m["poster_path"],
+                ) for m in selected],
+                page=data["page"],
+                total_pages=min(data["total_pages"], 500),
+            )
         except (KeyError, TypeError, ValueError, AttributeError):
             raise TMDBError(502, "Invalid TMDB response") from None
 

@@ -31,6 +31,7 @@ export default function RecommendationsPage() {
                     people={familiarFaces}
                     title={peopleRecommendations.title}
                     subtitle={peopleRecommendations.subtitle}
+                    showRoles={false}
                 />
             }
             {fromFriends.length > 0 &&

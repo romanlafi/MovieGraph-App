@@ -5,7 +5,8 @@ import TextInput from "../ui/inputs/TextInput.tsx";
 import MovieSearchResults from "./MovieSearchResults.tsx";
 
 export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: boolean; onSelect?: () => void}) {
-    const {query, results, status, error, updateQuery, clear, retry} = useMovieSearch();
+    const {query, results, status, error, updateQuery, clear, retry, loadMore, retryMore,
+        hasMore, loadingMore, loadMoreError} = useMovieSearch();
     const [showDropdown, setShowDropdown] = useState(false);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,13 +68,21 @@ export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: bo
             </p>
 
             {dropdownVisible && (
-                <div id={resultsId} className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-[min(18rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain">
+                <div id={resultsId} onScroll={event => {
+                    const element = event.currentTarget;
+                    if (element.scrollHeight > element.clientHeight
+                        && element.scrollHeight - element.scrollTop - element.clientHeight < 48) loadMore();
+                }} className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-[min(18rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain">
                     <MovieSearchResults
                         results={results}
                         loading={status === "loading"}
                         error={error}
+                        loadingMore={loadingMore}
+                        hasMore={hasMore}
+                        loadMoreError={loadMoreError}
                         onSelect={handleSelect}
                         onRetry={retry}
+                        onRetryMore={retryMore}
                     />
                 </div>
             )}

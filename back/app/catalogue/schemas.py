@@ -9,6 +9,12 @@ class MovieSearchResult(BaseModel):
     poster_url: str | None = None
 
 
+class MovieSearchPage(BaseModel):
+    results: list[MovieSearchResult]
+    page: int
+    total_pages: int
+
+
 class Genre(BaseModel):
     tmdb_id: int = Field(gt=0)
     name: str

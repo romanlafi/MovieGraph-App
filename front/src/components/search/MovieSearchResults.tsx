@@ -8,11 +8,16 @@ interface MovieSearchResultsProps {
     results: MovieSearchResult[];
     loading: boolean;
     error: string | null;
+    loadingMore: boolean;
+    hasMore: boolean;
+    loadMoreError: string | null;
     onSelect: (tmdbMovieId: number) => void;
     onRetry: () => void;
+    onRetryMore: () => void;
 }
 
-export default function MovieSearchResults({results, loading, error, onSelect, onRetry}: MovieSearchResultsProps) {
+export default function MovieSearchResults({results, loading, error, loadingMore, hasMore, loadMoreError,
+                                               onSelect, onRetry, onRetryMore}: MovieSearchResultsProps) {
     if (loading) return <p className="p-3 text-sm text-muted">Searching movies...</p>;
 
     if (error) {
@@ -52,6 +57,15 @@ export default function MovieSearchResults({results, loading, error, onSelect, o
                     </button>
                 </li>
             ))}
+            {(loadingMore || loadMoreError || hasMore) && (
+                <li className="p-2 text-center text-xs text-muted">
+                    {loadingMore ? "Loading more movies..." : loadMoreError ? (
+                        <button type="button" onClick={onRetryMore} className="text-accent hover:underline">
+                            {loadMoreError} Try again.
+                        </button>
+                    ) : "Scroll for more results"}
+                </li>
+            )}
         </ul>
     );
 }

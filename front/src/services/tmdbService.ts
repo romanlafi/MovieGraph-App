@@ -1,14 +1,17 @@
 import {api} from "./api.ts";
-import type {TmdbMovieSearchResult} from "../types/tmdb.ts";
-import type {MovieSearchResult} from "../types/movie.ts";
+import type {TmdbMovieSearchPage} from "../types/tmdb.ts";
 import {hasMoviePosterAndRating, toMovieSearchResult} from "./catalogueAdapters.ts";
 
-export const searchTmdbMovies = async (query: string, page = 1, signal?: AbortSignal): Promise<MovieSearchResult[]> => {
-    const results = await getTmdbCatalogue<TmdbMovieSearchResult[]>("search/movie", {q: query, page}, signal);
-    return results.filter(movie => hasMoviePosterAndRating({
-        poster_path: movie.poster_url,
-        vote_average: movie.rating,
-    })).map(toMovieSearchResult);
+export const searchTmdbMovies = async (query: string, page = 1, signal?: AbortSignal) => {
+    const response = await getTmdbCatalogue<TmdbMovieSearchPage>("search/movie", {q: query, page}, signal);
+    return {
+        results: response.results.filter(movie => hasMoviePosterAndRating({
+            poster_path: movie.poster_url,
+            vote_average: movie.rating,
+        })).map(toMovieSearchResult),
+        page: response.page,
+        totalPages: response.total_pages,
+    };
 };
 
 export const getTmdbCatalogue = async <Response>(

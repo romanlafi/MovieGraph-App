@@ -6,6 +6,12 @@ export interface TmdbMovieSearchResult {
     poster_url: string | null;
 }
 
+export interface TmdbMovieSearchPage {
+    results: TmdbMovieSearchResult[];
+    page: number;
+    total_pages: number;
+}
+
 export interface CatalogueGenre {
     tmdb_id: number;
     name: string;

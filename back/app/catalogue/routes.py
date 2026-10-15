@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Path, Query, Request
 
 from .client import TMDBClient, TMDBSettings
 from .schemas import (CollectionDetail, Filmography, Genre, MovieCard, MovieDetail,
-                      MovieSearchResult, PersonCard, PersonDetail)
+                      MovieSearchPage, PersonCard, PersonDetail)
 
 
 router = APIRouter(prefix="/api/tmdb", tags=["TMDB catalogue"])
@@ -20,7 +20,7 @@ Page = Annotated[int, Query(ge=1, le=500)]
 Limit = Annotated[int, Query(ge=1, le=20)]
 
 
-@router.get("/search/movie", response_model=list[MovieSearchResult])
+@router.get("/search/movie", response_model=MovieSearchPage)
 async def search_movie(client: Client, q: Annotated[str, Query(min_length=2, max_length=200)],
                        page: Annotated[int, Query(ge=1, le=500)] = 1):
     return await client.search_movies(q, page)
