@@ -39,8 +39,3 @@ export const getUserByPublicId = async (publicId: string, signal?: AbortSignal):
     const res = await api.get<User>(`${API_FOLLOWS}users/${encodeURIComponent(publicId)}`, {signal});
     return res.data;
 };
-
-export const getAllUsers = async (): Promise<User[]> => {
-    const res = await api.get(`${API_FOLLOWS}list`);
-    return res.data;
-};

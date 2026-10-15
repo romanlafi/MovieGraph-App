@@ -1,12 +1,7 @@
 import type {Person, PersonFilmography} from "@/types/person.ts";
-import type {CatalogueFilmography, CatalogueMovie, CataloguePerson} from "@/types/tmdb.ts";
+import type {CatalogueFilmography, CataloguePerson} from "@/types/tmdb.ts";
 import {getTmdbCatalogue} from "./tmdbService.ts";
 import {toMovies, toPerson} from "./catalogueAdapters.ts";
-
-export const getPeopleForMovie = async (tmdbMovieId: number): Promise<Person[]> => {
-    const movie = await getTmdbCatalogue<CatalogueMovie>(`movie/${tmdbMovieId}`);
-    return (movie.cast ?? []).map(toPerson);
-};
 
 export const getPersonByTmdbId = async (tmdbPersonId: number, signal?: AbortSignal): Promise<Person> => {
     return toPerson(await getTmdbCatalogue<CataloguePerson>(`person/${tmdbPersonId}`, undefined, signal));

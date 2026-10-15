@@ -230,6 +230,14 @@ Vite resuelve el alias desde la ubicación de su configuración, y TypeScript li
 
 Validación: `npm run lint` y `npm run build` pasan. `git diff --check` no detecta errores de whitespace.
 
+## Decimoquinta fase: funciones sin uso y paginación directa
+
+Se retiran cuatro funciones sin consumidores en el código activo: `getPeopleForMovie`, `getAllUsers`, `toEmbedUrl` y `getYoutubeThumbnailUrl`. Se elimina también el import de `CatalogueMovie` que solo necesitaba la primera. Las menciones del inventario histórico de migración se conservan como registro del estado inicial.
+
+`TopRatedPage` usa directamente `usePaginatedMovies(getTopRatedMovies, 10)`. Se elimina `useTopRatedMovies`, que solo reenviaba esa llamada. La carga, cancelación, paginación, errores y presentación conservan la misma implementación compartida. `useLatestMovies` mantiene su función de preparar las agrupaciones mensuales.
+
+No hay cambios de esquema ni migración de datos. El catálogo sigue siendo TMDB y el estado social MovieGraph. Validación de esta fase: búsqueda de consumidores, lint y build.
+
 ## Siguientes fases propuestas
 
 1. Revisar accesibilidad de tarjetas y navegación, preservando la interacción con likes y follows.
