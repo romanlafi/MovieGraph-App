@@ -1,5 +1,9 @@
 # Backend cleanup on dev
 
+Historical implementation report. Some deployment and phase details below
+predate current auth and staging verification; use [ENVIRONMENTS.md](ENVIRONMENTS.md)
+for the current operational status.
+
 ## Ownership and consumers
 
 The active frontend services call `/api/tmdb/*` for catalogue data and

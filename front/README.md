@@ -5,10 +5,14 @@ React, TypeScript y Vite. Los comandos se ejecutan desde `front/`:
 ```sh
 npm run dev
 npm run lint
+npm test
 npm run build
 ```
 
 ## Responsabilidades
+
+Tailwind 4 uses the Vite plugin and the theme in `src/index.css`; no separate
+Tailwind or PostCSS configuration is required.
 
 ```text
 src/

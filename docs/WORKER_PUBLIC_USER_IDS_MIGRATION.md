@@ -1,5 +1,8 @@
 # Public user IDs migration
 
+Historical migration report. Current deployment and rollout status are in
+[ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 Revision `20261009_00` follows `20261008_00`. It adds a random UUID `public_id`
 to each existing account, verifies that every row was backfilled, and adds a
 unique index. Existing internal user IDs and follow relations remain unchanged.

@@ -92,6 +92,7 @@ npm.cmd run build
 git diff --check
 ```
 
-El Compose legacy, Uvicorn y las pruebas de Neon son herramientas distintas,
-no alternativas al Play habitual. Los informes anteriores mantienen sus comandos
+El stack Docker/nginx legacy se ha retirado; `compose.local.yaml` conserva
+únicamente PostgreSQL local. Las pruebas de Neon no sustituyen al Play habitual.
+Los informes anteriores mantienen sus comandos
 históricos; no uses sus runs eliminados para arrancar la aplicación actual.

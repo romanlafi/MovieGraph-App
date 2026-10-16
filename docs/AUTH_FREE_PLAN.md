@@ -3,8 +3,8 @@
 ## Current state — 16 October 2026
 
 Do not upgrade the Cloudflare plan to fix authentication. TaskManager uses a
-JavaScript Worker with bcryptjs cost 10; MovieGraph currently calculates bcrypt
-cost 12 inside Python/WebAssembly. These are not equivalent workloads.
+JavaScript Worker with bcryptjs cost 10; MovieGraph previously calculated bcrypt
+cost 12 inside Python/WebAssembly. These were not equivalent workloads.
 Historical MovieGraph logs confirmed `exceededCpu`; separate concurrent-read
 failures involved cross-request lock futures.
 
@@ -36,10 +36,10 @@ Both previews were deployed from the working tree and passed the remote checks:
    .venv/Scripts/python.exe scripts/verify_neon_social.py --preview-url https://staging-moviegraph-app.romanoscense10.workers.dev --verify-redeploy
    ```
 
-| Preview | Deployment | Result |
-| --- | --- | --- |
-| `dev` | `a5911c32` | Registration, duplicate and invalid login, repeated login, follows, likes, comments, concurrent reads and JWT after redeploy passed. |
-| `staging` | `c8605c41` | Same full check passed. |
+Registration, duplicate and invalid login, repeated login, follows, likes,
+comments, concurrent reads and JWT after redeploy passed. See
+[current environment status](ENVIRONMENTS.md) for deployment evidence and the
+later interrupted-request/cold-start fixes.
 
 The verifier removed disposable accounts and social rows after each run;
 Neon PRE returned to users 2, comments 0, likes 16, follows 1 and preferences 3.
@@ -51,8 +51,8 @@ admin command rejects production targets; the Worker never runs migrations.
 The real PRE capability check returns `password_crypto_available: true`.
 Production has not been migrated or deployed.
 
-The full backend suite passes: 107 tests, including one optional PostgreSQL
-integration test skipped by default. That integration test was also run
+The backend suite includes one optional PostgreSQL integration test skipped
+by default. That integration test was also run
 separately against real local PostgreSQL 17 and passed. It executes and rolls
 back the extension migration and checks existing bcrypt variants, Unicode,
 72-byte passwords and Python/SQL interoperability. Unit tests also check that

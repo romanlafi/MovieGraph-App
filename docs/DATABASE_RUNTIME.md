@@ -1,5 +1,8 @@
 # Database runtime: local API and development Hyperdrive verification
 
+Technical phase notes; the current schema and production rollout status are in
+[ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 Current run/configuration reference: [ENVIRONMENTS.md](ENVIRONMENTS.md).
 The DEV Hyperdrive is now named `moviegraph-pre`; diagnostic configs moved to
 `tools/diagnostics/`. The PyCharm verifier is **MovieGraph Verify Neon PRE**.

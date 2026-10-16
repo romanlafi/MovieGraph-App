@@ -1,5 +1,9 @@
 # Limpieza del frontend
 
+Informe de fases de frontend. Para los comandos vigentes, consulta
+[`front/README.md`](../front/README.md); para despliegues, consulta
+[ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 Este trabajo conserva React, TypeScript, Vite, el router actual y el comportamiento del producto. Cada fase debe tener un alcance concreto y validarse antes de continuar.
 
 ## Revisión inicial

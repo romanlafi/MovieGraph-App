@@ -1,5 +1,8 @@
 # TMDB gateway phase report — 2026-10-02
 
+Historical implementation report. See [CATALOGUE_READ_MIGRATION.md](CATALOGUE_READ_MIGRATION.md)
+for subsequent catalogue work and [ENVIRONMENTS.md](ENVIRONMENTS.md) for deployment status.
+
 Current catalogue continuation (2026-10-06): frontend Home, details, genres,
 lists, credits, featured collections and related catalogue views now use the
 gateway. The historical report below describes the first three-route phase;

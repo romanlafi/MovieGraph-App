@@ -1,5 +1,8 @@
 # Database runtime phase report — 2026-10-05
 
+Historical phase report. Current PRE schema, Worker behavior and production
+rollout status are in [ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 ## Subsequent update — 2026-10-06
 
 Alembic revisions `20261006_00` and `20261006_01` were applied to the empty Neon `MovieGraph` development branch/database `moviegraph`. **Real Worker → Hyperdrive → Neon transactions and authenticated comments/likes now PASS.** The deployed temporary Worker verified SELECT, INSERT, UPDATE, rollback, DELETE, and session cleanup. TMDB 550 received a comment and like without catalogue tables. Baseline and final counts were users=0, comments=0, user_movie_likes=0, alembic_version=1; the fixture and Worker were removed. Production was not changed. Full identifiers, request results, and commands are recorded in [SOCIAL_TMDB_ID_MIGRATION.md](SOCIAL_TMDB_ID_MIGRATION.md).

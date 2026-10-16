@@ -1,5 +1,8 @@
 # Movie recommendations from TMDB
 
+Historical design/implementation report. It does not supersede current
+deployment status in [ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 ## Ownership and behavior
 
 Recommendation results are not persisted. MovieGraph reads the signed-in

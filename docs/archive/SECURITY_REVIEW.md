@@ -46,3 +46,7 @@ La separación TMDB/Neon, los JWT obligatorios para escrituras sociales y la aus
 - La configuración de producción no aplica CORS comodín (`back/app/application.py:65`).
 - La guía actual de Cloudflare confirma `pg8000`, SQLAlchemy síncrono y serialización mediante lock para Python Workers: https://developers.cloudflare.com/hyperdrive/examples/python-workers/
 - La recomendación de OWASP sobre el límite de 72 bytes de bcrypt y protección ante intentos está documentada en https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html y https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html.
+# Historical security review
+
+Archived before production rollout. Findings describe the reviewed revision,
+not a fresh security assessment of the current code.

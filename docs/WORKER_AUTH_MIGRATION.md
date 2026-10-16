@@ -1,5 +1,8 @@
 # Worker account migration — 2026-10-07
 
+Historical implementation report. Preview auth now uses the PostgreSQL password
+backend; see [AUTH_FREE_PLAN.md](AUTH_FREE_PLAN.md) and [ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 ## Scope and implementation
 
 This report records the account migration phase. For the remote deployment

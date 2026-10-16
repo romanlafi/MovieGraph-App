@@ -1,5 +1,8 @@
 # Catalogue read migration — 2026-10-06
 
+Historical implementation report. Later deployments and current rollout status
+are documented in [ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 ## Scope and ownership
 
 The frontend catalogue services now use the existing `/api/tmdb/*` gateway instead of database-backed `/api/v1/movies/*` and `/api/v1/people/*` reads. Search, Home, movie/person details, filmographies, genres, top-rated/latest lists, collections and related catalogue views are covered. The gateway has no database dependencies and does not persist metadata. No schema migration, Neon operation, table deletion or production deployment was performed in this phase.

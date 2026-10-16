@@ -12,5 +12,5 @@ dev = ["workers-py", "workers-runtime-sdk"]
 packages = []
 
 # The trusted migration driver remains local in back/requirements.txt. The Worker
-# uses Pyodide-supported bcrypt directly; catalogue HTTP uses native workers.fetch.
+# uses PostgreSQL bcrypt on PRE; catalogue HTTP uses native workers.fetch.
 # HTTPX remains a local-only dependency.

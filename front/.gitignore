@@ -33,7 +33,3 @@ dist-ssr/
 *.njsproj
 *.sln
 *.sw?
-
-# Tailwind / PostCSS config (if generated temporarily or not needed in repo)
-tailwind.config.cjs
-postcss.config.cjs

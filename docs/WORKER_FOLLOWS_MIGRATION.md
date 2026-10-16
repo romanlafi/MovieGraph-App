@@ -1,5 +1,8 @@
 # Worker follows migration
 
+Historical implementation report. Check [ENVIRONMENTS.md](ENVIRONMENTS.md) for
+current preview validation and production rollout status.
+
 This report records the original phase. For the remote deployment observed on
 2026-10-14, including mounted follows routes and the unverified PRE schema
 revision, see [the current environment status](ENVIRONMENTS.md).

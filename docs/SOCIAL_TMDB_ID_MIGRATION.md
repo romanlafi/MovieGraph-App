@@ -1,5 +1,8 @@
 # Social TMDB ID migration
 
+Historical phase report. Later account/social deployment verification and the
+current production blocker are recorded in [ENVIRONMENTS.md](ENVIRONMENTS.md).
+
 Status: **TMDB-ID comments/likes and the limited Worker API verified against real Neon DEV through Hyperdrive** (2026-10-06). The requested target is MovieGraph Neon `dev` / `moviegraph`. This is a fresh deployment: no historical source rows existed to import. Full application authentication/deployment and the remaining catalogue refactor are still pending. No database credentials are recorded here.
 
 Configuration boundary: root `.dev.vars` is for Wrangler runtime variables such as TMDB credentials; do not put a direct Neon URL there. The read-only audit and Alembic migration each take a direct development-branch URL from a trusted, temporary shell process variable (`SOCIAL_AUDIT_DATABASE_URL` or `ALEMBIC_DATABASE_URL`). This is separate from Worker runtime configuration and does not configure the application to reach Neon.
