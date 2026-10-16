@@ -42,6 +42,14 @@ el origen conserva TLS `require`.
 - La auditoría del frontend se corrigió mediante actualizaciones compatibles;
   `npm audit` informa cero vulnerabilidades. La instalación, tests, lint y build
   pasan; el bundle de JS cambió por la actualización de Vite.
-- El código aún debe promoverse desde `dev`/`staging` a `main`. Después del
-  despliegue, verificar health/API, TMDB, registro/login, sesión y flujos sociales
-  antes de considerar completado el lanzamiento.
+- El commit `798b7bd` se publicó fast-forward en `dev`, `staging` y `main`.
+  GitHub Actions de tests/frontend pasó en las ramas; Cloudflare Workers Builds
+  falló en el push a `main`, así que el mismo commit se publicó manualmente con
+  Pywrangler (`a5e5e2fa-0895-4e0d-9e45-c34cc1bae3b8`).
+- El health real devuelve 200, TMDB featured devuelve 200 y `/api/v1/users/me`
+  sin credenciales devuelve 401 `Not authenticated`, como corresponde. No se
+  probó registro/login con una cuenta real ni se creó usuario de prueba en PROD;
+  completar esa comprobación antes de dar el lanzamiento por plenamente validado.
+- SonarCloud también marcó el Quality Gate de `main` por cobertura (59.2%) y
+  ratings de seguridad/fiabilidad del código nuevo. Revisar esos hallazgos; no
+  impidieron que la compilación de calidad/tests ni el despliegue manual pasaran.

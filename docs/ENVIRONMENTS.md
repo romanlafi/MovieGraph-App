@@ -76,17 +76,21 @@ una prueba de solo lectura. La validación local/CI figura en
 
 El inventario previo confirmó que el Neon PROD enlazado por Hyperdrive no tenía
 tablas ni filas de aplicación; las migraciones están ahora en `20261016_00` y
-`pgcrypto` está disponible. El Worker `moviegraph-app` ya tiene sus dos secretos
-requeridos y Hyperdrive PROD tiene query caching desactivado. El código de `main`
-aún no se ha desplegado. Detalles en
+`pgcrypto` está disponible. El Worker `moviegraph-app` tiene sus dos secretos
+requeridos y Hyperdrive PROD tiene query caching desactivado. El commit
+`798b7bd` está en `main` y se desplegó manualmente con Pywrangler. Detalles en
 [el informe de migración de producción](PRODUCTION_MIGRATION.md).
 
 1. Revisar el [audit de migración](MIGRATION_AUDIT.md) y confirmar el backup
    Neon antes de seguir operando sobre la base ya inicializada.
 2. Confirmar en `wrangler.jsonc` `PASSWORD_HASH_BACKEND=postgres`; los dos
    secretos ya están configurados y sus valores no se pueden releer.
-3. Promover el código y comprobar catálogo, login, sesión y operaciones sociales
-   en el despliegue real. Tener preparado el rollback compatible con el esquema.
+3. Completar la prueba funcional con una cuenta controlada: registro/login,
+   sesión y operaciones sociales. No se creó una cuenta de prueba en PROD.
+4. Corregir el check de Cloudflare Workers Builds, que falló al compilar desde el
+   push a `main`; el despliegue manual de Pywrangler sí terminó correctamente.
+   El Quality Gate de SonarCloud también quedó en fallo para métricas de código
+   nuevo; revisar antes de depender del merge/deploy automático.
 
 Las migraciones de producción ya se aplicaron; no ejecutar de nuevo el
 procedimiento de inicialización durante el despliegue.
