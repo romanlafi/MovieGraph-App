@@ -46,9 +46,9 @@ Cloudflare Builds parte de la raíz del repositorio:
 `.node-version` fija Node; el script raíz instala las dependencias bloqueadas
 de `front` antes de invocar TypeScript/Vite, igual que requiere el build aislado
 de Cloudflare. El deploy command de Workers Builds debe ser
-`npm run deploy:worker`, que usa Wrangler fijado en el lockfile y selecciona
-explícitamente `wrangler.jsonc`. `requirements-build.txt` fija el tooling Python local.
-Pywrangler empaqueta el Worker. Ningún build, despliegue o petición ejecuta
+`npm run deploy:worker`, que instala el tooling fijado en `requirements-build.txt`
+y ejecuta PyWrangler para empaquetar las dependencias Python, seleccionando
+explícitamente `wrangler.jsonc`. Ningún build, despliegue o petición ejecuta
 migraciones automáticamente. La SPA sirve los assets y no absorbe `/api/*`.
 No se utiliza el antiguo stack Docker/nginx/Uvicorn para desplegar.
 
