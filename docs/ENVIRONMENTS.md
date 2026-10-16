@@ -1,5 +1,38 @@
 # Entornos y despliegues
 
+## Investigación posterior del arranque en frío — 16 de octubre de 2026
+
+Las métricas de Cloudflare confirman que staging `84b47fdb`, generado por CI
+desde `668e51a`, seguía fallando: a las 09:21 UTC registra cinco invocaciones
+`exceededResources`, con un percentil de CPU de 1888 ms, y después excepciones
+sucesivas. Pasar las pruebas anteriores no demostraba que el incidente estuviera
+resuelto.
+
+La sesión OAuth de Wrangler permite leer configuración y métricas GraphQL,
+pero la consulta de logs históricos devuelve 403: ese endpoint requiere
+`Workers Observability Write`. `wrangler tail` no admite previews. Para observar
+la reproducción se utiliza temporalmente un Tail Worker conectado solo a
+staging; no registra cabeceras, credenciales ni cuerpos de peticiones.
+
+La inspección directa de Neon PRE confirma Alembic `20261016_00`, `pgcrypto`,
+dos usuarios originales con bcrypt coste 12 y ninguna conexión bloqueada.
+No se ejecutan migraciones ni se alteran las cuentas originales.
+
+Se ha identificado un coste evitable en la primera operación PostgreSQL:
+el driver y su dialecto SQLAlchemy se importaban durante la petición.
+Los entrypoints Worker los cargan ahora antes del snapshot, sin crear motores
+ni abrir conexiones. En la medición de staging, la primera lectura de perfil
+baja de 643 a 77 ms de CPU. La verificación de un JWT inválido sin acceder a
+PostgreSQL costaba 42 ms, por lo que no explicaba el coste principal medido.
+
+Con la precarga, un login como primera petición, nueve consultas simultáneas de
+catálogo y sesión, y la navegación real entre inicio, Social y película devuelven
+200. La cuenta desechable incluye likes para comprobar también recomendaciones.
+Las 111 pruebas backend pasan, con una integración opcional omitida. Esta mejora
+reduce el coste de arranque; el diagnóstico completo del incidente histórico
+sigue pendiente del detalle de sus excepciones y de reproducir el flujo afectado.
+No se debe promover a main basándose únicamente en estas comprobaciones.
+
 ## Resultado actual — 16 de octubre de 2026
 
 Neon PRE está en Alembic `20261016_00` y confirma `pgcrypto` disponible.

@@ -12,6 +12,13 @@ from sqlalchemy.pool import NullPool
 from .runtime import DatabaseConfig, DatabaseConfigurationError, request_database_config
 
 
+def prepare_worker_database() -> None:
+    """Include the PostgreSQL driver in the Worker snapshot without connecting."""
+    from sqlalchemy.dialects.postgresql.pg8000 import PGDialect_pg8000
+
+    PGDialect_pg8000.import_dbapi()
+
+
 def create_database_engine(config: DatabaseConfig) -> Engine:
     options = {"poolclass": NullPool, "hide_parameters": True}
     if config.worker:

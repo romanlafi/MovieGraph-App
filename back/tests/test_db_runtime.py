@@ -201,6 +201,8 @@ sys.modules['workers'] = SimpleNamespace(asgi=SimpleNamespace(entrypoint=lambda 
 sys.path.insert(0, str(Path('app').resolve()))
 with patch('sqlalchemy.create_engine', side_effect=AssertionError('Eager engine')):
     worker = runpy.run_path('app/diagnostics_worker.py')
+    assert 'pg8000' in sys.modules
+    assert 'sqlalchemy.dialects.postgresql.pg8000' in sys.modules
     from fastapi.testclient import TestClient
     with TestClient(worker['app']) as client:
         assert client.get('/api/health').status_code == 200
