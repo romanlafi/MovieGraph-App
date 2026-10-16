@@ -22,13 +22,20 @@
     {"binding": "HYPERDRIVE", "id": "4cbe52bd629d47c8b2b69a3529691f78"}
   ],
   "previews": {
+    "unsafe": {
+      "bindings": [
+        {"name": "SECRET_KEY", "type": "inherit"},
+        {"name": "TMDB_READ_ACCESS_TOKEN", "type": "inherit"}
+      ]
+    },
     "observability": {
       "enabled": true,
       "logs": {"enabled": true, "invocation_logs": true, "persist": true}
     },
     "vars": {
       "APP_ENV": "pre",
-      "JWT_ALGORITHM": "HS256"
+      "JWT_ALGORITHM": "HS256",
+      "PASSWORD_HASH_BACKEND": "postgres"
     },
     "hyperdrive": [
       {

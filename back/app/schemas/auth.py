@@ -16,6 +16,8 @@ class UserRegistration(BaseModel):
     @field_validator("password")
     @classmethod
     def password_fits_bcrypt(cls, password: str) -> str:
+        if "\x00" in password:
+            raise ValueError("Password must not contain null characters")
         if len(password.encode("utf-8")) > 72:
             raise ValueError("Password must not exceed 72 UTF-8 bytes")
         return password

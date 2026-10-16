@@ -44,11 +44,12 @@ for the exact configuration.
 
 Local development includes registration/login, follows, comments, likes, and
 the TMDB catalogue. We work on the `dev` branch. Its preview, deployed on
-October 14, exposes these routes, public IDs, and both login rate limiters. It
-uses Hyperdrive PRE, shared with the other previews. Schema `20261009_00` and
-Hyperdrive/Neon transactions are verified. Login requires Workers Paid: on the
-Free plan, bcrypt validation reproduces `exceededCpu`, so the full remote flow
-is pending a plan upgrade. Production is still on a September 24 version, and
+October 16, exposes the account/social routes, and uses Hyperdrive PRE. Neon PRE
+is at schema `20261016_00`; bcrypt at cost 12 runs in PostgreSQL. Both dev and
+staging passed real registration, invalid and repeated correct logins, social
+flows, concurrent reads, and JWT preservation after redeploy. Test rows were
+removed and the PRE baseline restored. See [Free-plan auth setup](docs/AUTH_FREE_PLAN.md).
+Production is still on a September 24 version, and
 `/api/health` returns HTML. See the
 [environment and deployment status](docs/ENVIRONMENTS.md).
 

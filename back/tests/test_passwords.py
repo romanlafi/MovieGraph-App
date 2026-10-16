@@ -1,9 +1,45 @@
 import unittest
+from unittest.mock import Mock, patch
+
+from app.social.passwords import hash_password_in_database, verify_password_in_database
 
 from test_foundation import isolated, LOCAL_CONFIG
 
 
 class PasswordTests(unittest.TestCase):
+    def test_postgres_hash_uses_bound_parameters_and_cost_twelve_without_python_bcrypt(self):
+        database = Mock()
+        database.execute.return_value.scalar_one.return_value = "database-hash"
+        with patch("bcrypt.hashpw", side_effect=AssertionError("Worker must not compute bcrypt")):
+            self.assertEqual(hash_password_in_database(database, "a-long-enough-password"), "database-hash")
+        statement, parameters = database.execute.call_args.args
+        self.assertIn("public.gen_salt('bf', 12)", str(statement))
+        self.assertNotIn("a-long-enough-password", str(statement))
+        self.assertEqual(parameters, {"password": "a-long-enough-password"})
+
+    def test_postgres_verification_preserves_legacy_bcrypt_payloads(self):
+        database = Mock()
+        database.execute.return_value.scalar_one.return_value = True
+        payload = "10$WvvTPHKwdBJ3uk0Z37EMR.hLA2W6N9AEBhEgrAOljy2Ae5MtaSIUi"
+        for variant in ("a", "b", "y"):
+            with self.subTest(variant=variant), patch("bcrypt.checkpw", side_effect=AssertionError("No Worker bcrypt")):
+                self.assertTrue(verify_password_in_database(database, "abc", f"$2{variant}${payload}"))
+                self.assertEqual(database.execute.call_args.args[1]["password_hash"], f"$2a${payload}")
+        database.execute.return_value.scalar_one.return_value = False
+        self.assertFalse(verify_password_in_database(database, "wrong", f"$2b${payload}"))
+
+    def test_postgres_rejects_invalid_inputs_without_queries_or_truncation(self):
+        database = Mock()
+        valid_hash = "$2b$12$" + "a" * 53
+        for password, password_hash in (("x" * 73, valid_hash), ("é" * 37, valid_hash),
+                                        ("abc\x00suffix", valid_hash), ("abc", "unused"),
+                                        ("abc", "$1$unsupported"), ("abc", None)):
+            self.assertFalse(verify_password_in_database(database, password, password_hash))
+        for password in ("x" * 73, "é" * 37, "abc\x00suffix"):
+            with self.assertRaises(ValueError):
+                hash_password_in_database(database, password)
+        database.execute.assert_not_called()
+
     def test_existing_bcrypt_hash_verification(self):
         result = isolated('''
 from app.social.passwords import hash_password, verify_password

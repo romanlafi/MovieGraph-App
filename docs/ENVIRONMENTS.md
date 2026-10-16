@@ -1,5 +1,87 @@
 # Entornos y despliegues
 
+## Resultado actual — 16 de octubre de 2026
+
+Neon PRE está en Alembic `20261016_00` y confirma `pgcrypto` disponible.
+`PASSWORD_HASH_BACKEND=postgres` está activo en las previews dev y staging.
+Despliegues: dev `a5911c32`, staging `c8605c41`. Ambas pasaron registro,
+contraseña incorrecta, login repetido, perfil, operaciones sociales, 15 lecturas
+autenticadas simultáneas y sesión JWT después de republicar. El verificador
+limpió las cuentas temporales y restauró el inventario PRE. Producción no se
+migró ni se publicó. Los cambios siguen pendientes de commit.
+
+Las secciones inferiores conservan el historial anterior a esta validación.
+
+## Corrección para Workers Free
+
+No se contratará Workers Paid. Se ha preparado un backend bcrypt en PostgreSQL
+que mantiene coste 12 y hashes existentes, sin calcular bcrypt en el Worker.
+La prueba con PostgreSQL 17 real pasa, pero PRE todavía no tiene `pgcrypto`.
+Falta aplicar la migración administrativa `20261016_00` y activar
+`PASSWORD_HASH_BACKEND=postgres` exclusivamente en staging. La conexión directa
+de Neon PRE no está configurada localmente. No se ha activado ni desplegado
+este nuevo backend y producción sigue intacta. Procedimiento y pruebas en
+[AUTH_FREE_PLAN.md](AUTH_FREE_PLAN.md). Las referencias históricas a necesitar
+Paid quedan sustituidas por esta alternativa pendiente de validación remota.
+
+## Login y sesiones en staging — 16 de octubre de 2026
+
+La corrección local sobre `835a235` está publicada en
+<https://staging-moviegraph-app.romanoscense10.workers.dev>, despliegue
+`880850bd`. Utiliza Hyperdrive PRE. Los cambios de código siguen pendientes de
+commit; deben incorporarse a la rama antes del siguiente build automático.
+
+El registro y el login cierran su sesión SQL y liberan el bloqueo antes de
+calcular bcrypt. Los limitadores y la creación de JWT también quedan fuera
+del bloqueo. Las sesiones SQL conservan rollback y cierre explícitos.
+La espera del bloqueo utiliza temporizadores de la propia petición y un máximo
+de cinco segundos; así no se comparten futuros de espera entre invocaciones de
+Workers. El cliente HTTP tiene un timeout de 30 segundos.
+
+Wrangler Preview 4.148.0 eliminaba los secretos de la nueva versión al publicar
+sin `--secrets-file`. `previews.unsafe.bindings` declara ahora `SECRET_KEY` y
+`TMDB_READ_ACCESS_TOKEN` como `inherit`: sus valores se conservan desde el
+último despliegue del propio preview, sin incluirlos en el repositorio. Esta
+compatibilidad debe revisarse cuando Preview admita directamente la conservación
+de secretos requeridos. Un preview nuevo debe aprovisionarse con un archivo de
+secretos seguro mediante `--secrets-file`; sus valores no se guardan en Git.
+La clave JWT de staging es exclusiva y se ha rotado durante la reparación.
+El archivo temporal utilizado se eliminó; la clave permanece en Cloudflare.
+
+La prueba real verificó registro 201, identidad duplicada 409, contraseña
+incorrecta 401, login 200 y perfil 200. Un JWT emitido antes de republicar
+staging siguió devolviendo perfil 200 después, sin volver a cargar secretos.
+Tres lotes de cinco peticiones simultáneas a perfil, likes, following,
+followers y perfil público devolvieron los quince HTTP 200.
+
+La verificación completa sigue pendiente: el segundo login devolvió 503 y la
+lectura de perfil inmediatamente posterior devolvió 500. Cloudflare rechazó
+el presupuesto de CPU de cinco segundos porque la cuenta continúa en Workers
+Free, con error `100328`. Se conserva bcrypt coste 12. Los logs históricos
+confirmaron `exceededCpu` en ese flujo; el intento de observación de esta
+ejecución falló con error API `10013`, por lo que no se atribuye un outcome
+concreto a los nuevos 503 sin más evidencia. Después se republicó staging para
+restablecer su runtime; health y TMDB respondieron 200 y ambos secretos seguían
+presentes. Debe repetirse la suite completa con un presupuesto compatible antes
+de promover a producción.
+
+Las cuentas de prueba y sus relaciones se eliminaron por sus UUID exactos.
+La comprobación final recuperó los recuentos iniciales de PRE: users 2,
+comments 0, user_movie_likes 16, user_follows 1, user_genre_preferences 3 y
+alembic_version 1. Se eliminaron todos los Workers temporales y se retiró el
+observador. No se ejecutaron migraciones ni cambios en producción.
+
+Validación reproducible, incluyendo conservación de JWT entre publicaciones:
+
+```powershell
+.venv/Scripts/python.exe scripts/verify_neon_social.py --preview-url https://staging-moviegraph-app.romanoscense10.workers.dev --verify-redeploy
+```
+
+Si una comprobación se interrumpe durante la limpieza, el informe ignorado
+`output/backend-dev-verification.json` identifica `pending_fixture_cleanup`.
+`--cleanup-fixture <UUID>` permite limpiar exclusivamente esos fixtures mediante
+un Worker temporal nuevo, sin ejecutar migraciones ni truncar tablas.
+
 ## Estado remoto comprobado — 14 de octubre de 2026
 
 ### Resultado del refactor en dev

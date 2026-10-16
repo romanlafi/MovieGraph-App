@@ -1,7 +1,11 @@
 """Shared authentication and request-scoped database dependencies."""
 
+import asyncio
 import os
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
+from time import monotonic
+from typing import TypeVar
 
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
@@ -16,6 +20,8 @@ from app.social.repositories import accounts as account_repository
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
+OperationResult = TypeVar("OperationResult")
+SESSION_LOCK_TIMEOUT_SECONDS = 5
 
 
 def auth_settings(request: Request) -> tuple[str, str, int]:
@@ -57,13 +63,34 @@ async def token_subject(request: Request, token: str = Depends(oauth2_scheme)) -
         raise HTTPException(401, "Invalid credentials") from None
 
 
-async def get_social_session(request: Request) -> AsyncIterator[Session]:
+@asynccontextmanager
+async def social_session(request: Request) -> AsyncIterator[Session]:
+    """Wait within this invocation instead of sharing lock futures across Workers requests."""
+    session_lock = request.app.state.social_db_lock
+    deadline = monotonic() + SESSION_LOCK_TIMEOUT_SECONDS
+    while session_lock.locked():
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            raise HTTPException(503, "Database is busy. Try again shortly.", headers={"Retry-After": "1"})
+        await asyncio.sleep(min(0.01, remaining))
+    await session_lock.acquire()
     try:
-        async with request.app.state.social_db_lock:
-            with database.session_scope(runtime.request_database_config(request)) as session:
-                yield session
+        with database.session_scope(runtime.request_database_config(request)) as session:
+            yield session
     except (runtime.DatabaseConfigurationError, SQLAlchemyError):
         raise HTTPException(503, "Database unavailable or not configured") from None
+    finally:
+        session_lock.release()
+
+
+async def get_social_session(request: Request) -> AsyncIterator[Session]:
+    async with social_session(request) as session:
+        yield session
+
+
+async def run_social_operation(request: Request, operation: Callable[[Session], OperationResult]) -> OperationResult:
+    async with social_session(request) as session:
+        return operation(session)
 
 
 async def get_authenticated_user(

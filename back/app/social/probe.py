@@ -52,10 +52,15 @@ def prepare_fixture(config, fixture: FixtureCreate) -> dict:
             baseline = inventory(session)
             if not {"users", "comments", "user_movie_likes", "user_follows", "alembic_version"}.issubset(baseline):
                 raise ValueError("Expected migrated development schema")
-            if session.scalar(text("SELECT version_num FROM alembic_version")) != "20261009_00":
+            revision = session.scalar(text("SELECT version_num FROM alembic_version"))
+            if revision not in {"20261009_00", "20261016_00"}:
                 raise ValueError("Expected public user ID migration revision")
             if session.scalar(text("SELECT 1")) != 1:
                 raise ValueError("SELECT verification failed")
+            password_crypto_available = engine.dialect.name == "postgresql" and session.scalar(text(
+                "SELECT to_regprocedure('public.crypt(text,text)') IS NOT NULL "
+                "AND to_regprocedure('public.gen_salt(text,integer)') IS NOT NULL"
+            ))
             user_id = session.scalar(text("""
                 INSERT INTO users (email, username, password, public_id)
                 VALUES (:email, :username, :password, :public_id) RETURNING id
@@ -95,7 +100,8 @@ def prepare_fixture(config, fixture: FixtureCreate) -> dict:
     return {
         "user_id": user_id, "email": email, "username": username,
         "baseline": baseline,
-        "revision": "20261009_00",
+        "revision": revision,
+        "password_crypto_available": password_crypto_available,
         "runtime": {name: "PASS" for name in ("select", "insert", "update", "rollback", "session_cleanup")},
     }
 

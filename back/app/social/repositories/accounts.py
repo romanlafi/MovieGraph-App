@@ -36,14 +36,12 @@ def account_conflict(db: Session, email: str, username: str) -> AccountConflictC
     return None
 
 
-def create_account(db: Session, account: UserRegistration) -> None:
-    from app.social.passwords import hash_password
-
+def create_account(db: Session, account: UserRegistration, password_hash: str) -> None:
     conflict = account_conflict(db, str(account.email), account.username)
     if conflict is not None:
         raise DuplicateAccountError(conflict)
     try:
-        _insert_account(db, account, hash_password(account.password))
+        _insert_account(db, account, password_hash)
     except IntegrityError:
         db.rollback()
         conflict = account_conflict(db, str(account.email), account.username)

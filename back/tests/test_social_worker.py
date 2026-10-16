@@ -13,7 +13,7 @@ from uuid import uuid4
 
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
-from fastapi import Request
+from fastapi import HTTPException, Request
 from fastapi.testclient import TestClient
 from jose import jwt
 from sqlalchemy import create_engine, inspect, text
@@ -209,6 +209,7 @@ class SocialWorkerTests(unittest.TestCase):
             "LOGIN_IP_RATE_LIMITER": ip_limiter,
             "LOGIN_ACCOUNT_RATE_LIMITER": account_limiter,
         })
+        self.config_resolver.reset_mock()
         response = self.client.post("/api/v1/users/login", data={
             "username": "FIRST@example.test", "password": "invalid",
         }, headers={"cf-connecting-ip": "192.0.2.4"})
@@ -218,6 +219,73 @@ class SocialWorkerTests(unittest.TestCase):
         self.assertEqual(len(account_limiter.keys), 1)
         self.assertNotIn("192.0.2.4", ip_limiter.keys[0])
         self.assertNotIn("FIRST@example.test", account_limiter.keys[0])
+        self.config_resolver.assert_not_called()
+
+    def test_password_work_never_holds_database_session_lock(self):
+        from app.social.passwords import hash_password
+
+        def hash_outside_session(password):
+            self.assertFalse(self.app.state.social_db_lock.locked())
+            return hash_password(password)
+
+        account = {"username": "isolated-password", "email": "isolated@example.com",
+                   "password": "a-long-enough-password", "birthdate": "1990-01-01"}
+        with patch("app.social.passwords.hash_password", side_effect=hash_outside_session):
+            response = self.client.post("/api/v1/users/", json=account)
+        self.assertEqual(response.status_code, 201, response.text)
+
+        def interrupted_password_check(password, password_hash):
+            self.assertFalse(self.app.state.social_db_lock.locked())
+            raise RuntimeError("simulated password interruption")
+
+        with patch("app.social.passwords.verify_password", side_effect=interrupted_password_check):
+            with self.assertRaisesRegex(RuntimeError, "simulated password interruption"):
+                self.client.post("/api/v1/users/login", data={
+                    "username": account["email"], "password": account["password"],
+                })
+        self.assertFalse(self.app.state.social_db_lock.locked())
+        account_headers = {"Authorization": f"Bearer {token(account['email'])}"}
+        self.assertEqual(self.client.get("/api/v1/users/me", headers=account_headers).status_code, 200)
+        self.assertEqual(self.client.get("/api/v1/follows/followers", headers=self.headers).status_code, 200)
+
+    def test_database_password_backend_never_falls_back_to_worker_bcrypt(self):
+        self.env["PASSWORD_HASH_BACKEND"] = "postgres"
+        account = {"username": "database-password", "email": "database@example.com",
+                   "password": "a-long-enough-password", "birthdate": "1990-01-01"}
+
+        def database_hash(database, password):
+            self.assertTrue(self.app.state.social_db_lock.locked())
+            self.assertEqual(password, account["password"])
+            return "$2a$12$" + "a" * 53
+
+        def database_verify(database, password, password_hash):
+            self.assertTrue(self.app.state.social_db_lock.locked())
+            return password == account["password"]
+
+        with patch("app.social.passwords.hash_password", side_effect=AssertionError("No local hashing")), \
+                patch("app.social.passwords.verify_password", side_effect=AssertionError("No local verification")), \
+                patch("app.social.passwords.hash_password_in_database", side_effect=database_hash), \
+                patch("app.social.passwords.verify_password_in_database", side_effect=database_verify):
+            self.assertEqual(self.client.post("/api/v1/users/", json=account).status_code, 201)
+            invalid = self.client.post("/api/v1/users/login", data={
+                "username": account["email"], "password": "wrong",
+            })
+            self.assertEqual(invalid.status_code, 401)
+            for attempt in range(3):
+                login = self.client.post("/api/v1/users/login", data={
+                    "username": account["email"], "password": account["password"],
+                })
+                self.assertEqual(login.status_code, 200, login.text)
+                self.assertFalse(self.app.state.social_db_lock.locked())
+                headers = {"Authorization": "Bearer " + login.json()["access_token"]}
+                self.assertEqual(self.client.get("/api/v1/users/me", headers=headers).status_code, 200)
+        with patch("app.social.passwords.verify_password_in_database", side_effect=SQLAlchemyError("unavailable")):
+            response = self.client.post("/api/v1/users/login", data={
+                "username": account["email"], "password": account["password"],
+            })
+        self.assertEqual(response.status_code, 503)
+        self.assertFalse(self.app.state.social_db_lock.locked())
+        self.assertEqual(self.client.get("/api/v1/follows/followers", headers=self.headers).status_code, 200)
 
     def test_production_login_fails_closed_without_rate_limit_bindings(self):
         self.env["APP_ENV"] = "production"
@@ -308,6 +376,8 @@ class SocialWorkerTests(unittest.TestCase):
         self.assertEqual(self.client.post("/api/v1/users/", json=payload).status_code, 422)
         payload["password"] = "é" * 37
         self.assertEqual(self.client.post("/api/v1/users/", json=payload).status_code, 422)
+        payload.update(email="null-pass@example.com", password="password\x00suffix")
+        self.assertEqual(self.client.post("/api/v1/users/", json=payload).status_code, 422)
 
     def test_password_runtime_probe_is_available_only_through_development_harness(self):
         from app.social.probe import install_social_probe
@@ -366,6 +436,24 @@ class SocialWorkerTests(unittest.TestCase):
             self.assertFalse(self.app.state.social_db_lock.locked())
 
         asyncio.run(verify_serialization())
+
+    def test_session_lock_timeout_does_not_release_another_request_or_open_database(self):
+        async def verify_timeout():
+            request = Request({"type": "http", "app": self.app, "env": self.env})
+            await self.app.state.social_db_lock.acquire()
+            self.config_resolver.reset_mock()
+            with patch.object(dependencies, "SESSION_LOCK_TIMEOUT_SECONDS", 0.01):
+                with self.assertRaises(HTTPException) as caught:
+                    await dependencies.run_social_operation(request, lambda db: db.scalar(text("SELECT 1")))
+            self.assertEqual(caught.exception.status_code, 503)
+            self.assertEqual(caught.exception.headers, {"Retry-After": "1"})
+            self.config_resolver.assert_not_called()
+            self.assertTrue(self.app.state.social_db_lock.locked())
+            self.app.state.social_db_lock.release()
+            self.assertEqual(await dependencies.run_social_operation(request, lambda db: db.scalar(text("SELECT 1"))), 1)
+            self.assertFalse(self.app.state.social_db_lock.locked())
+
+        asyncio.run(verify_timeout())
 
     def test_candidate_imports_no_legacy_catalogue_auth_or_password_graph(self):
         result = isolated("""

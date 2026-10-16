@@ -4,6 +4,7 @@ import {clearSessionToken, getSessionToken} from "./session.ts";
 
 export const api = axios.create({
     baseURL: BASE_URL,
+    timeout: 30000,
 });
 
 let movieGraphRequestQueue = Promise.resolve();

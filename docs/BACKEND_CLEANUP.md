@@ -91,9 +91,11 @@ reported 211.605 ms. These are observations, not a benchmark or a latency SLA.
 Cloudflare rejected a preview-only `cpu_ms: 5000` deployment with error 100328:
 CPU limits are unsupported on the Free plan. No subscription or billing changes
 were made. The unsupported limit was removed from the active configuration.
-Keep bcrypt cost 12. Completing all authenticated preview flows requires a
-Workers Paid plan, followed by an explicit bounded preview CPU budget and a
-successful full verification run. Production must be verified separately.
+The earlier conclusion that this requires Workers Paid was too restrictive.
+Keep bcrypt cost 12 and the Free plan. The prepared PostgreSQL hashing backend
+removes bcrypt computation from the Worker without rewriting existing hashes;
+see [AUTH_FREE_PLAN.md](AUTH_FREE_PLAN.md) for migration and activation.
+Full remote verification remains necessary before production.
 
 The repeatable verification command is:
 

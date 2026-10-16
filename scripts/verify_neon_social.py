@@ -1,6 +1,7 @@
 """Verify the configured DEV Hyperdrive and social API using disposable rows."""
 
 from datetime import datetime, timedelta, UTC
+from concurrent.futures import ThreadPoolExecutor
 import argparse
 import json
 import os
@@ -12,7 +13,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 import time
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import bcrypt
 import httpx
@@ -59,9 +60,16 @@ def wait_for_worker(base_url: str, client: httpx.Client) -> None:
     raise RuntimeError("Temporary development Worker did not become ready")
 
 
-def run_verification(preview_url: str | None = None) -> dict:
-    if preview_url is not None and preview_url != "https://dev-moviegraph-app.romanoscense10.workers.dev":
-        raise RuntimeError("Remote application checks are restricted to the dev preview")
+def run_verification(preview_url: str | None = None, verify_redeploy: bool = False,
+                     cleanup_fixture_ids: tuple[UUID, ...] = ()) -> dict:
+    previews = {
+        f"https://{name}-moviegraph-app.romanoscense10.workers.dev": name
+        for name in ("dev", "staging")
+    }
+    if preview_url is not None and preview_url not in previews:
+        raise RuntimeError("Remote application checks are restricted to the dev and staging PRE previews")
+    if verify_redeploy and preview_url is None:
+        raise RuntimeError("Redeployment verification requires an explicitly selected PRE preview")
     if shutil.which("npx.cmd" if os.name == "nt" else "npx") is None:
         raise RuntimeError("Node.js/npx is required by the existing Worker toolchain")
     environment = os.environ.copy()
@@ -76,7 +84,7 @@ def run_verification(preview_url: str | None = None) -> dict:
     registration_id = uuid4()
     fixture_ids = [fixture_id]
     worker_name = f"moviegraph-probe-dev-{fixture_id.hex}"
-    report = {"target": "dev-preview" if preview_url else "neon-pre-verification",
+    report = {"target": f"{previews[preview_url]}-preview" if preview_url else "neon-pre-verification",
               "hyperdrive": hyperdrive, "fixture_id": str(fixture_id)}
     requests = {}
     fixture_attempted = False
@@ -127,6 +135,14 @@ def run_verification(preview_url: str | None = None) -> dict:
 
                 print("Checking Neon transactions with a disposable fixture account...", flush=True)
                 admin_headers = {"Authorization": f"Bearer {probe_secret}"}
+                for cleanup_id in cleanup_fixture_ids:
+                    cleanup_result = expect("cleanup_previous_fixture", "DELETE", f"/api/internal/social-fixture/{cleanup_id}",
+                                            headers=admin_headers)
+                    report["after_cleanup"] = cleanup_result["after"]
+                if cleanup_fixture_ids:
+                    report["previous_fixtures_removed"] = [str(cleanup_id) for cleanup_id in cleanup_fixture_ids]
+                    if preview_url is None:
+                        return report
                 fixture_password = secrets.token_urlsafe(32)
                 password_hash = bcrypt.hashpw(fixture_password.encode("ascii"), bcrypt.gensalt()).decode("ascii")
                 fixture_attempted = True
@@ -135,6 +151,7 @@ def run_verification(preview_url: str | None = None) -> dict:
                 report["baseline"] = fixture["baseline"]
                 report["runtime"] = fixture["runtime"]
                 report["revision"] = fixture["revision"]
+                report["password_crypto_available"] = fixture["password_crypto_available"]
                 catalogue_tables = {"movies", "persons", "genres", "collections", "movie_person", "movie_persons", "movie_genres"}
                 if catalogue_tables.intersection(fixture["baseline"]):
                     raise RuntimeError("Expected the initialized fresh DEV target without catalogue tables")
@@ -166,7 +183,7 @@ def run_verification(preview_url: str | None = None) -> dict:
                                "comment_id": comment["comment_id"], "catalogue_tables_created": False,
                                "comment_and_like_without_local_movie": "PASS", "requests": requests})
                 if preview_url is not None:
-                    print("Checking registration, login, follows, comments and likes on the dev preview...", flush=True)
+                    print("Checking registration, login, follows, comments and likes on the PRE preview...", flush=True)
                     preview_checks = []
 
                     def preview_request(label, method, path, *, expected=200, **kwargs):
@@ -186,7 +203,7 @@ def run_verification(preview_url: str | None = None) -> dict:
                                             "Database unavailable or not configured", "Authentication is not configured",
                                             "Invalid credentials", "Account could not be created"}
                             reason = f" ({detail})" if isinstance(detail, str) and detail in safe_details else ""
-                            raise RuntimeError(f"dev preview {label}: expected {expected}, got {response.status_code}{reason}")
+                            raise RuntimeError(f"PRE preview {label}: expected {expected}, got {response.status_code}{reason}")
                         return response.json()
 
                     report["preview_url"] = preview_url
@@ -210,8 +227,43 @@ def run_verification(preview_url: str | None = None) -> dict:
                     profile = preview_request("profile", "GET", "/api/v1/users/me", headers=own_headers)
                     if profile["email"] != registration_email or profile["favorite_genres"] != ["Drama"]:
                         raise RuntimeError("dev profile/preference round-trip failed")
-                    friend_login = preview_request("friend_login", "POST", "/api/v1/users/login",
-                                                   data={"username": fixture["email"], "password": fixture_password})
+                    if verify_redeploy:
+                        print("Checking session and secret preservation across a preview redeployment...", flush=True)
+                        redeploy = subprocess.run([
+                            sys.executable, "-m", "pywrangler", "preview", "--config", "wrangler.jsonc",
+                            "--worker-name", "moviegraph-app", "--name", previews[preview_url],
+                        ], cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, timeout=240)
+                        if redeploy.returncode != 0:
+                            raise RuntimeError("PRE preview redeployment failed; the previous deployment remains selected")
+                        preview_request("profile_after_redeploy", "GET", "/api/v1/users/me", headers=own_headers)
+                        report["session_survives_redeploy"] = "PASS"
+                    follow_path = "/api/v1/follows/"
+                    concurrent_paths = (
+                        "/api/v1/users/me",
+                        "/api/v1/movies/likes",
+                        follow_path + "following",
+                        follow_path + "followers",
+                        follow_path + f"users/{profile['public_id']}",
+                    )
+                    for batch in range(3):
+                        with ThreadPoolExecutor(max_workers=len(concurrent_paths)) as executor:
+                            pending = [
+                                executor.submit(preview_request, f"concurrent_{batch}_{index}", "GET", path,
+                                                headers=own_headers)
+                                for index, path in enumerate(concurrent_paths)
+                            ]
+                            for request in pending:
+                                request.result()
+                    report["concurrent_authenticated_reads"] = "PASS"
+                    try:
+                        friend_login = preview_request("friend_login", "POST", "/api/v1/users/login",
+                                                       data={"username": fixture["email"], "password": fixture_password})
+                    except RuntimeError:
+                        for path in ("/api/v1/users/me", "/api/v1/movies/likes",
+                                     "/api/v1/follows/following", "/api/v1/follows/followers"):
+                            preview_request("recovery_after_failed_login", "GET", path, headers=own_headers)
+                        report["recovery_after_failed_login"] = "PASS"
+                        raise
                     friend_headers = {"Authorization": "Bearer " + friend_login["access_token"]}
                     friend = preview_request("friend_profile", "GET", "/api/v1/users/me", headers=friend_headers)
                     follow_path = "/api/v1/follows/"
@@ -243,6 +295,7 @@ def run_verification(preview_url: str | None = None) -> dict:
                         preview_request(label, "DELETE", follow_path, json=follow_body, headers=own_headers)
                     if preview_request("empty_following", "GET", follow_path + "following", headers=own_headers) != []:
                         raise RuntimeError("dev unfollow failed")
+                    preview_request("profile_after_concurrency", "GET", "/api/v1/users/me", headers=own_headers)
                     report["preview_behaviour"] = "PASS"
             except Exception:
                 if not fixture_attempted:
@@ -255,6 +308,7 @@ def run_verification(preview_url: str | None = None) -> dict:
                 try:
                     if fixture_attempted:
                         print("Removing only the disposable account and its social rows...", flush=True)
+                        report["pending_fixture_cleanup"] = [str(cleanup_id) for cleanup_id in fixture_ids]
                         for cleanup_id in reversed(fixture_ids):
                             cleanup = client.delete(f"{base_url}/api/internal/social-fixture/{cleanup_id}",
                                                     headers={"Authorization": f"Bearer {probe_secret}"})
@@ -262,6 +316,7 @@ def run_verification(preview_url: str | None = None) -> dict:
                                 raise RuntimeError(f"Fixture cleanup failed for UUID {cleanup_id}: HTTP {cleanup.status_code}")
                             report["after_cleanup"] = cleanup.json()["after"]
                             report.setdefault("runtime", {})["delete"] = cleanup.json()["delete"]
+                            report["pending_fixture_cleanup"].remove(str(cleanup_id))
                         if fixture is not None and report["after_cleanup"] != fixture["baseline"]:
                             raise RuntimeError("Development baseline row counts changed after fixture cleanup")
                 finally:
@@ -300,10 +355,12 @@ def run_verification(preview_url: str | None = None) -> dict:
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--preview-url", help="Also exercise the existing dev preview using disposable accounts")
+    parser.add_argument("--preview-url", help="Exercise the dev or staging PRE preview using disposable accounts")
+    parser.add_argument("--verify-redeploy", action="store_true", help="Verify existing JWTs survive redeployment of the selected PRE preview")
+    parser.add_argument("--cleanup-fixture", action="append", type=UUID, default=[], help="Remove only a known disposable fixture UUID left by an interrupted PRE verification")
     arguments = parser.parse_args()
     try:
-        report = run_verification(arguments.preview_url)
+        report = run_verification(arguments.preview_url, arguments.verify_redeploy, tuple(arguments.cleanup_fixture))
     except Exception as error:
         if isinstance(error, RuntimeError):
             print(str(error), flush=True)
