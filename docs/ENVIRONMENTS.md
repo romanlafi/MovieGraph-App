@@ -10,9 +10,18 @@ resuelto.
 
 La sesión OAuth de Wrangler permite leer configuración y métricas GraphQL,
 pero la consulta de logs históricos devuelve 403: ese endpoint requiere
-`Workers Observability Write`. `wrangler tail` no admite previews. Para observar
-la reproducción se utiliza temporalmente un Tail Worker conectado solo a
-staging; no registra cabeceras, credenciales ni cuerpos de peticiones.
+`Workers Observability Write`. Un token administrativo local con ese permiso
+permite ya consultar el histórico; su valor permanece fuera de Git y no se
+incorpora al Worker. `wrangler tail` no admite previews. El Tail Worker temporal
+utilizado durante la investigación se retira al disponer de acceso al histórico.
+
+El histórico confirma la cadena exacta: `/api/v1/follows/following` supera
+el límite de CPU a las 09:21:04.772 UTC, con 1888 ms y HTTP 503; las peticiones
+de catálogo en curso también terminan con `exceededCpu`. Después el runtime
+devuelve `SystemError: Cannot enter a promising task from inside another
+running promising task. This is a bug in Pyodide.` y HTTP 500 en ambos namespaces.
+El login previo había respondido 200. Estos logs no señalan una credencial
+TMDB ausente ni un rechazo de autenticación de Neon.
 
 La inspección directa de Neon PRE confirma Alembic `20261016_00`, `pgcrypto`,
 dos usuarios originales con bcrypt coste 12 y ninguna conexión bloqueada.
@@ -28,10 +37,19 @@ PostgreSQL costaba 42 ms, por lo que no explicaba el coste principal medido.
 Con la precarga, un login como primera petición, nueve consultas simultáneas de
 catálogo y sesión, y la navegación real entre inicio, Social y película devuelven
 200. La cuenta desechable incluye likes para comprobar también recomendaciones.
-Las 111 pruebas backend pasan, con una integración opcional omitida. Esta mejora
-reduce el coste de arranque; el diagnóstico completo del incidente histórico
-sigue pendiente del detalle de sus excepciones y de reproducir el flujo afectado.
-No se debe promover a main basándose únicamente en estas comprobaciones.
+Las 111 pruebas backend pasan, con una integración opcional omitida. El código
+está publicado en dev `7af12052` y staging `750fd16d`, ambos con tag `04eedd6`.
+La verificación remota posterior completa 72 comprobaciones de registro, login,
+follows, comentarios, likes, concurrencia y recuperación tras 15 peticiones
+interrumpidas. El informe confirma cero fixtures pendientes y la eliminación
+del Worker de prueba; PRE recupera users 2, comments 0, user_follows 1,
+user_movie_likes 16 y user_genre_preferences 3.
+
+La consulta del histórico posterior al ajuste no registra excepciones ni HTTP
+5xx durante la validación. La precarga reduce el coste medido; no se atribuye
+con certeza el pico histórico de following únicamente a ese import, ni se
+garantiza que nunca vuelvan a superarse los límites de CPU. No se ha promovido
+a main ni se han aplicado migraciones de producción.
 
 ## Resultado actual — 16 de octubre de 2026
 
