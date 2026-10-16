@@ -38,11 +38,14 @@ Cloudflare Builds parte de la raíz del repositorio:
 
 | Acción | Comando |
 | --- | --- |
-| Compilar | `npm run build:cloudflare` |
+| Build command de Cloudflare | `npm run build` |
+| Build local completo (incluye tooling Worker) | `npm run build:cloudflare` |
 | Publicar dev/staging | `npm run deploy:preview` |
 | Publicar producción, solo tras preparar su base | `npm run deploy:production` |
 
-`.node-version` fija Node; `requirements-build.txt` fija el tooling Python.
+`.node-version` fija Node; el script raíz instala las dependencias bloqueadas
+de `front` antes de invocar TypeScript/Vite, igual que requiere el build aislado
+de Cloudflare. `requirements-build.txt` fija el tooling Python local.
 Pywrangler empaqueta el Worker. Ningún build, despliegue o petición ejecuta
 migraciones automáticamente. La SPA sirve los assets y no absorbe `/api/*`.
 No se utiliza el antiguo stack Docker/nginx/Uvicorn para desplegar.
