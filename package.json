@@ -4,6 +4,7 @@
   "scripts": {
     "build": "npm --prefix front ci --include=dev && npm --prefix front run build",
     "build:cloudflare": "python -m pip install -r requirements-build.txt && npm ci && npm run build",
+    "deploy:worker": "wrangler deploy --config wrangler.jsonc",
     "deploy:production": "python -m pywrangler deploy --config wrangler.jsonc",
     "deploy:preview": "python -m pywrangler preview --config wrangler.jsonc"
   },
