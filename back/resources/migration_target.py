@@ -20,8 +20,8 @@ def validate_migration_target(database_url: str, target: str, authorized: str) -
                 or parsed.username != "moviegraph_local" or parsed.query or parsed.fragment):
             raise RuntimeError("Local migrations require MovieGraph's isolated loopback database on port 5442")
         return
-    if target != "neon-development":
-        raise RuntimeError("Choose ALEMBIC_TARGET=local-development or neon-development; production is not enabled")
+    if target not in {"neon-development", "neon-production"}:
+        raise RuntimeError("Choose ALEMBIC_TARGET=local-development or neon-development; production requires its admin runner")
     if not host or not host.endswith(".neon.tech"):
         raise RuntimeError("ALEMBIC_DATABASE_URL must target a Neon endpoint")
     if "-pooler." in host:
@@ -29,6 +29,12 @@ def validate_migration_target(database_url: str, target: str, authorized: str) -
     ssl_modes = parse_qs(parsed.query).get("sslmode", [])
     if not ssl_modes or ssl_modes[0] not in {"require", "verify-ca", "verify-full"}:
         raise RuntimeError("ALEMBIC_DATABASE_URL must require TLS with sslmode=require or stronger")
+    if target == "neon-production":
+        expected_host = os.environ.get("ALEMBIC_EXPECTED_PRODUCTION_NEON_HOST", "")
+        if os.environ.get("ALEMBIC_ALLOW_PRODUCTION_MIGRATION") != "1" or host != expected_host:
+            raise RuntimeError("Production migrations require explicit authorization and the verified production Neon host")
+        if parsed.path != "/moviegraph":
+            raise RuntimeError("Production migrations must target the moviegraph database")
 
 
 def validate_migration_environment() -> str:

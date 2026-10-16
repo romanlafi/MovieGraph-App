@@ -109,6 +109,22 @@ class LocalDevelopmentTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 validate_migration_target(url, "neon-development", "1")
 
+    def test_neon_production_requires_explicit_host_bound_admin_authorization(self):
+        host = "ep-dawn-boat-b23e2xzc.c-6.eu-central-1.aws.neon.tech"
+        valid = f"postgresql://test:private@{host}/moviegraph?sslmode=require"
+        with patch.dict("os.environ", {}, clear=True):
+            with self.assertRaises(RuntimeError):
+                validate_migration_target(valid, "neon-production", "1")
+        with patch.dict("os.environ", {
+            "ALEMBIC_ALLOW_PRODUCTION_MIGRATION": "1",
+            "ALEMBIC_EXPECTED_PRODUCTION_NEON_HOST": host,
+        }, clear=True):
+            validate_migration_target(valid, "neon-production", "1")
+            with self.assertRaises(RuntimeError):
+                validate_migration_target(valid.replace(host, "ep-other.neon.tech"), "neon-production", "1")
+            with self.assertRaises(RuntimeError):
+                validate_migration_target(valid.replace("/moviegraph?", "/other?"), "neon-production", "1")
+
     def test_local_secrets_are_generated_stable_and_do_not_reuse_neon_or_jwt_secrets(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

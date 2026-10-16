@@ -74,19 +74,19 @@ una prueba de solo lectura. La validación local/CI figura en
 
 ## Antes de pasar a main
 
-Producción todavía no se ha migrado ni promovido. La última inspección encontró
-la versión antigua del 24 de septiembre y `/api/health` devolviendo HTML.
+El inventario previo confirmó que el Neon PROD enlazado por Hyperdrive no tenía
+tablas ni filas de aplicación; las migraciones están ahora en `20261016_00` y
+`pgcrypto` está disponible. El Worker `moviegraph-app` ya tiene sus dos secretos
+requeridos y Hyperdrive PROD tiene query caching desactivado. El código de `main`
+aún no se ha desplegado. Detalles en
+[el informe de migración de producción](PRODUCTION_MIGRATION.md).
 
-1. Inventariar y respaldar la base de producción; revisar el
-   [audit de migración](MIGRATION_AUDIT.md) y preservar usuarios, comentarios y likes.
-2. Preparar un procedimiento administrativo explícito para producción: el
-   comando de desarrollo actual rechaza ese destino. No desactivar su protección
-   ni reutilizar una URL PROD en el comando de PRE.
-3. Aplicar y verificar las migraciones revisadas, incluido `pgcrypto`, desde un
-   entorno de confianza. Los modelos legacy siguen siendo necesarios.
-4. Verificar TLS, query caching desactivado, secretos y bindings PROD; activar
-   `PASSWORD_HASH_BACKEND=postgres` solo cuando su migración esté comprobada.
-5. Promover el código y comprobar catálogo, login, sesión y operaciones sociales
+1. Revisar el [audit de migración](MIGRATION_AUDIT.md) y confirmar el backup
+   Neon antes de seguir operando sobre la base ya inicializada.
+2. Confirmar en `wrangler.jsonc` `PASSWORD_HASH_BACKEND=postgres`; los dos
+   secretos ya están configurados y sus valores no se pueden releer.
+3. Promover el código y comprobar catálogo, login, sesión y operaciones sociales
    en el despliegue real. Tener preparado el rollback compatible con el esquema.
 
-Esta limpieza no autoriza ni realiza esos pasos de producción.
+Las migraciones de producción ya se aplicaron; no ejecutar de nuevo el
+procedimiento de inicialización durante el despliegue.

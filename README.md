@@ -37,9 +37,10 @@ The `dev` and `staging` previews use Hyperdrive PRE. Neon PRE is at schema
 passed on both previews. The last staging verification passed 72 checks and
 restored the PRE baseline. See [auth details](docs/AUTH_FREE_PLAN.md).
 
-Production promotion is pending. The app has not been migrated or verified
-against the production database; follow the rollout steps in the environment
-guide before merging to `main`.
+The production schema is now at `20261016_00` with `pgcrypto`; the database had
+no application tables or rows before the migration. The app has not been
+promoted from `main` yet. See [the production migration report](docs/PRODUCTION_MIGRATION.md)
+for the remaining release checks.
 
 The repository cleanup and validation results, including the dependency audit
 count, are in [the preproduction cleanup report](docs/PREPRODUCTION_CLEANUP.md).

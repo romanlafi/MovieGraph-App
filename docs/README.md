@@ -5,6 +5,7 @@
 - [Arquitectura y reglas de migración](CLOUDFLARE_MIGRATION.md)
 - [Desarrollo local y PyCharm](LOCAL_DEVELOPMENT.md)
 - [Entornos, secretos y despliegues](ENVIRONMENTS.md)
+- [Migración de Neon producción](PRODUCTION_MIGRATION.md)
 - [Autenticación sin cambiar de plan](AUTH_FREE_PLAN.md)
 - [CI, cobertura y SonarCloud](SONARCLOUD.md)
 - [Limpieza previa a producción y validación](PREPRODUCTION_CLEANUP.md)
