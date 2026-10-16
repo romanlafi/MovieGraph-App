@@ -1,8 +1,7 @@
 """Deployed API and assets; Wrangler selects production or preview bindings."""
 
-from workers import asgi
-
 from app.application import create_app
+from app.core.request_completion import entrypoint
 
 app = create_app(
     include_social_api=True,
@@ -10,4 +9,4 @@ app = create_app(
     include_follows_api=True,
     include_assets=True,
 )
-Default = asgi.entrypoint(app)
+Default = entrypoint(app)

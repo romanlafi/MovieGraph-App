@@ -2,6 +2,7 @@
 
 import asyncio
 import os
+import sys
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from time import monotonic
@@ -65,14 +66,20 @@ async def token_subject(request: Request, token: str = Depends(oauth2_scheme)) -
 
 @asynccontextmanager
 async def social_session(request: Request) -> AsyncIterator[Session]:
-    """Wait within this invocation instead of sharing lock futures across Workers requests."""
+    """Serialize sockets using waiters owned by this invocation."""
     session_lock = request.app.state.social_db_lock
     deadline = monotonic() + SESSION_LOCK_TIMEOUT_SECONDS
     while session_lock.locked():
         remaining = deadline - monotonic()
         if remaining <= 0:
             raise HTTPException(503, "Database is busy. Try again shortly.", headers={"Retry-After": "1"})
-        await asyncio.sleep(min(0.1, remaining))
+        delay = min(0.1, remaining)
+        if sys.platform == "emscripten":
+            from js import scheduler
+
+            await scheduler.wait(delay * 1000)
+        else:
+            await asyncio.sleep(delay)
     await session_lock.acquire()
     try:
         with database.session_scope(runtime.request_database_config(request)) as session:

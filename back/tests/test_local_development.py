@@ -166,7 +166,7 @@ class LocalDevelopmentTests(unittest.TestCase):
         result = isolated("""
 import sys, types
 workers = types.ModuleType('workers')
-workers.asgi = types.SimpleNamespace(entrypoint=lambda app: app)
+workers.asgi = types.SimpleNamespace(entrypoint=lambda app: type('ASGIEntrypoint', (), {}))
 sys.modules['workers'] = workers
 from app import local_worker
 paths = {route.path for route in local_worker.app.routes}

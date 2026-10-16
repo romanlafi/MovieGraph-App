@@ -437,6 +437,29 @@ class SocialWorkerTests(unittest.TestCase):
 
         asyncio.run(verify_serialization())
 
+    def test_worker_lock_wait_uses_an_invocation_local_native_timer(self):
+        async def verify_native_timer():
+            request = Request({"type": "http", "app": self.app, "env": self.env})
+            session_lock = self.app.state.social_db_lock
+            await session_lock.acquire()
+            waits = []
+
+            async def release_owner(delay):
+                waits.append(delay)
+                session_lock.release()
+
+            native_js = ModuleType("js")
+            native_js.scheduler = SimpleNamespace(wait=release_owner)
+            with patch.object(dependencies.sys, "platform", "emscripten"), patch.dict(
+                "sys.modules", {"js": native_js},
+            ), patch.object(dependencies.asyncio, "sleep", side_effect=AssertionError("Python timer used")):
+                result = await dependencies.run_social_operation(request, lambda db: db.scalar(text("SELECT 1")))
+            self.assertEqual(result, 1)
+            self.assertEqual(waits, [100])
+            self.assertFalse(session_lock.locked())
+
+        asyncio.run(verify_native_timer())
+
     def test_session_lock_timeout_does_not_release_another_request_or_open_database(self):
         async def verify_timeout():
             request = Request({"type": "http", "app": self.app, "env": self.env})
@@ -486,13 +509,13 @@ import types
 from fastapi.testclient import TestClient
 
 workers = types.ModuleType('workers')
-workers.asgi = types.SimpleNamespace(entrypoint=lambda app: app)
+workers.asgi = types.SimpleNamespace(entrypoint=lambda app: type('ASGIEntrypoint', (), {'application': app}))
 sys.modules['workers'] = workers
 from app.application import create_app
 from app.social import dependencies
 from app import worker
 assert dependencies.get_social_session.__module__ == 'app.social.dependencies'
-assert worker.Default is worker.app
+assert worker.Default.application is worker.app
 assert 'social.dependencies' not in sys.modules
 
 for include_accounts in (False, True):

@@ -197,7 +197,7 @@ import runpy, sys
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
-sys.modules['workers'] = SimpleNamespace(asgi=SimpleNamespace(entrypoint=lambda app: app))
+sys.modules['workers'] = SimpleNamespace(asgi=SimpleNamespace(entrypoint=lambda app: type('ASGIEntrypoint', (), {})))
 sys.path.insert(0, str(Path('app').resolve()))
 with patch('sqlalchemy.create_engine', side_effect=AssertionError('Eager engine')):
     worker = runpy.run_path('app/diagnostics_worker.py')

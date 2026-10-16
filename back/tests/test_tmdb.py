@@ -182,7 +182,7 @@ assert not any(m.startswith(('app.db', 'migrations.legacy_models', 'app.services
         result = isolated('''
 import json, runpy, sys
 from types import SimpleNamespace
-sys.modules['workers'] = SimpleNamespace(asgi=SimpleNamespace(entrypoint=lambda app: app))
+sys.modules['workers'] = SimpleNamespace(asgi=SimpleNamespace(entrypoint=lambda app: type('ASGIEntrypoint', (), {})))
 worker = runpy.run_path('app/worker.py')
 from fastapi.testclient import TestClient
 from app.catalogue.client import TMDBClient, TMDBSettings

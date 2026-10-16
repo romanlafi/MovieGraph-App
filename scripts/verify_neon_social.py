@@ -129,8 +129,11 @@ def run_verification(preview_url: str | None = None, verify_redeploy: bool = Fal
                 def expect(name: str, method: str, path: str, *, headers=None, body=None) -> dict | list:
                     response = client.request(method, f"{base_url}{path}", headers=headers, json=body)
                     requests[name] = response.status_code
+                    report["requests"] = requests
                     if response.status_code != 200:
-                        raise RuntimeError(f"Development verification failed at {name}: HTTP {response.status_code}")
+                        cloudflare_error = re.search(r"error code:\s*(\d+)", response.text)
+                        reason = f" (Cloudflare {cloudflare_error.group(1)})" if cloudflare_error else ""
+                        raise RuntimeError(f"Development verification failed at {name}: HTTP {response.status_code}{reason}")
                     return response.json()
 
                 print("Checking Neon transactions with a disposable fixture account...", flush=True)
@@ -201,8 +204,17 @@ def run_verification(preview_url: str | None = None, verify_redeploy: bool = Fal
                                 detail = None
                             safe_details = {"Login protection is unavailable", "Login protection is not configured",
                                             "Database unavailable or not configured", "Authentication is not configured",
-                                            "Invalid credentials", "Account could not be created"}
+                                            "Invalid credentials", "Account could not be created",
+                                            "Database is busy. Try again shortly."}
+                            cloudflare_error = re.search(r"error code:\s*(\d+)", response.text)
+                            preview_checks[-1]["cf_ray"] = response.headers.get("cf-ray")
+                            if cloudflare_error:
+                                preview_checks[-1]["cloudflare_error_code"] = cloudflare_error.group(1)
+                            if isinstance(detail, str) and detail in safe_details:
+                                preview_checks[-1]["error_detail"] = detail
                             reason = f" ({detail})" if isinstance(detail, str) and detail in safe_details else ""
+                            if cloudflare_error:
+                                reason += f" (Cloudflare {cloudflare_error.group(1)})"
                             raise RuntimeError(f"PRE preview {label}: expected {expected}, got {response.status_code}{reason}")
                         return response.json()
 

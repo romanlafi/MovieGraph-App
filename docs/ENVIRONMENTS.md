@@ -8,21 +8,25 @@ El log posterior de staging `895e7ad8` registra peticiones autenticadas cancelad
 después un exceso de CPU y errores de Pyodide que afectan también al catálogo.
 Las peticiones aisladas y la navegación sin autenticar no detectaban este fallo.
 
-La aplicación conserva ahora la tarea ASGI con `workers.wait_until` y espera su
-resultado con `asyncio.shield`. Así, desconectar el navegador permite terminar
-las operaciones SQL, cerrar sus sesiones y liberar el bloqueo. La espera del
-bloqueo sigue usando temporizadores propios de cada petición, con intervalos de
-100 ms en lugar de 10 ms para reducir el trabajo del event loop.
+El entrypoint conserva ahora toda la tarea ASGI con `self.ctx.waitUntil` antes
+de su primera suspensión y espera su resultado con `asyncio.shield`. La
+protección incluye el arranque y la finalización ASGI, además de las operaciones
+SQL y el cierre de sus sesiones. Proteger solo el middleware no cubría todo el
+ciclo de vida. La espera del bloqueo utiliza `scheduler.wait` de Cloudflare,
+con intervalos de 100 ms y promesas propias de cada petición. Así se evita tanto
+el sondeo con temporizadores Python como compartir futuros de `asyncio.Lock`
+entre invocaciones distintas.
 Cloudflare documenta que `waitUntil` mantiene la ejecución hasta 30 segundos
 después de desconectar el cliente: [ciclo de vida de peticiones](https://developers.cloudflare.com/workers/runtime-apis/context/#waituntil).
 
-La validación remota de staging `9e08deff` pasa registro, login, perfil,
-operaciones sociales, 15 lecturas autenticadas simultáneas y tres cargas
-simultáneas de catálogo con 15 peticiones autenticadas interrumpidas en total.
+La validación remota de dev `462a8972` y staging `860aae2e` pasa registro,
+login, perfil, operaciones sociales, 15 lecturas autenticadas simultáneas y tres
+cargas simultáneas de catálogo con 15 peticiones autenticadas interrumpidas por
+entorno.
 Después de cada carga se vuelven a verificar perfil, likes y follows.
 `scripts/verify_neon_social.py --preview-url https://staging-moviegraph-app.romanoscense10.workers.dev`
 reproduce estas comprobaciones y elimina exclusivamente sus cuentas temporales;
-el inventario PRE vuelve al estado inicial. Las 110 pruebas de backend pasan
+el inventario PRE vuelve al estado inicial. Las 111 pruebas de backend pasan
 (una integración opcional omitida). No se ha aplicado ninguna migración adicional.
 
 Las secciones inferiores conservan el historial anterior a esta validación.
