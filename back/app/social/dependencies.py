@@ -72,7 +72,7 @@ async def social_session(request: Request) -> AsyncIterator[Session]:
         remaining = deadline - monotonic()
         if remaining <= 0:
             raise HTTPException(503, "Database is busy. Try again shortly.", headers={"Retry-After": "1"})
-        await asyncio.sleep(min(0.01, remaining))
+        await asyncio.sleep(min(0.1, remaining))
     await session_lock.acquire()
     try:
         with database.session_scope(runtime.request_database_config(request)) as session:

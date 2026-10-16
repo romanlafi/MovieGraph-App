@@ -29,8 +29,10 @@ def create_app(
         return {"status": "ok"}
 
     if include_social_api:
+        from app.core.request_completion import RequestCompletionMiddleware
         from app.social.routes import install_social_api
 
+        app.add_middleware(RequestCompletionMiddleware)
         install_social_api(
             app,
             include_accounts=include_account_api,

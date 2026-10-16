@@ -255,6 +255,40 @@ def run_verification(preview_url: str | None = None, verify_redeploy: bool = Fal
                             for request in pending:
                                 request.result()
                     report["concurrent_authenticated_reads"] = "PASS"
+                    catalogue_paths = (
+                        "/api/tmdb/movies/featured?limit=5",
+                        "/api/tmdb/movies?kind=latest&page=1&limit=10",
+                        "/api/tmdb/movies?kind=top-rated&page=1&limit=10",
+                        "/api/tmdb/collections?random_one=true",
+                        "/api/tmdb/people/featured",
+                    )
+                    interrupted_requests = 0
+                    for batch in range(3):
+                        print(f"Checking interrupted authenticated page load {batch + 1}/3...", flush=True)
+                        with ThreadPoolExecutor(max_workers=10) as executor:
+                            interrupted = [executor.submit(
+                                client.get, preview_url + path, headers=own_headers, timeout=0.15,
+                            ) for path in concurrent_paths]
+                            catalogue = [executor.submit(
+                                preview_request, f"catalogue_during_interrupt_{batch}_{index}", "GET", path,
+                            ) for index, path in enumerate(catalogue_paths)]
+                            for pending_request in interrupted:
+                                try:
+                                    response = pending_request.result()
+                                except httpx.TimeoutException:
+                                    interrupted_requests += 1
+                                else:
+                                    if response.status_code != 200:
+                                        raise RuntimeError(f"Interrupted page load returned HTTP {response.status_code}")
+                            for pending_request in catalogue:
+                                pending_request.result()
+                        for index, path in enumerate(concurrent_paths):
+                            preview_request(f"recovery_after_interrupt_{batch}_{index}", "GET", path,
+                                            headers=own_headers)
+                    if interrupted_requests == 0:
+                        raise RuntimeError("Cancellation verification did not interrupt any requests")
+                    report["interrupted_authenticated_requests"] = interrupted_requests
+                    report["recovery_after_interrupted_page_loads"] = "PASS"
                     try:
                         friend_login = preview_request("friend_login", "POST", "/api/v1/users/login",
                                                        data={"username": fixture["email"], "password": fixture_password})
