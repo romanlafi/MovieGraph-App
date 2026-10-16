@@ -54,7 +54,7 @@ class LocalDevelopmentTests(unittest.TestCase):
         self.assertNotIn("postbuild", frontend["scripts"])
         self.assertNotIn("wrangler", frontend["devDependencies"])
         tooling = json.loads((ROOT / "package.json").read_text())
-        self.assertEqual(tooling["scripts"]["build"], "npm --prefix front ci && npm --prefix front run build")
+        self.assertEqual(tooling["scripts"]["build"], "npm --prefix front ci --include=dev && npm --prefix front run build")
         self.assertEqual(tooling["scripts"]["deploy:production"], "python -m pywrangler deploy --config wrangler.jsonc")
         self.assertEqual(tooling["scripts"]["deploy:preview"], "python -m pywrangler preview --config wrangler.jsonc")
         lock = json.loads((ROOT / "package-lock.json").read_text())
