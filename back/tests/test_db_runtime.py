@@ -63,8 +63,9 @@ assert migrations.legacy_models.movie.Movie.metadata is migrations.legacy_models
             self.assertEqual(config.url.port, 5432)
             self.assertNotIn(HD["password"], repr(config))
         with patch.dict("os.environ", {"DATABASE_URL": "postgresql://user:secret@localhost/db"}):
+            request = SimpleNamespace(scope={"env": {}})
             with self.assertRaises(DatabaseConfigurationError):
-                request_database_config(SimpleNamespace(scope={"env": {}}))
+                request_database_config(request)
             self.assertFalse(request_database_config(SimpleNamespace(scope={})).worker)
 
     def test_invalid_binding_safe_errors(self):
@@ -90,10 +91,13 @@ assert migrations.legacy_models.movie.Movie.metadata is migrations.legacy_models
         config = DatabaseConfig.local("postgresql://user:secret@localhost/db")
         engine, session = Mock(), Mock()
         with patch("app.db.database.create_database_engine", return_value=engine), patch("app.db.database.Session", return_value=session):
-            with self.assertRaisesRegex(RuntimeError, "deliberate"):
+            def use_session_then_fail():
                 with session_scope(config) as actual:
                     self.assertIs(actual, session)
                     raise RuntimeError("deliberate")
+
+            with self.assertRaisesRegex(RuntimeError, "deliberate"):
+                use_session_then_fail()
         session.rollback.assert_called_once()
         session.close.assert_called_once()
         engine.dispose.assert_called_once()
@@ -102,13 +106,17 @@ assert migrations.legacy_models.movie.Movie.metadata is migrations.legacy_models
         engine, session = Mock(), Mock()
         session.rollback.side_effect = RuntimeError("rollback failed")
         with patch("app.db.database.Session", return_value=session):
-            with self.assertRaises(RuntimeError):
+            def use_session_then_fail():
                 with session_context(engine):
                     raise ValueError("transaction failure")
+
+            with self.assertRaises(RuntimeError):
+                use_session_then_fail()
         session.close.assert_called_once()
         with patch("app.db.database.create_database_engine", return_value=engine), patch("app.db.database.Session", side_effect=RuntimeError):
+            config = DatabaseConfig.local("postgresql://user:secret@localhost/db")
             with self.assertRaises(RuntimeError):
-                with session_scope(DatabaseConfig.local("postgresql://user:secret@localhost/db")):
+                with session_scope(config):
                     pass
         engine.dispose.assert_called_once()
 

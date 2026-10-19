@@ -122,10 +122,12 @@ class LocalDevelopmentTests(unittest.TestCase):
             "ALEMBIC_EXPECTED_PRODUCTION_NEON_HOST": host,
         }, clear=True):
             validate_migration_target(valid, "neon-production", "1")
+            wrong_host = valid.replace(host, "ep-other.neon.tech")
+            wrong_database = valid.replace("/moviegraph?", "/other?")
             with self.assertRaises(RuntimeError):
-                validate_migration_target(valid.replace(host, "ep-other.neon.tech"), "neon-production", "1")
+                validate_migration_target(wrong_host, "neon-production", "1")
             with self.assertRaises(RuntimeError):
-                validate_migration_target(valid.replace("/moviegraph?", "/other?"), "neon-production", "1")
+                validate_migration_target(wrong_database, "neon-production", "1")
 
     def test_local_secrets_are_generated_stable_and_do_not_reuse_neon_or_jwt_secrets(self):
         with tempfile.TemporaryDirectory() as directory:

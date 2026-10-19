@@ -55,12 +55,16 @@ class PreviewWorkerTests(unittest.TestCase):
 
     def test_unknown_api_paths_are_not_rewritten_to_the_spa(self):
         assets = AssetsBinding()
+        request = self.request("api/unknown", {"ASSETS": assets})
+        response = self.handler("api/unknown", request)
         with self.assertRaises(HTTPException) as caught:
-            asyncio.run(self.handler("api/unknown", self.request("api/unknown", {"ASSETS": assets})))
+            asyncio.run(response)
         self.assertEqual(caught.exception.status_code, 404)
         self.assertEqual(assets.urls, [])
 
     def test_missing_assets_binding_fails_closed(self):
+        request = self.request("movie/550")
+        response = self.handler("movie/550", request)
         with self.assertRaises(HTTPException) as caught:
-            asyncio.run(self.handler("movie/550", self.request("movie/550")))
+            asyncio.run(response)
         self.assertEqual(caught.exception.status_code, 404)
