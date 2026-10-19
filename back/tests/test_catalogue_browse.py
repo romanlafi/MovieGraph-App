@@ -1,12 +1,12 @@
 import json
 import unittest
 from urllib.parse import parse_qs, urlparse
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
 
 from app.application import create_app
-from app.catalogue.client import TMDBClient, TMDBSettings
+from app.catalogue.client import TMDBClient, TMDBSettings, _secure_sample
 from app.catalogue.routes import get_tmdb_client
 from test_foundation import isolated
 
@@ -23,6 +23,11 @@ class CatalogueBrowseTests(unittest.TestCase):
         self.app = create_app()
         self.app.dependency_overrides[get_tmdb_client] = lambda: self.gateway
         self.client = TestClient(self.app)
+
+    def test_secure_sample_selects_without_replacement(self):
+        with patch("app.catalogue.client.randbelow", side_effect=(3, 0)) as secure_randbelow:
+            self.assertEqual(_secure_sample(["a", "b", "c", "d"], 2), ["d", "b"])
+        self.assertEqual([call.args for call in secure_randbelow.call_args_list], [(4,), (3,)])
 
     def respond(self, data):
         self.transport.return_value = (200, json.dumps(data))
