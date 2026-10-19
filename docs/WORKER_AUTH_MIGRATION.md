@@ -79,11 +79,13 @@ changes were required.
 ## Runtime gate
 
 The development-only `/api/internal/password-runtime` probe is protected by the
-existing probe token and is installed only by `social_probe_worker.py`. In local
-Workerd it verified both a historical bcrypt hash and newly generated hashes
-with HTTP 200. That request took **34.9 seconds** for three bcrypt operations
-(one cost-10 verification and cost-12 hash plus verification). This is runtime
-compatibility evidence, not acceptable login latency or deployed CPU evidence.
+existing probe token and is installed only by `social_probe_worker.py`. It checks
+newly generated bcrypt hashes without embedding a fixed password hash in source.
+A previous local Workerd run also verified a historical bcrypt hash; that check
+is no longer part of the probe. The previous request took **34.9 seconds** for
+three bcrypt operations (one cost-10 verification and cost-12 hash plus
+verification). This is runtime compatibility evidence, not acceptable login
+latency or deployed CPU evidence.
 Cloudflare documents a 10 ms CPU limit on Workers Free and a 30 second default
 on Workers Paid; the account plan and per-operation CPU usage have not been
 verified. See [Workers limits](https://developers.cloudflare.com/workers/platform/limits/).
@@ -100,8 +102,9 @@ Authentication is not bypassed and hashes are not rewritten.
 - Migration fixtures preserve preference names and refuse duplicate usernames.
 - Worker route tests cover registration, login, wrong password, profile, JWT,
   duplicate identities, preference round-trip and bcrypt legacy verification.
-- Actual local Workerd password probe: HTTP 200 for legacy verification and new
-  hash generation; no database binding or Neon request was made.
+- Actual local Workerd password probe: HTTP 200 for new hash generation and
+  verification; no database binding or Neon request was made. A historical
+  bcrypt hash was verified in an earlier probe version.
 - Actual local Worker + local PostgreSQL flow on 2026-10-07: registration HTTP
   201, login HTTP 200, profile HTTP 200 with saved genre preferences; follows
   create/list/unfollow and followed-movie-like listing all passed. Two disposable

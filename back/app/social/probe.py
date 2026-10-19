@@ -142,13 +142,10 @@ async def verify_password_runtime(request: Request):
     require_probe_access(request)
     from .passwords import hash_password, verify_password
 
-    fixture_hash = "$2a$10$WvvTPHKwdBJ3uk0Z37EMR.hLA2W6N9AEBhEgrAOljy2Ae5MtaSIUi"
-    if not verify_password("abc", fixture_hash):
-        raise HTTPException(503, "Worker password verification is unavailable")
     generated = hash_password("worker-password-probe")
     if not verify_password("worker-password-probe", generated):
         raise HTTPException(503, "Worker password hashing is unavailable")
-    return {"bcrypt": "PASS", "legacy_hash_verification": "PASS", "hash_generation": "PASS"}
+    return {"bcrypt": "PASS", "password_verification": "PASS", "hash_generation": "PASS"}
 
 
 @router.delete("/social-fixture/{fixture_id}")

@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 from datetime import datetime, timezone
-from random import sample, choice
+from secrets import SystemRandom, choice
 from urllib.parse import urlencode
 
 from pydantic import ValidationError
@@ -279,7 +279,7 @@ class TMDBClient:
         pool = await self.movie_list("trending", limit=20)
         candidates = [movie for movie in pool if movie.backdrop_path]
         results = await asyncio.gather(*[self.movie_detail(movie.tmdb_id)
-                                        for movie in sample(candidates, min(limit, len(candidates)))],
+                                        for movie in SystemRandom().sample(candidates, min(limit, len(candidates)))],
                                        return_exceptions=True)
         movies = [result for result in results if isinstance(result, MovieDetail)]
         if not movies and results:
@@ -319,7 +319,7 @@ class TMDBClient:
         try:
             people = [PersonCard.model_validate({**person, "tmdb_id": person["id"]})
                       for person in data["results"] if person.get("profile_path") and not person.get("adult")]
-            return sample(people, min(15, len(people)))
+            return SystemRandom().sample(people, min(15, len(people)))
         except (KeyError, TypeError, ValueError, AttributeError):
             raise TMDBError(502, "Invalid TMDB response") from None
 

@@ -394,7 +394,7 @@ class SocialWorkerTests(unittest.TestCase):
         })
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(response.json(), {
-            "bcrypt": "PASS", "legacy_hash_verification": "PASS", "hash_generation": "PASS",
+            "bcrypt": "PASS", "password_verification": "PASS", "hash_generation": "PASS",
         })
 
     def test_failed_write_rolls_back_releases_lock_and_sanitizes_error(self):
