@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api/v1/follows", tags=["MovieGraph follows"])
 USER_NOT_FOUND = "User not found"
 
 
-@router.get("/search", response_model=list[UserResponse])
+@router.get("/search")
 async def search_users(
     query: str = Query(..., min_length=2, max_length=80),
     user: SocialUser = Depends(get_authenticated_user),
@@ -26,7 +26,7 @@ async def search_users(
     return account_repository.search_users(db, query, user.email)
 
 
-@router.post("/")
+@router.post("/", responses={404: {"description": "User not found"}})
 async def follow_user(
     follow: FollowRequest,
     user: SocialUser = Depends(get_authenticated_user),
@@ -40,7 +40,7 @@ async def follow_user(
         raise HTTPException(404, USER_NOT_FOUND)
 
 
-@router.delete("/")
+@router.delete("/", responses={404: {"description": "User not found"}})
 async def unfollow_user(
     follow: FollowRequest,
     user: SocialUser = Depends(get_authenticated_user),
@@ -54,7 +54,7 @@ async def unfollow_user(
         raise HTTPException(404, USER_NOT_FOUND)
 
 
-@router.get("/following", response_model=list[UserResponse])
+@router.get("/following")
 async def get_my_following(
     user: SocialUser = Depends(get_authenticated_user),
     db: Session = Depends(get_social_session),
@@ -62,7 +62,7 @@ async def get_my_following(
     return follow_repository.list_following(db, user.id)
 
 
-@router.get("/followers", response_model=list[UserResponse])
+@router.get("/followers")
 async def get_my_followers(
     user: SocialUser = Depends(get_authenticated_user),
     db: Session = Depends(get_social_session),
@@ -70,7 +70,7 @@ async def get_my_followers(
     return follow_repository.list_followers(db, user.id)
 
 
-@router.get("/movie-likes", response_model=list[int])
+@router.get("/movie-likes")
 async def get_followed_movie_likes(
     user: SocialUser = Depends(get_authenticated_user),
     db: Session = Depends(get_social_session),
@@ -78,7 +78,7 @@ async def get_followed_movie_likes(
     return follow_repository.list_followed_user_like_ids(db, user.id)
 
 
-@router.get("/list", response_model=list[UserResponse])
+@router.get("/list")
 async def list_users(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -88,7 +88,7 @@ async def list_users(
     return account_repository.list_users(db, limit=limit, offset=offset)
 
 
-@router.get("/by_email", response_model=UserResponse)
+@router.get("/by_email", responses={404: {"description": "User not found"}})
 async def user_by_email(
     email: str,
     _authenticated_user: SocialUser = Depends(get_authenticated_user),
@@ -100,7 +100,7 @@ async def user_by_email(
     return user
 
 
-@router.get("/users/{public_id}", response_model=UserResponse)
+@router.get("/users/{public_id}", responses={404: {"description": "User not found"}})
 async def user_by_public_id(
     public_id: UUID,
     _authenticated_user: SocialUser = Depends(get_authenticated_user),

@@ -72,7 +72,8 @@ async def enforce_login_rate_limit(request: Request, account_name: str) -> None:
             )
 
 
-@router.post("/", status_code=201, response_model=RegistrationResult)
+@router.post("/", status_code=201, response_model=RegistrationResult,
+             responses={503: {"description": "Account registration is temporarily unavailable"}})
 async def register_account(
     request: Request,
     account: UserRegistration,
@@ -93,7 +94,11 @@ async def register_account(
     return RegistrationResult(email=account.email, username=account.username)
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", responses={
+    401: {"description": "Invalid credentials"},
+    429: {"description": "Too many login attempts"},
+    503: {"description": "Login protection is unavailable"},
+})
 async def login_account(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -122,7 +127,7 @@ async def login_account(
     return Token(access_token=access_token)
 
 
-@router.get("/me", response_model=UserProfile)
+@router.get("/me", responses={401: {"description": "Invalid credentials"}})
 async def get_my_account(
     email: str = Depends(token_subject),
     db: Session = Depends(get_social_session),

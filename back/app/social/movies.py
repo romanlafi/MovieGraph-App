@@ -14,7 +14,7 @@ from app.social.dependencies import get_authenticated_user, get_social_session
 router = APIRouter(prefix="/api/v1/movies", tags=["MovieGraph social"])
 
 
-@router.get("/{tmdb_movie_id}/comments", response_model=list[CommentResponse])
+@router.get("/{tmdb_movie_id}/comments")
 async def list_comments(
     tmdb_movie_id: int = Path(gt=0),
     db: Session = Depends(get_social_session),
@@ -22,7 +22,7 @@ async def list_comments(
     return movie_repository.list_movie_comments(db, tmdb_movie_id)
 
 
-@router.post("/{tmdb_movie_id}/comments", response_model=CommentResponse)
+@router.post("/{tmdb_movie_id}/comments")
 async def post_comment(
     comment: CommentCreate,
     tmdb_movie_id: int = Path(gt=0),
@@ -32,7 +32,7 @@ async def post_comment(
     return movie_repository.create_comment(db, user, tmdb_movie_id, comment.text)
 
 
-@router.get("/likes", response_model=list[int])
+@router.get("/likes")
 async def my_likes(
     user: SocialUser = Depends(get_authenticated_user),
     db: Session = Depends(get_social_session),
@@ -40,7 +40,7 @@ async def my_likes(
     return movie_repository.list_user_likes(db, user.id)
 
 
-@router.get("/{tmdb_movie_id}/like", response_model=MovieLikeState)
+@router.get("/{tmdb_movie_id}/like")
 async def like_state(
     tmdb_movie_id: int = Path(gt=0),
     user: SocialUser = Depends(get_authenticated_user),
@@ -52,7 +52,7 @@ async def like_state(
     )
 
 
-@router.post("/{tmdb_movie_id}/like", response_model=DetailResponse)
+@router.post("/{tmdb_movie_id}/like")
 async def like_movie(
     tmdb_movie_id: int = Path(gt=0),
     user: SocialUser = Depends(get_authenticated_user),
@@ -62,7 +62,7 @@ async def like_movie(
     return DetailResponse(detail="Movie liked")
 
 
-@router.delete("/{tmdb_movie_id}/like", response_model=DetailResponse)
+@router.delete("/{tmdb_movie_id}/like")
 async def unlike_movie(
     tmdb_movie_id: int = Path(gt=0),
     user: SocialUser = Depends(get_authenticated_user),
