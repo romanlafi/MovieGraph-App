@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {ReactNode} from "react";
 import {useAuth} from "@/hooks/auth/useAuth.ts";
 import {LikeContext} from "./LikeContext.ts";
@@ -24,9 +24,9 @@ export const LikeProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [token, isLoading]);
 
-    const isLiked = (tmdbMovieId: number) => Boolean(token && likes.includes(tmdbMovieId));
+    const isLiked = useCallback((tmdbMovieId: number) => Boolean(token && likes.includes(tmdbMovieId)), [token, likes]);
 
-    const toggleLike = async (tmdbMovieId: number) => {
+    const toggleLike = useCallback(async (tmdbMovieId: number) => {
         try {
             if (isLiked(tmdbMovieId)) {
                 await unlikeMovie(tmdbMovieId);
@@ -37,14 +37,21 @@ export const LikeProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
             console.error("Failed to toggle like", error);
         }
-    };
+    }, [isLiked, refreshLikes]);
 
     useEffect(() => {
         void refreshLikes();
     }, [refreshLikes]);
 
+    const contextValue = useMemo(() => ({
+        likes: token ? likes : [],
+        isLiked,
+        toggleLike,
+        refreshLikes,
+    }), [token, likes, isLiked, toggleLike, refreshLikes]);
+
     return (
-        <LikeContext.Provider value={{ likes: token ? likes : [], isLiked, toggleLike, refreshLikes }}>
+        <LikeContext.Provider value={contextValue}>
             {children}
         </LikeContext.Provider>
     );

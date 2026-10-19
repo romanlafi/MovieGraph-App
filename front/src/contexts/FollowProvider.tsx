@@ -1,5 +1,5 @@
 import type {User} from "@/types/user.ts";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import type {ReactNode} from "react";
 import {useAuth} from "@/hooks/auth/useAuth.ts";
 import {FollowContext} from "./FollowContext.ts";
@@ -28,21 +28,27 @@ export const FollowProvider = ({ children }: { children: ReactNode }) => {
         void refreshFollowing();
     }, [refreshFollowing]);
 
-    const isFollowing = (publicId: string) => {
+    const isFollowing = useCallback((publicId: string) => {
         return Boolean(token && user && following.some(followedUser => followedUser.public_id === publicId));
-    };
+    }, [token, user, following]);
 
-    const toggleFollow = async (publicId: string) => {
+    const toggleFollow = useCallback(async (publicId: string) => {
         if (isFollowing(publicId)) {
             await unfollowUser(publicId);
         } else {
             await followUser(publicId);
         }
         await refreshFollowing();
-    };
+    }, [isFollowing, refreshFollowing]);
+    const contextValue = useMemo(() => ({
+        following: token && user ? following : [],
+        isFollowing,
+        toggleFollow,
+        refreshFollowing,
+    }), [token, user, following, isFollowing, toggleFollow, refreshFollowing]);
 
     return (
-        <FollowContext.Provider value={{ following: token && user ? following : [], isFollowing, toggleFollow, refreshFollowing }}>
+        <FollowContext.Provider value={contextValue}>
             {children}
         </FollowContext.Provider>
     );

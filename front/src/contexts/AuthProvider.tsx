@@ -1,4 +1,4 @@
-import {useState, useEffect, useSyncExternalStore, ReactNode} from "react";
+import {useCallback, useEffect, useMemo, useState, useSyncExternalStore, ReactNode} from "react";
 import axios from "axios";
 import {User} from "@/types/user.ts";
 import {fetchUser} from "@/services/authService.ts";
@@ -17,6 +17,16 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     const [restoreAttempt, setRestoreAttempt] = useState(0);
     const user = session?.token === token ? session.user : null;
     const isLoading = Boolean(token && (session?.token !== token || session.isLoading));
+    const logout = useCallback(() => clearSessionToken(), []);
+    const retrySession = useCallback(() => setRestoreAttempt((attempt) => attempt + 1), []);
+    const contextValue = useMemo(() => ({
+        user,
+        token,
+        isLoading,
+        login: setSessionToken,
+        logout,
+        retrySession,
+    }), [user, token, isLoading, logout, retrySession]);
 
     useEffect(() => {
         if (!token) {
@@ -49,14 +59,7 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     }, [token, restoreAttempt]);
 
     return (
-        <AuthContext.Provider value={{
-            user,
-            token,
-            isLoading,
-            login: setSessionToken,
-            logout: () => clearSessionToken(),
-            retrySession: () => setRestoreAttempt((attempt) => attempt + 1),
-        }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
