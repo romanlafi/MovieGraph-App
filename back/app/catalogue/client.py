@@ -16,6 +16,8 @@ from pydantic import ValidationError
 from .schemas import (CollectionDetail, CollectionSummary, Filmography, Genre,
                       MovieCard, MovieDetail, MovieSearchPage, MovieSearchResult, PersonCard, PersonDetail)
 
+INVALID_TMDB_RESPONSE = "Invalid TMDB response"
+
 
 class TMDBError(Exception):
     def __init__(self, status_code: int, detail: str):
@@ -119,7 +121,7 @@ class TMDBClient:
                 raise ValueError
             return data
         except ValueError:
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def search_movies(self, query: str, page: int = 1) -> MovieSearchPage:
         query = query.strip()
@@ -143,7 +145,7 @@ class TMDBClient:
                 total_pages=min(data["total_pages"], 500),
             )
         except (KeyError, TypeError, ValueError, AttributeError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def _detail(self, resource: str, tmdb_id: int, schema):
         if tmdb_id <= 0:
@@ -155,7 +157,7 @@ class TMDBClient:
                 raise ValueError
             return result
         except (KeyError, ValueError, ValidationError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def movie_detail(self, tmdb_movie_id: int) -> MovieDetail:
         if tmdb_movie_id <= 0:
@@ -182,7 +184,7 @@ class TMDBClient:
                 raise ValueError
             return result
         except (KeyError, TypeError, ValueError, AttributeError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def person_detail(self, tmdb_person_id: int) -> PersonDetail:
         return await self._detail("person", tmdb_person_id, PersonDetail)
@@ -194,7 +196,7 @@ class TMDBClient:
                 raise ValueError
             return [MovieCard.model_validate({**row, "tmdb_id": row["id"]}) for row in rows]
         except (KeyError, TypeError, ValueError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     @staticmethod
     def _people(credits: dict) -> list[PersonCard]:
@@ -214,14 +216,14 @@ class TMDBClient:
                         })
             return list(people.values())
         except (KeyError, TypeError, ValueError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     @staticmethod
     def _collection_summary(data: dict) -> CollectionSummary:
         return CollectionSummary.model_validate({**data, "tmdb_id": data["id"]})
 
-    async def movie_list(self, kind: str, page: int = 1, limit: int = 10,
-                         tmdb_genre_id: int | None = None) -> list[MovieCard]:
+    @staticmethod
+    def _movie_list_request(kind: str, page: int, limit: int, tmdb_genre_id: int | None):
         paths = {"top-rated": "/movie/top_rated", "popular": "/movie/popular",
                  "latest": "/discover/movie", "genre": "/discover/movie",
                  "trending": "/trending/movie/week"}
@@ -232,7 +234,7 @@ class TMDBClient:
             params = {"sort_by": "primary_release_date.desc", "include_adult": "false",
                       "primary_release_date.lte": datetime.now(timezone.utc).date().isoformat(),
                       "vote_count.gte": 10}
-        if kind == "genre":
+        elif kind == "genre":
             if tmdb_genre_id is None or tmdb_genre_id <= 0:
                 raise TMDBError(422, "TMDB genre ID must be positive")
             params = {"with_genres": tmdb_genre_id, "sort_by": "popularity.desc",
@@ -240,49 +242,56 @@ class TMDBClient:
         offset = (page - 1) * limit
         first_page = offset // 20 + 1
         last_page = (offset + limit - 1) // 20 + 1
+        return paths[kind], params, offset, first_page, last_page
+
+    async def _latest_movie_metadata(self, movies: list[MovieCard]) -> list[MovieCard]:
+        responses = await asyncio.gather(
+            *(self._get(f"/movie/{movie.tmdb_id}", append_to_response="credits") for movie in movies),
+            return_exceptions=True,
+        )
+        enriched = []
+        for movie, response in zip(movies, responses):
+            credits = response.get("credits", {}) if isinstance(response, dict) else {}
+            crew = credits.get("crew", [])
+            if not isinstance(crew, list):
+                crew = []
+            directors = [person["name"] for person in crew
+                         if isinstance(person, dict) and person.get("job") == "Director" and person.get("name")]
+            companies = response.get("production_companies", []) if isinstance(response, dict) else []
+            if not isinstance(companies, list):
+                companies = []
+            production_companies = [company["name"] for company in companies
+                                    if isinstance(company, dict) and company.get("name")]
+            enriched.append(movie.model_copy(update={
+                "director": ", ".join(directors) or None,
+                "production_summary": ", ".join(production_companies) or None,
+            }))
+        return enriched
+
+    async def movie_list(self, kind: str, page: int = 1, limit: int = 10,
+                         tmdb_genre_id: int | None = None) -> list[MovieCard]:
+        path, params, offset, first_page, last_page = self._movie_list_request(
+            kind, page, limit, tmdb_genre_id,
+        )
         batches = await asyncio.gather(*[
-            self._get(paths[kind], page=upstream_page, **params)
+            self._get(path, page=upstream_page, **params)
             for upstream_page in range(first_page, last_page + 1)
         ])
         try:
             rows = [movie for batch in batches for movie in self._movies(batch["results"])]
-            start = offset % 20
-            selected = rows[start:start + limit]
-            if kind == "latest":
-                credits = await asyncio.gather(
-                    *(self._get(f"/movie/{movie.tmdb_id}", append_to_response="credits")
-                      for movie in selected),
-                    return_exceptions=True,
-                )
-                enriched = []
-                for movie, response in zip(selected, credits):
-                    credits_data = response.get("credits", {}) if isinstance(response, dict) else {}
-                    crew = credits_data.get("crew", [])
-                    if not isinstance(crew, list):
-                        crew = []
-                    directors = [person["name"] for person in crew
-                                 if isinstance(person, dict) and person.get("job") == "Director"
-                                 and person.get("name")]
-                    companies = response.get("production_companies", []) if isinstance(response, dict) else []
-                    if not isinstance(companies, list):
-                        companies = []
-                    production_companies = [company["name"] for company in companies
-                                            if isinstance(company, dict) and company.get("name")]
-                    enriched.append(movie.model_copy(update={
-                        "director": ", ".join(directors) or None,
-                        "production_summary": ", ".join(production_companies) or None,
-                    }))
-                return enriched
-            return selected
+            selected = rows[offset % 20:offset % 20 + limit]
         except (KeyError, TypeError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
+        if kind == "latest":
+            return await self._latest_movie_metadata(selected)
+        return selected
 
     async def genres(self) -> list[Genre]:
         data = await self._get("/genre/movie/list")
         try:
             return [Genre(tmdb_id=genre["id"], name=genre["name"]) for genre in data["genres"]]
         except (KeyError, TypeError, ValueError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def featured_movies(self, limit: int = 5) -> list[MovieDetail]:
         pool = await self.movie_list("trending", limit=20)
@@ -300,7 +309,7 @@ class TMDBClient:
         try:
             return self._movies(data["results"])
         except KeyError:
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def collection(self, tmdb_collection_id: int) -> CollectionDetail:
         data = await self._get(f"/collection/{tmdb_collection_id}")
@@ -311,7 +320,7 @@ class TMDBClient:
             movies = sorted(self._movies(data["parts"]), key=lambda movie: movie.release_date or "9999")
             return CollectionDetail(**summary.model_dump(), movies=movies)
         except (KeyError, TypeError, ValueError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def collections(self, random_one: bool = False) -> list[CollectionDetail]:
         collection_ids = (8091, 10, 1241, 119, 86311, 528, 645, 9485)
@@ -330,7 +339,7 @@ class TMDBClient:
                       for person in data["results"] if person.get("profile_path") and not person.get("adult")]
             return _secure_sample(people, 15)
         except (KeyError, TypeError, ValueError, AttributeError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def filmography(self, tmdb_person_id: int) -> Filmography:
         data = await self._get(f"/person/{tmdb_person_id}/movie_credits")
@@ -340,7 +349,7 @@ class TMDBClient:
             return Filmography(acted=unique(data["cast"]),
                                directed=unique([movie for movie in data["crew"] if movie.get("job") == "Director"]))
         except (KeyError, TypeError, AttributeError):
-            raise TMDBError(502, "Invalid TMDB response") from None
+            raise TMDBError(502, INVALID_TMDB_RESPONSE) from None
 
     async def related_people(self, tmdb_person_id: int) -> list[PersonCard]:
         filmography = await self.filmography(tmdb_person_id)

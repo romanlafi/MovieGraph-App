@@ -21,6 +21,7 @@ from app.social.errors import DuplicateAccountError
 
 router = APIRouter(prefix="/api/v1/users", tags=["MovieGraph accounts"])
 logger = logging.getLogger(__name__)
+INVALID_CREDENTIALS = "Invalid credentials"
 
 
 def use_database_passwords(request: Request) -> bool:
@@ -105,7 +106,7 @@ async def login_account(
         db, form_data.username,
     ))
     if account is None:
-        raise HTTPException(401, "Invalid credentials")
+        raise HTTPException(401, INVALID_CREDENTIALS)
     if use_database_passwords(request):
         valid_password = await run_social_operation(request, lambda db: verify_password_in_database(
             db, form_data.password, account.password_hash,
@@ -113,7 +114,7 @@ async def login_account(
     else:
         valid_password = verify_password(form_data.password, account.password_hash)
     if not valid_password:
-        raise HTTPException(401, "Invalid credentials")
+        raise HTTPException(401, INVALID_CREDENTIALS)
     access_token = jwt.encode({
         "sub": account.email,
         "exp": datetime.now(UTC) + timedelta(minutes=lifetime),
@@ -128,5 +129,5 @@ async def get_my_account(
 ) -> UserProfile:
     profile = account_repository.get_user_profile(db, email)
     if profile is None:
-        raise HTTPException(401, "Invalid credentials")
+        raise HTTPException(401, INVALID_CREDENTIALS)
     return profile

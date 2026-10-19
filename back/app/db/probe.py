@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS moviegraph_runtime_probe (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 """
+PROBE_VALUE_SQL = "SELECT value FROM moviegraph_runtime_probe WHERE id=:id"
 
 
 class ProbeVerificationError(RuntimeError):
@@ -57,12 +58,12 @@ def run_probe(config: DatabaseConfig) -> dict[str, str]:
                 session.execute(text("INSERT INTO moviegraph_runtime_probe (id, value) VALUES (:id, 'inserted')"), rows)
                 session.commit()
             with session_context(engine) as session:
-                verify(session.execute(text("SELECT value FROM moviegraph_runtime_probe WHERE id=:id"), rows).scalar_one() == "inserted")
+                verify(session.execute(text(PROBE_VALUE_SQL), rows).scalar_one() == "inserted")
                 result["insert"] = "PASS"
                 session.execute(text("UPDATE moviegraph_runtime_probe SET value='updated' WHERE id=:id"), rows)
                 session.commit()
             with session_context(engine) as session:
-                verify(session.execute(text("SELECT value FROM moviegraph_runtime_probe WHERE id=:id"), rows).scalar_one() == "updated")
+                verify(session.execute(text(PROBE_VALUE_SQL), rows).scalar_one() == "updated")
                 result["update"] = "PASS"
             class DeliberateRollback(Exception):
                 pass
@@ -75,7 +76,7 @@ def run_probe(config: DatabaseConfig) -> dict[str, str]:
                 pass
             with session_context(engine) as session:
                 verify(session.execute(text("SELECT count(*) FROM moviegraph_runtime_probe WHERE id=:rolled_back_id"), rows).scalar_one() == 0)
-                verify(session.execute(text("SELECT value FROM moviegraph_runtime_probe WHERE id=:id"), rows).scalar_one() == "updated")
+                verify(session.execute(text(PROBE_VALUE_SQL), rows).scalar_one() == "updated")
                 result["rollback"] = "PASS"
                 session.execute(text("DELETE FROM moviegraph_runtime_probe WHERE id=:id"), rows)
                 session.commit()

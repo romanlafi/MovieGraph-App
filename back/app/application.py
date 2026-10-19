@@ -5,6 +5,13 @@ from app.catalogue.client import TMDBError
 from app.catalogue.routes import router as catalogue_router
 
 
+def _validate_api_options(include_social_api: bool, include_account_api: bool, include_follows_api: bool) -> None:
+    if include_account_api and not include_social_api:
+        raise ValueError("The account API requires the social API")
+    if include_follows_api and not include_social_api:
+        raise ValueError("The follows API requires the social API")
+
+
 def create_app(
     *,
     include_social_api: bool = False,
@@ -12,10 +19,7 @@ def create_app(
     include_account_api: bool = False,
     include_follows_api: bool = False,
 ) -> FastAPI:
-    if include_account_api and not include_social_api:
-        raise ValueError("The account API requires the social API")
-    if include_follows_api and not include_social_api:
-        raise ValueError("The follows API requires the social API")
+    _validate_api_options(include_social_api, include_account_api, include_follows_api)
     app = FastAPI(title="MovieGraph")
     app.include_router(catalogue_router)
 

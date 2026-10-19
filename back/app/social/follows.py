@@ -14,6 +14,7 @@ from app.social.dependencies import get_authenticated_user, get_social_session
 
 
 router = APIRouter(prefix="/api/v1/follows", tags=["MovieGraph follows"])
+USER_NOT_FOUND = "User not found"
 
 
 @router.get("/search", response_model=list[UserResponse])
@@ -36,7 +37,7 @@ async def follow_user(
     else:
         result = follow_repository.follow_user(db, user.id, str(follow.email))
     if result is None:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, USER_NOT_FOUND)
 
 
 @router.delete("/")
@@ -50,7 +51,7 @@ async def unfollow_user(
     else:
         result = follow_repository.unfollow_user(db, user.id, str(follow.email))
     if result is None:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, USER_NOT_FOUND)
 
 
 @router.get("/following", response_model=list[UserResponse])
@@ -95,7 +96,7 @@ async def user_by_email(
 ) -> UserResponse:
     user = account_repository.user_by_email(db, email)
     if user is None:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, USER_NOT_FOUND)
     return user
 
 
@@ -107,5 +108,5 @@ async def user_by_public_id(
 ) -> UserResponse:
     user = account_repository.user_by_public_id(db, str(public_id))
     if user is None:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, USER_NOT_FOUND)
     return user

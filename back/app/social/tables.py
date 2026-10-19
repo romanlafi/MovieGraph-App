@@ -4,6 +4,7 @@ from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, MetaData, St
 
 
 metadata = MetaData()
+USER_ID_FOREIGN_KEY = "users.id"
 
 users = Table(
     "users", metadata,
@@ -18,14 +19,14 @@ users = Table(
 
 user_genre_preferences = Table(
     "user_genre_preferences", metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("user_id", Integer, ForeignKey(USER_ID_FOREIGN_KEY), primary_key=True),
     Column("genre_name", String, primary_key=True),
 )
 
 user_follows = Table(
     "user_follows", metadata,
-    Column("follower_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("followed_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("follower_id", Integer, ForeignKey(USER_ID_FOREIGN_KEY), primary_key=True),
+    Column("followed_id", Integer, ForeignKey(USER_ID_FOREIGN_KEY), primary_key=True),
 )
 
 comments = Table(
