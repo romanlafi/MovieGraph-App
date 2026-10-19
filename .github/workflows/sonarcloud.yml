@@ -59,7 +59,7 @@ jobs:
         run: npm --prefix front ci
 
       - name: Test frontend
-        run: npm --prefix front test
+        run: npm --prefix front run test:coverage
 
       - name: Lint frontend
         run: npm --prefix front run lint

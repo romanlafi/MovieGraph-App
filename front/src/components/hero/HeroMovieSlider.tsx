@@ -20,7 +20,7 @@ export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderP
     const uiTimeoutRef = useRef<number | null>(null);
 
     const handleTrailerClick = () => {
-        navigate(`/movie/${movies[currentIndex].tmdbId}`);
+        void navigate(`/movie/${movies[currentIndex].tmdbId}`);
     };
 
     const handlePrev = () => {

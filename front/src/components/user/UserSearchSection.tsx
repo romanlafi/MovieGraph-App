@@ -10,6 +10,14 @@ interface Props {
 
 export default function UserSearchSection({onFollowChange}: Props) {
     const {query, results, searchedQuery, searching, searchError, updateQuery, search} = useUserSearch();
+    let searchStatus = "Find a friend or someone who shares your taste in movies.";
+    if (searching) searchStatus = "Looking for people…";
+    else if (searchedQuery && results.length > 0) {
+        const peopleLabel = results.length === 1 ? "person" : "people";
+        searchStatus = `${results.length} ${peopleLabel} found for “${searchedQuery}”`;
+    } else if (searchedQuery) {
+        searchStatus = `No people found for “${searchedQuery}”. Try another username or email.`;
+    }
     return (
         <section aria-labelledby="find-people-title" className="space-y-5 rounded-xl bg-panel p-5 sm:p-6">
             <div>
@@ -37,12 +45,9 @@ export default function UserSearchSection({onFollowChange}: Props) {
                 </Button>
             </form>
             {searchError && <p role="alert" className="text-sm text-red-300">{searchError}</p>}
-            <p role="status" className="text-sm text-muted">
-                {searching ? "Looking for people…" : searchedQuery
-                    ? results.length > 0 ? `${results.length} ${results.length === 1 ? "person" : "people"} found for “${searchedQuery}”`
-                        : `No people found for “${searchedQuery}”. Try another username or email.`
-                    : "Find a friend or someone who shares your taste in movies."}
-            </p>
+            <output className="block text-sm text-muted">
+                {searchStatus}
+            </output>
             {results.length > 0 && <UserGrid users={results} onFollowChange={onFollowChange} />}
         </section>
     );

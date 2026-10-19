@@ -19,7 +19,7 @@ export function useUserProfile(identifier: string | undefined) {
 
     useEffect(() => {
         if (redirecting && profile) {
-            navigate(`/user/${encodeURIComponent(profile.public_id)}`, {replace: true});
+            void navigate(`/user/${encodeURIComponent(profile.public_id)}`, {replace: true});
         }
     }, [redirecting, profile, navigate]);
 
@@ -32,7 +32,7 @@ export function useUserProfile(identifier: string | undefined) {
         retry,
         logout: () => {
             logout();
-            navigate("/");
+            void navigate("/");
         },
     };
 }

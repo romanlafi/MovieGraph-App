@@ -2,6 +2,7 @@ import {useEffect, useId, useRef, useState} from "react";
 import {useMovieSearch} from "@/hooks/movie/useMovieSearch.ts";
 import {useNavigate} from "react-router-dom";
 import TextInput from "@/components/ui/inputs/TextInput.tsx";
+import {getMovieSearchStatusMessage} from "@/utils/movieSearchStatus.ts";
 import MovieSearchResults from "./MovieSearchResults.tsx";
 
 export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: boolean; onSelect?: () => void}) {
@@ -14,11 +15,12 @@ export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: bo
     const statusId = useId();
     const resultsId = useId();
     const dropdownVisible = showDropdown && status !== "idle";
+    const searchStatusMessage = getMovieSearchStatusMessage(dropdownVisible, status, results.length);
 
     const handleSelect = (tmdbMovieId: number) => {
         setShowDropdown(false);
         clear();
-        navigate(`/movie/${tmdbMovieId}`);
+        void navigate(`/movie/${tmdbMovieId}`);
         onSelect?.();
     };
 
@@ -59,19 +61,15 @@ export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: bo
                     updateQuery(event.target.value);
                 }}
             />
-            <p id={statusId} role="status" aria-atomic="true" className="sr-only">
-                {dropdownVisible && (status === "loading"
-                    ? "Searching movies..."
-                    : status === "success"
-                        ? results.length ? `${results.length} movies found.` : "No movies found."
-                        : "")}
-            </p>
+            <output id={statusId} aria-atomic="true" className="sr-only">
+                {searchStatusMessage}
+            </output>
 
             {dropdownVisible && (
                 <div id={resultsId} onScroll={event => {
                     const element = event.currentTarget;
                     if (element.scrollHeight > element.clientHeight
-                        && element.scrollHeight - element.scrollTop - element.clientHeight < 48) loadMore();
+                        && element.scrollHeight - element.scrollTop - element.clientHeight < 48) void loadMore();
                 }} className="absolute top-full left-0 right-0 bg-panel border border-border mt-1 rounded shadow-lg z-50 max-h-[min(18rem,calc(100dvh-10rem))] overflow-y-auto overscroll-contain">
                     <MovieSearchResults
                         results={results}

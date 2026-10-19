@@ -38,9 +38,9 @@ export default function Header() {
                     </nav>
 
                     {panel === "search" && (
-                        <div id="header-search" role="region" aria-label="Movie search" className="absolute inset-x-3 top-full mt-2 rounded-lg border border-accent-hover bg-accent p-3 shadow-lg lg:hidden">
+                        <section id="header-search" aria-label="Movie search" className="absolute inset-x-3 top-full mt-2 rounded-lg border border-accent-hover bg-accent p-3 shadow-lg lg:hidden">
                             <SearchBar autoFocus onSelect={closePanel} />
-                        </div>
+                        </section>
                     )}
                     {panel === "login" && !token && (
                         <section id="header-login" aria-label="Sign in" className="absolute inset-x-3 top-full mt-2 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain rounded-lg border border-border bg-panel p-4 text-ink shadow-lg sm:left-auto sm:w-80">

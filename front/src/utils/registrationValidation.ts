@@ -60,28 +60,52 @@ const serverFieldMessages: Record<RegistrationField, string> = {
     favorite_genres: "Select up to 20 valid genres from the list.",
 };
 
-export function registrationResponseErrors(data: unknown): {fields: RegistrationErrors; message: string} {
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+}
+
+function isRegistrationField(value: unknown): value is RegistrationField {
+    return typeof value === "string" && registrationFields.includes(value as RegistrationField);
+}
+
+function validationErrorsFromDetails(details: unknown[]): {fields: RegistrationErrors; message: string} {
     const fields: RegistrationErrors = {};
-    if (data && typeof data === "object" && "detail" in data) {
-        const detail: unknown = data.detail;
-        if (Array.isArray(detail)) {
-            for (const issue of detail) {
-                if (!issue || typeof issue !== "object" || !Array.isArray(issue.loc)) continue;
-                const field = issue.loc[0] === "body" ? issue.loc[1] : undefined;
-                if (registrationFields.includes(field)) fields[field as RegistrationField] = serverFieldMessages[field as RegistrationField];
-            }
-            return {fields, message: Object.keys(fields).length
-                ? "Please check the highlighted fields and try again."
-                : "We couldn't validate your account details. Check the form and try again."};
-        }
-        if (detail && typeof detail === "object" && "error" in detail) {
-            if (detail.error === "email_conflict") fields.email = "This email is already registered. Sign in or use another email.";
-            if (detail.error === "user_conflict") fields.username = "This username is already taken. Choose another one.";
-        }
-        if (typeof detail === "string") return {fields, message: detail};
-        if (detail && typeof detail === "object" && "message" in detail && typeof detail.message === "string") {
-            return {fields, message: detail.message};
-        }
+    for (const issue of details) {
+        if (!isRecord(issue) || !Array.isArray(issue.loc) || issue.loc[0] !== "body") continue;
+        const field = issue.loc[1];
+        if (isRegistrationField(field)) fields[field] = serverFieldMessages[field];
     }
-    return {fields, message: "We couldn't create your account. Please try again."};
+    return {
+        fields,
+        message: Object.keys(fields).length
+            ? "Please check the highlighted fields and try again."
+            : "We couldn't validate your account details. Check the form and try again.",
+    };
+}
+
+function conflictErrors(detail: Record<string, unknown>): RegistrationErrors {
+    const fields: RegistrationErrors = {};
+    if (detail.error === "email_conflict") {
+        fields.email = "This email is already registered. Sign in or use another email.";
+    } else if (detail.error === "user_conflict") {
+        fields.username = "This username is already taken. Choose another one.";
+    }
+    return fields;
+}
+
+export function registrationResponseErrors(data: unknown): {fields: RegistrationErrors; message: string} {
+    if (!isRecord(data) || !("detail" in data)) {
+        return {fields: {}, message: "We couldn't create your account. Please try again."};
+    }
+
+    const detail = data.detail;
+    if (Array.isArray(detail)) return validationErrorsFromDetails(detail);
+    if (typeof detail === "string") return {fields: {}, message: detail};
+    if (!isRecord(detail)) return {fields: {}, message: "We couldn't create your account. Please try again."};
+
+    const fields = conflictErrors(detail);
+    const message = typeof detail.message === "string"
+        ? detail.message
+        : "We couldn't create your account. Please try again.";
+    return {fields, message};
 }

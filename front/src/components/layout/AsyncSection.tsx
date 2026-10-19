@@ -16,19 +16,21 @@ interface AsyncSectionProps {
 export default function AsyncSection({title, loading, error, empty, errorMessage, emptyMessage, onRetry, children}: AsyncSectionProps) {
     if (empty) {
         if (!loading && !error && !emptyMessage) return null;
+        let emptyContent: ReactNode;
+        if (loading) emptyContent = <output className="block text-muted">Loading...</output>;
+        else if (error) emptyContent = <ErrorState message={errorMessage} onRetry={onRetry} />;
+        else emptyContent = <p className="text-muted">{emptyMessage}</p>;
         return (
             <section className="bg-panel rounded-xl p-6 shadow space-y-4">
                 <Title title={title} as="h2" size="md" />
-                {loading ? <p role="status" className="text-muted">Loading...</p>
-                    : error ? <ErrorState message={errorMessage} onRetry={onRetry} />
-                        : <p className="text-muted">{emptyMessage}</p>}
+                {emptyContent}
             </section>
         );
     }
 
     return (
         <>
-            {loading && <p role="status" className="text-muted">Updating {title.toLowerCase()}...</p>}
+            {loading && <output className="block text-muted">Updating {title.toLowerCase()}...</output>}
             {error && !loading && <ErrorState message={errorMessage} onRetry={onRetry} />}
             {children}
         </>

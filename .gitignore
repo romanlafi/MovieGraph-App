@@ -27,4 +27,5 @@ scripts/__pycache__/
 .coverage.*
 coverage.xml
 htmlcov/
+front/coverage/
 .scannerwork/

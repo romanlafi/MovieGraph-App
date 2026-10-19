@@ -11,6 +11,9 @@ export default function FollowButton({ user, onFollowChange }: { user: User; onF
     const [error, setError] = useState("");
     const submitting = useRef(false);
     const following = isFollowing(user.public_id);
+    let buttonLabel = "Follow";
+    if (following) buttonLabel = "Following";
+    if (pending) buttonLabel = "Updating…";
 
     const handleClick = async () => {
         if (submitting.current) return;
@@ -45,7 +48,7 @@ export default function FollowButton({ user, onFollowChange }: { user: User; onF
                 }`}
             >
                 {following ? <FaCheck aria-hidden="true" /> : <FaUserPlus aria-hidden="true" />}
-                {pending ? "Updating…" : following ? "Following" : "Follow"}
+                {buttonLabel}
             </button>
             {error && <p role="alert" className="mt-2 text-sm text-red-300">{error}</p>}
         </div>

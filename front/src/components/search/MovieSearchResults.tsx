@@ -1,3 +1,4 @@
+import type {ReactNode} from "react";
 import type {MovieSearchResult} from "@/types/movie.ts";
 import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
 import RatingDisplay from "@/components/ui/RatingDisplay.tsx";
@@ -18,6 +19,16 @@ interface MovieSearchResultsProps {
 
 export default function MovieSearchResults({results, loading, error, loadingMore, hasMore, loadMoreError,
                                                onSelect, onRetry, onRetryMore}: MovieSearchResultsProps) {
+    let paginationStatus: ReactNode = null;
+    if (loadingMore) paginationStatus = "Loading more movies...";
+    else if (loadMoreError) {
+        paginationStatus = (
+            <button type="button" onClick={onRetryMore} className="text-accent hover:underline">
+                {loadMoreError} Try again.
+            </button>
+        );
+    } else if (hasMore) paginationStatus = "Scroll for more results";
+
     if (loading) return <p className="p-3 text-sm text-muted">Searching movies...</p>;
 
     if (error) {
@@ -59,11 +70,7 @@ export default function MovieSearchResults({results, loading, error, loadingMore
             ))}
             {(loadingMore || loadMoreError || hasMore) && (
                 <li className="p-2 text-center text-xs text-muted">
-                    {loadingMore ? "Loading more movies..." : loadMoreError ? (
-                        <button type="button" onClick={onRetryMore} className="text-accent hover:underline">
-                            {loadMoreError} Try again.
-                        </button>
-                    ) : "Scroll for more results"}
+                    {paginationStatus}
                 </li>
             )}
         </ul>

@@ -4,8 +4,10 @@ import {getMoviesByTmdbGenreId} from "./moviesService.ts";
 
 const shuffleMovies = (movies: Movie[]): Movie[] => {
     const shuffled = [...movies];
+    const randomValue = new Uint32Array(1);
     for (let index = shuffled.length - 1; index > 0; index--) {
-        const randomIndex = Math.floor(Math.random() * (index + 1));
+        crypto.getRandomValues(randomValue);
+        const randomIndex = randomValue[0] % (index + 1);
         [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
     }
     return shuffled;

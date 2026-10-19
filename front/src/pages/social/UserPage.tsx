@@ -1,3 +1,4 @@
+import type {ReactNode} from "react";
 import {useParams} from "react-router-dom";
 import Container from "@/components/layout/Container.tsx";
 import UserProfileCard from "@/components/user/UserProfileCard.tsx";
@@ -14,22 +15,29 @@ export default function UserPage() {
 
     if (notFound) return <NotFound />;
 
+    let profileContent: ReactNode = null;
+    if (loading) {
+        profileContent = <output className="block rounded-xl bg-panel p-8 text-center text-sm text-muted">Loading profile…</output>;
+    } else if (error) {
+        profileContent = (
+            <section className="rounded-xl bg-panel p-6">
+                <h1 className="text-xl font-semibold text-ink">Profile unavailable</h1>
+                <p role="alert" className="mt-2 text-sm text-muted">{error}</p>
+                <Button onClick={retry} className="mt-4 min-h-11">Try again</Button>
+            </section>
+        );
+    } else if (profile) {
+        profileContent = (
+            <>
+                <UserProfileCard user={profile} onLogout={logout} />
+                {isCurrentUser && <ProfileNetworkSection network={network} />}
+            </>
+        );
+    }
+
     return (
         <Container className="mt-10 space-y-6 pb-10">
-            {loading ? (
-                <div role="status" className="rounded-xl bg-panel p-8 text-center text-sm text-muted">Loading profile…</div>
-            ) : error ? (
-                <section className="rounded-xl bg-panel p-6">
-                    <h1 className="text-xl font-semibold text-ink">Profile unavailable</h1>
-                    <p role="alert" className="mt-2 text-sm text-muted">{error}</p>
-                    <Button onClick={retry} className="mt-4 min-h-11">Try again</Button>
-                </section>
-            ) : profile && (
-                <>
-                    <UserProfileCard user={profile} onLogout={logout} />
-                    {isCurrentUser && <ProfileNetworkSection network={network} />}
-                </>
-            )}
+            {profileContent}
         </Container>
     );
 }

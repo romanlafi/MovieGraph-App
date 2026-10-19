@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import {test} from 'vitest';
 import {validateRegistration, registrationResponseErrors, todayDate} from '../src/utils/registrationValidation.ts';
 
 const valid = () => ({username: 'movie-fan', email: 'fan@example.com', password: 'a-long-password', birthdate: '1990-01-15', bio: '', favorite_genres: []});
