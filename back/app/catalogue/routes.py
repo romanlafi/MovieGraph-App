@@ -10,7 +10,7 @@ from .schemas import (CollectionDetail, Filmography, Genre, MovieCard, MovieDeta
 router = APIRouter(prefix="/api/tmdb", tags=["TMDB catalogue"])
 
 
-async def get_tmdb_client(request: Request) -> TMDBClient:
+def get_tmdb_client(request: Request) -> TMDBClient:
     return TMDBClient(TMDBSettings.from_env(request.scope.get("env")))
 
 

@@ -50,7 +50,7 @@ def auth_settings(request: Request) -> tuple[str, str, int]:
     return secret, algorithm, lifetime
 
 
-async def token_subject(request: Request, token: str = Depends(oauth2_scheme)) -> str:
+def token_subject(request: Request, token: str = Depends(oauth2_scheme)) -> str:
     secret, algorithm, _ = auth_settings(request)
     try:
         payload = jwt.decode(token, secret, algorithms=[algorithm], options={
