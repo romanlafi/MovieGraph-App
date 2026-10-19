@@ -11,7 +11,7 @@ interface GenreMoviesSectionProps {
     onLoadingChange: (tmdbGenreId: number, loading: boolean) => void;
 }
 
-export default function GenreMoviesSection({genre, onLoadingChange}: GenreMoviesSectionProps) {
+export default function GenreMoviesSection({genre, onLoadingChange}: Readonly<GenreMoviesSectionProps>) {
     const load = useCallback((signal: AbortSignal) => getRandomMoviesForGenre(genre.tmdbId, signal), [genre.tmdbId]);
     const {data, loading, error, retry} = useAsyncResource(load);
 

@@ -10,7 +10,7 @@ interface Props {
     position?: number;
 }
 
-export default function MovieHorizontalCard({ movie, position }: Props) {
+export default function MovieHorizontalCard({ movie, position }: Readonly<Props>) {
     const navigate = useNavigate();
 
     return (

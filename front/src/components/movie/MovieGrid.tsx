@@ -7,7 +7,7 @@ interface MovieGridProps {
     movies: Movie[];
 }
 
-export default function MovieGrid({ title, movies }: MovieGridProps) {
+export default function MovieGrid({ title, movies }: Readonly<MovieGridProps>) {
     return (
         <section className="flex justify-center">
             <Title title={title} as="h2" size="xl"/>

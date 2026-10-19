@@ -5,7 +5,7 @@ import {useAsyncResource} from "@/hooks/useAsyncResource.ts";
 import AsyncSection from "@/components/layout/AsyncSection.tsx";
 import HeroCollection from "@/components/hero/HeroCollection.tsx";
 
-export default function MovieCollectionSection({collection}: {collection: Collection}) {
+export default function MovieCollectionSection({collection}: Readonly<{collection: Collection}>) {
     const load = useCallback((signal: AbortSignal) => getMoviesByCollection(collection.tmdbId, 1, 10, signal), [collection.tmdbId]);
     const {data, loading, error, retry} = useAsyncResource(load);
 

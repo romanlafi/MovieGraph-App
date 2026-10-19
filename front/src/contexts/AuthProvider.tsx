@@ -11,7 +11,7 @@ interface RestoredSession {
     isLoading: boolean;
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
     const token = useSyncExternalStore(subscribeToSession, getSessionToken, () => null);
     const [session, setSession] = useState<RestoredSession | null>(null);
     const [restoreAttempt, setRestoreAttempt] = useState(0);

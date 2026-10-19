@@ -13,7 +13,7 @@ interface AsyncSectionProps {
     children: ReactNode;
 }
 
-export default function AsyncSection({title, loading, error, empty, errorMessage, emptyMessage, onRetry, children}: AsyncSectionProps) {
+export default function AsyncSection({title, loading, error, empty, errorMessage, emptyMessage, onRetry, children}: Readonly<AsyncSectionProps>) {
     if (empty) {
         if (!loading && !error && !emptyMessage) return null;
         let emptyContent: ReactNode;

@@ -4,7 +4,7 @@ import {useRef, useState} from "react";
 import {useAuth} from "@/hooks/auth/useAuth.ts";
 import {FaCheck, FaUserPlus} from "react-icons/fa";
 
-export default function FollowButton({ user, onFollowChange }: { user: User; onFollowChange?: () => void }) {
+export default function FollowButton({ user, onFollowChange }: Readonly<{ user: User; onFollowChange?: () => void }>) {
     const { isFollowing, toggleFollow } = useFollow();
     const {user: currentUser, token} = useAuth();
     const [pending, setPending] = useState(false);

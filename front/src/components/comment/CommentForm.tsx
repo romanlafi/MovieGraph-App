@@ -8,7 +8,7 @@ interface CommentFormProps {
     onSubmit: (text: string) => Promise<void>;
 }
 
-export default function CommentForm({ onSubmit }: CommentFormProps) {
+export default function CommentForm({ onSubmit }: Readonly<CommentFormProps>) {
     const [text, setText] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");

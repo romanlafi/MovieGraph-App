@@ -6,7 +6,7 @@ interface Props {
     movies: Movie[];
 }
 
-export default function MovieCarouselOverlay({ movies }: Props) {
+export default function MovieCarouselOverlay({ movies }: Readonly<Props>) {
     if (!movies.length) return null;
 
     return (

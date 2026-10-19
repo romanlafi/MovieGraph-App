@@ -5,7 +5,7 @@ import {relatedFilms} from "@/data/carouselCategories.ts";
 import AsyncSection from "@/components/layout/AsyncSection.tsx";
 import MovieCarousel from "./MovieCarousel.tsx";
 
-export default function MovieRelatedSection({tmdbMovieId}: {tmdbMovieId: number}) {
+export default function MovieRelatedSection({tmdbMovieId}: Readonly<{tmdbMovieId: number}>) {
     const load = useCallback((signal: AbortSignal) => getRelatedMovies(tmdbMovieId, signal), [tmdbMovieId]);
     const {data, loading, error, retry} = useAsyncResource(load);
 

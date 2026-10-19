@@ -24,7 +24,7 @@ const rankStyles = {
     },
 };
 
-export default function TopRatedMovieCard({ movie, rank }: TopRatedMovieCardProps) {
+export default function TopRatedMovieCard({ movie, rank }: Readonly<TopRatedMovieCardProps>) {
     const navigate = useNavigate();
     const styles = rankStyles[rank];
 

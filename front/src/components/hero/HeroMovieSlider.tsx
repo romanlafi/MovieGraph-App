@@ -12,7 +12,7 @@ interface HeroSliderProps {
     interval?: number;
 }
 
-export default function HeroMovieSlider({ movies, interval = 5000 }: HeroSliderProps) {
+export default function HeroMovieSlider({ movies, interval = 5000 }: Readonly<HeroSliderProps>) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showUI, setShowUI] = useState(true);
     const navigate = useNavigate();

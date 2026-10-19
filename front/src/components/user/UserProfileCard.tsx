@@ -9,7 +9,7 @@ interface Props {
     onLogout?: () => void;
 }
 
-export default function UserProfileCard({user, onLogout}: Props) {
+export default function UserProfileCard({user, onLogout}: Readonly<Props>) {
     const {user: authUser} = useAuth();
     const isCurrentUser = Boolean(authUser?.public_id && authUser.public_id === user.public_id);
     const name = user.username || "MovieGraph member";

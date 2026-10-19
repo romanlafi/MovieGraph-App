@@ -13,7 +13,7 @@ interface CommentSectionProps {
     onRetry: () => void;
 }
 
-export default function CommentSection({comments, onSubmit, loading, error, onRetry}: CommentSectionProps) {
+export default function CommentSection({comments, onSubmit, loading, error, onRetry}: Readonly<CommentSectionProps>) {
     const { token } = useAuth();
     let commentCount = "—";
     if (!loading && !error) {

@@ -20,7 +20,7 @@ export default function Title({
                                   center = false,
                                   children,
                                   onClick,
-                              }: TitleProps) {
+                              }: Readonly<TitleProps>) {
     const Tag = as;
     const sizeClasses = {
         xl: "text-4xl",

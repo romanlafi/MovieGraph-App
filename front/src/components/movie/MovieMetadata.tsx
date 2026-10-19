@@ -6,7 +6,7 @@ import Title from "@/components/ui/Title.tsx";
 import Text from "@/components/ui/Text.tsx";
 import MovieFacts from "./MovieFacts.tsx";
 
-export default function MovieMetadata({movie}: {movie: Movie}) {
+export default function MovieMetadata({movie}: Readonly<{movie: Movie}>) {
     return (
         <div className="space-y-4 text-ink">
             <Title title={movie.title} as="h1" size="lg"/>

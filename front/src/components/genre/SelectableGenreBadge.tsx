@@ -8,7 +8,7 @@ export default function SelectableGenreBadge({
                                                  genre,
                                                  selected,
                                                  onClick,
-                                             }: SelectableGenreBadgeProps) {
+                                             }: Readonly<SelectableGenreBadgeProps>) {
     return (
         <button
             type="button"

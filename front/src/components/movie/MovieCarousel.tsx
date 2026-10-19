@@ -11,7 +11,7 @@ interface Props {
     genreLink?: boolean;
 }
 
-export default function MovieCarousel({ movies, title, subtitle, genreLink = true }: Props) {
+export default function MovieCarousel({ movies, title, subtitle, genreLink = true }: Readonly<Props>) {
     if (!movies.length) return null;
 
     return (

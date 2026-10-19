@@ -18,7 +18,7 @@ interface MovieSearchResultsProps {
 }
 
 export default function MovieSearchResults({results, loading, error, loadingMore, hasMore, loadMoreError,
-                                               onSelect, onRetry, onRetryMore}: MovieSearchResultsProps) {
+    onSelect, onRetry, onRetryMore}: Readonly<MovieSearchResultsProps>) {
     let paginationStatus: ReactNode = null;
     if (loadingMore) paginationStatus = "Loading more movies...";
     else if (loadMoreError) {

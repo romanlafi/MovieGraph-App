@@ -11,7 +11,7 @@ interface LikeButtonProps {
     className?: string;
 }
 
-export default function LikeButton({ tmdbMovieId, movieTitle = "movie", className }: LikeButtonProps) {
+export default function LikeButton({ tmdbMovieId, movieTitle = "movie", className }: Readonly<LikeButtonProps>) {
     const { isLiked, toggleLike } = useLikes();
     const { token } = useAuth();
     const [isPending, setIsPending] = useState(false);

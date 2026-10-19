@@ -6,7 +6,7 @@ interface ContainerProps {
     className?: string;
 }
 
-export default function Container({ children, className }: ContainerProps) {
+export default function Container({ children, className }: Readonly<ContainerProps>) {
     return (
         <div className={clsx("w-full max-w-[1100px] mx-auto px-4", className)}>
             {children}

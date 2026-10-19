@@ -16,7 +16,7 @@ export default function UserCard({
                                      linkToProfile = true,
                                      onFollowChange,
                                      className = "w-56 shrink-0",
-                                 }: Props) {
+                                 }: Readonly<Props>) {
     const name = user.username || "MovieGraph member";
     const profile = (
         <>

@@ -13,7 +13,7 @@ export default function GenreSelector({
                                           selected,
                                           onToggle,
                                           label,
-                                      }: GenreSelectorProps) {
+                                      }: Readonly<GenreSelectorProps>) {
     return (
         <div className="space-y-1">
             {label && <p className="mb-2 block font-bold text-ink">{label}</p>}

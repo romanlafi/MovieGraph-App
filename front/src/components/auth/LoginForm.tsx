@@ -3,7 +3,7 @@ import Button from "@/components/ui/Button.tsx";
 import {Link} from "react-router-dom";
 import TextInput from "@/components/ui/inputs/TextInput.tsx";
 
-export default function LoginForm({onSuccess}: {onSuccess: () => void}) {
+export default function LoginForm({onSuccess}: Readonly<{onSuccess: () => void}>) {
     const {credentials, updateField, submit, error, isSubmitting} = useLoginForm(onSuccess);
 
     return (

@@ -5,7 +5,7 @@ import TextInput from "@/components/ui/inputs/TextInput.tsx";
 import {getMovieSearchStatusMessage} from "@/utils/movieSearchStatus.ts";
 import MovieSearchResults from "./MovieSearchResults.tsx";
 
-export default function SearchBar({autoFocus = false, onSelect}: {autoFocus?: boolean; onSelect?: () => void}) {
+export default function SearchBar({autoFocus = false, onSelect}: Readonly<{autoFocus?: boolean; onSelect?: () => void}>) {
     const {query, results, status, error, updateQuery, clear, retry, loadMore, retryMore,
         hasMore, loadingMore, loadMoreError} = useMovieSearch();
     const [showDropdown, setShowDropdown] = useState(false);

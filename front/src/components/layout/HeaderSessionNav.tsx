@@ -8,7 +8,7 @@ interface Props {
     onLogin: () => void;
 }
 
-export default function HeaderSessionNav({loginOpen, onLogin}: Props) {
+export default function HeaderSessionNav({loginOpen, onLogin}: Readonly<Props>) {
     const {token, user, isLoading, retrySession} = useAuth();
     let accountNavigation: ReactNode;
     if (token && user) {

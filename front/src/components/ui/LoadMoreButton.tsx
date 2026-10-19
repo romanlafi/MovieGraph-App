@@ -6,7 +6,7 @@ interface LoadMoreButtonProps {
     label?: string;
 }
 
-export default function LoadMoreButton({onClick, loading = false, label = "Load More"}: LoadMoreButtonProps) {
+export default function LoadMoreButton({onClick, loading = false, label = "Load More"}: Readonly<LoadMoreButtonProps>) {
     return (
         <div className="flex justify-center">
             <Button onClick={() => { void onClick(); }} disabled={loading}>

@@ -3,7 +3,7 @@ import {getTmdbImageUrl} from "@/utils/tmdbImageHelper.ts";
 import {getYoutubeEmbedUrl} from "@/utils/youtubeHelpers.ts";
 import DetailMediaLayout from "@/components/layout/DetailMediaLayout.tsx";
 
-export default function MovieMedia({movie}: {movie: Movie}) {
+export default function MovieMedia({movie}: Readonly<{movie: Movie}>) {
     const embedUrl = getYoutubeEmbedUrl(movie.trailer_url);
 
     return (

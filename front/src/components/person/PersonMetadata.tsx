@@ -3,7 +3,7 @@ import {FaBirthdayCake, FaMapMarkerAlt} from "react-icons/fa";
 import Title from "@/components/ui/Title.tsx";
 import Text from "@/components/ui/Text.tsx";
 
-export default function PersonMetadata({person}: {person: Person}) {
+export default function PersonMetadata({person}: Readonly<{person: Person}>) {
     return (
         <div className="flex-1 h-[420px] overflow-hidden space-y-4 text-ink">
             <Title title={person.name} as="h1" size="lg"/>

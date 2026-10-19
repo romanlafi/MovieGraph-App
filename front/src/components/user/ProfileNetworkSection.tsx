@@ -9,7 +9,7 @@ interface Props {
     network: ReturnType<typeof useUserNetwork>;
 }
 
-export default function ProfileNetworkSection({network}: Props) {
+export default function ProfileNetworkSection({network}: Readonly<Props>) {
     const {followers, following, loading: networkLoading, refresh: refreshNetwork} = network;
     const networkError = network.error ? "Couldn't load your network. Your profile is still available." : "";
     const lists = [

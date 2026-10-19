@@ -22,7 +22,7 @@ export default function Text({
                                  className = "",
                                  as = "p",
                                  children,
-                             }: TextProps) {
+                             }: Readonly<TextProps>) {
     const Tag = as;
 
     const sizeMap = {

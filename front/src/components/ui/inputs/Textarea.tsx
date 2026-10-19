@@ -4,7 +4,7 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
     label?: string;
 }
 
-export default function Textarea({ label, className = "", ...props }: TextareaProps) {
+export default function Textarea({ label, className = "", ...props }: Readonly<TextareaProps>) {
     return (
         <div className="flex flex-col gap-1 w-full">
             {label && <label htmlFor={props.id} className="text-sm font-medium text-ink">{label}</label>}

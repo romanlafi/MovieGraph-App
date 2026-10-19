@@ -5,7 +5,7 @@ interface ErrorStateProps {
     onRetry: () => void | Promise<void>;
 }
 
-export default function ErrorState({message, onRetry}: ErrorStateProps) {
+export default function ErrorState({message, onRetry}: Readonly<ErrorStateProps>) {
     return (
         <div className="space-y-4 text-center">
             <p role="alert" className="text-red-300">{message}</p>

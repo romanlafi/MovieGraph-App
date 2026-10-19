@@ -9,7 +9,7 @@ interface Props {
     movie: Movie;
 }
 
-export default function MovieCard({movie}: Props) {
+export default function MovieCard({movie}: Readonly<Props>) {
     return (
         <div
             className="w-[140px] shrink-0 bg-card p-2 rounded hover:scale-98 hover:bg-border transition duration-200 ease-out shadow hover:shadow-xl">

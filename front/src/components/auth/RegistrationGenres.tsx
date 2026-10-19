@@ -10,7 +10,7 @@ interface Props {
     disabled?: boolean;
 }
 
-export default function RegistrationGenres({selected, onToggle, error, disabled}: Props) {
+export default function RegistrationGenres({selected, onToggle, error, disabled}: Readonly<Props>) {
     const {data: genres, loading} = useAsyncResource(getGenres);
     let genreContent: ReactNode;
     if (loading) genreContent = <p className="text-sm text-muted">Loading genres…</p>;

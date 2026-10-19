@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function GenreBadge({ genre }: { genre: string }) {
+export default function GenreBadge({ genre }: Readonly<{ genre: string }>) {
     return (
         <Link
             to={`/genre/${genre}`}

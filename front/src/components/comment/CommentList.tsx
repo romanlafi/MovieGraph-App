@@ -6,7 +6,7 @@ interface CommentListProps {
     comments: Comment[];
 }
 
-export default function CommentList({ comments }: CommentListProps) {
+export default function CommentList({ comments }: Readonly<CommentListProps>) {
     if (comments.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border px-4 py-10 text-center">

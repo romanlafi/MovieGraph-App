@@ -3,7 +3,7 @@ import DetailMediaLayout from "@/components/layout/DetailMediaLayout.tsx";
 import PersonImage from "./PersonImage.tsx";
 import PersonMetadata from "./PersonMetadata.tsx";
 
-export default function PersonHeaderCard({person}: {person: Person}) {
+export default function PersonHeaderCard({person}: Readonly<{person: Person}>) {
     return (
         <section className="bg-panel rounded-xl p-6 shadow space-y-4">
             <DetailMediaLayout image={

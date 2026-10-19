@@ -10,7 +10,7 @@ export default function RatingDisplay({
                                           rating,
                                           className = "",
                                           iconSize = 12,
-                                      }: RatingDisplayProps) {
+                                      }: Readonly<RatingDisplayProps>) {
     return (
         <div className={`flex items-center gap-1 text-accent ${className}`}>
             <FaStar size={iconSize} />

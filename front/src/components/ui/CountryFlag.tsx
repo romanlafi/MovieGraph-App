@@ -1,4 +1,4 @@
-export default function CountryFlag({ code }: { code: string }) {
+export default function CountryFlag({ code }: Readonly<{ code: string }>) {
     return (
         <img
             src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}

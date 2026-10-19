@@ -4,7 +4,7 @@ import {parseCountryCodes} from "@/utils/parseCountryCodes.ts";
 import {formatCurrency} from "@/utils/formatters.ts";
 import CountryFlag from "@/components/ui/CountryFlag.tsx";
 
-export default function MovieFacts({movie}: {movie: Movie}) {
+export default function MovieFacts({movie}: Readonly<{movie: Movie}>) {
     const countries = parseCountryCodes(movie.origin_country);
 
     return (

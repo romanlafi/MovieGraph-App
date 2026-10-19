@@ -11,7 +11,7 @@ interface HeroCollectionProps {
     movies: Movie[];
 }
 
-export default function HeroCollection({ collection, movies }: HeroCollectionProps) {
+export default function HeroCollection({ collection, movies }: Readonly<HeroCollectionProps>) {
     const avgRating = getAverageRating(movies);
 
     return (

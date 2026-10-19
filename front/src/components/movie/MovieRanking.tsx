@@ -2,7 +2,7 @@ import type {Movie} from "@/types/movie.ts";
 import MovieHorizontalCard from "./MovieHorizontalCard.tsx";
 import TopRatedMovieCard from "./TopRatedMovieCard.tsx";
 
-export default function MovieRanking({movies}: {movies: Movie[]}) {
+export default function MovieRanking({movies}: Readonly<{movies: Movie[]}>) {
     if (movies.length < 3) return null;
 
     return (

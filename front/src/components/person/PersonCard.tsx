@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import Text from "@/components/ui/Text.tsx";
 import PersonImage from "./PersonImage.tsx";
 
-export default function PersonCard({person, showRole = true}: { person: Person; showRole?: boolean }) {
+export default function PersonCard({person, showRole = true}: Readonly<{ person: Person; showRole?: boolean }>) {
     const roles = person.role?.split(",").map(r => r.trim()) ?? [];
 
     const isDirector = roles.includes("DIRECTOR");

@@ -9,7 +9,7 @@ interface Props {
     network: ReturnType<typeof useUserNetwork>;
 }
 
-export default function UserNetworkSection({network}: Props) {
+export default function UserNetworkSection({network}: Readonly<Props>) {
     const {followers, following, loading: networkLoading, refresh: refreshFollows} = network;
     const networkError = network.error ? "Couldn't load your network. Please try again." : "";
     const [networkView, setNetworkView] = useState<"following" | "followers">("following");

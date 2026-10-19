@@ -8,7 +8,7 @@ interface Props {
     onFollowChange: () => void;
 }
 
-export default function UserSearchSection({onFollowChange}: Props) {
+export default function UserSearchSection({onFollowChange}: Readonly<Props>) {
     const {query, results, searchedQuery, searching, searchError, updateQuery, search} = useUserSearch();
     let searchStatus = "Find a friend or someone who shares your taste in movies.";
     if (searching) searchStatus = "Looking for people…";

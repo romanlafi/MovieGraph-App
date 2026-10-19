@@ -5,7 +5,7 @@ import {relatedPeoplePerson} from "@/data/carouselCategories.ts";
 import AsyncSection from "@/components/layout/AsyncSection.tsx";
 import PersonCarousel from "./PersonCarousel.tsx";
 
-export default function PersonCollaboratorsSection({tmdbPersonId}: {tmdbPersonId: number}) {
+export default function PersonCollaboratorsSection({tmdbPersonId}: Readonly<{tmdbPersonId: number}>) {
     const load = useCallback((signal: AbortSignal) => getRelatedPeople(tmdbPersonId, signal), [tmdbPersonId]);
     const {data, loading, error, retry} = useAsyncResource(load);
 

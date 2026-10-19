@@ -4,7 +4,7 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
 }
 
-export default function TextInput({ label, className = "", ...props }: TextInputProps) {
+export default function TextInput({ label, className = "", ...props }: Readonly<TextInputProps>) {
     return (
         <div className="flex flex-col gap-1 w-full">
             {label && <label htmlFor={props.id} className="text-sm font-medium text-ink">{label}</label>}

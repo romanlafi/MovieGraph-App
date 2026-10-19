@@ -5,7 +5,7 @@ import {actedMovies, directedMovies} from "@/data/carouselCategories.ts";
 import AsyncSection from "@/components/layout/AsyncSection.tsx";
 import MovieCarousel from "@/components/movie/MovieCarousel.tsx";
 
-export default function PersonFilmographySection({tmdbPersonId}: {tmdbPersonId: number}) {
+export default function PersonFilmographySection({tmdbPersonId}: Readonly<{tmdbPersonId: number}>) {
     const load = useCallback((signal: AbortSignal) => getPersonFilmography(tmdbPersonId, signal), [tmdbPersonId]);
     const {data, loading, error, retry} = useAsyncResource(load);
 

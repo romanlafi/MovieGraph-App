@@ -4,7 +4,7 @@ import { format } from "date-fns";
 
 const COLLAPSED_COMMENT_LENGTH = 240;
 
-export default function CommentCard({ comment }: { comment: Comment }) {
+export default function CommentCard({ comment }: Readonly<{ comment: Comment }>) {
     const [expanded, setExpanded] = useState(false);
     const canExpand = comment.text.length > COLLAPSED_COMMENT_LENGTH;
     const createdAt = new Date(comment.created_at);

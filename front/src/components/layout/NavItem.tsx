@@ -11,7 +11,7 @@ interface NavItemProps {
     ariaControls?: string;
 }
 
-export default function NavItem({ children, className = "", onClick, to, ariaLabel, ariaExpanded, ariaControls }: NavItemProps) {
+export default function NavItem({ children, className = "", onClick, to, ariaLabel, ariaExpanded, ariaControls }: Readonly<NavItemProps>) {
     const baseStyles =
         "flex min-h-11 min-w-11 items-center justify-center gap-2 px-2 py-2 rounded-md hover:bg-canvas/10 transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-canvas";
 

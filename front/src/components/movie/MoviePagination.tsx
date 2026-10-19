@@ -7,7 +7,7 @@ interface MoviePaginationProps {
     loadMore: () => Promise<void>;
 }
 
-export default function MoviePagination({error, hasMore, loadingMore, loadMore}: MoviePaginationProps) {
+export default function MoviePagination({error, hasMore, loadingMore, loadMore}: Readonly<MoviePaginationProps>) {
     return (
         <div className="space-y-4">
             {error && <p role="alert" className="text-center text-red-300">{error}</p>}

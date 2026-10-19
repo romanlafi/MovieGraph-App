@@ -16,7 +16,7 @@ export default function Button({
                                    disabled = false,
                                    variant = "primary",
                                    className = "",
-                               }: ButtonProps) {
+                               }: Readonly<ButtonProps>) {
     const baseClasses =
         "font-semibold py-1 px-4 rounded transition duration-200";
 

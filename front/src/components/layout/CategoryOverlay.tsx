@@ -3,7 +3,7 @@ import {NavLink} from "react-router-dom";
 import {useEffect, useRef} from "react";
 import {useAuth} from "@/hooks/auth/useAuth.ts";
 
-export default function CategoryOverlay({open, onClose}: {open: boolean; onClose: () => void}) {
+export default function CategoryOverlay({open, onClose}: Readonly<{open: boolean; onClose: () => void}>) {
     const {user} = useAuth();
     const dialogRef = useRef<HTMLDialogElement>(null);
     const previousOverflow = useRef<string | null>(null);

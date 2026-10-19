@@ -11,7 +11,7 @@ interface Props {
     showRoles?: boolean;
 }
 
-export default function PersonCarousel({ title, subtitle, people, showRoles = true }: Props) {
+export default function PersonCarousel({ title, subtitle, people, showRoles = true }: Readonly<Props>) {
     if (!people.length) return null;
 
     return (

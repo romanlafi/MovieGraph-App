@@ -10,7 +10,7 @@ interface Props {
     imageClassName?: string;
 }
 
-export default function PersonImage({name, photoPath, size, className, imageClassName}: Props) {
+export default function PersonImage({name, photoPath, size, className, imageClassName}: Readonly<Props>) {
     const imageUrl = getTmdbImageUrl(photoPath, size === "card" ? "w342" : "w500");
     const [failedImageUrl, setFailedImageUrl] = useState<string>();
 

@@ -7,7 +7,7 @@ interface MovieReleaseCardProps {
     movie: Movie;
 }
 
-export default function MovieReleaseCard({ movie }: MovieReleaseCardProps) {
+export default function MovieReleaseCard({ movie }: Readonly<MovieReleaseCardProps>) {
     const navigate = useNavigate();
     const releaseDate = getMovieReleaseDate(movie);
 
