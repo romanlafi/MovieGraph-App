@@ -65,5 +65,12 @@ to JavaScript option conversion, production/PRE namespaces, and chunked bodies.
 Existing backend social and catalogue tests protect successful request behavior.
 Run backend unittest discovery and frontend lint/build/tests before promotion.
 Remote smoke tests should check bindings, health, catalogue, unauthenticated
-social authorization and a short health-only burst until HTTP 429; do not flood
-Hyperdrive to validate the limiter.
+social authorization and a bounded burst against an unknown social route until
+HTTP 429; this exercises admission without opening Hyperdrive connections.
+
+On 24 October 2026, the admission code passed through dev and staging to
+production. All three deployments exposed the expected bindings. Frontend/deep
+links, health, TMDB details and public comments returned HTTP 200; unauthenticated
+profile access returned 401; an unknown API GET returned 404. Bounded unknown-route
+POST bursts returned 429 with `Retry-After: 60` and `Cache-Control: no-store` on
+all three environments. No schema or data migration was executed.

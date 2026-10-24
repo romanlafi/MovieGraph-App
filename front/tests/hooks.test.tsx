@@ -320,8 +320,8 @@ describe("stateful frontend hooks", () => {
         });
         mocks.getLatestMovies.mockResolvedValueOnce([{tmdbId: 3}]);
         act(() => hook.result.current.retry());
-        await waitFor(() => expect(hook.result.current.error).toBe(false));
-        expect(hook.result.current.latestReleases).toEqual([{tmdbId: 3}]);
+        await waitFor(() => expect(hook.result.current.latestReleases).toEqual([{tmdbId: 3}]));
+        expect(hook.result.current.error).toBe(false);
         expect(mocks.getRandomMovies).toHaveBeenCalledOnce();
     });
 
