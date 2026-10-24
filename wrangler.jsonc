@@ -4,7 +4,9 @@
   "main": "back/app/worker.py",
   "base_dir": "back",
   "compatibility_date": "2026-10-02",
-  "compatibility_flags": ["python_workers"],
+  "compatibility_flags": [
+    "python_workers"
+  ],
   "vars": {
     "APP_ENV": "production",
     "JWT_ALGORITHM": "HS256",
@@ -14,27 +16,94 @@
     {
       "name": "LOGIN_IP_RATE_LIMITER",
       "namespace_id": "7412086001",
-      "simple": {"limit": 30, "period": 60}
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
     },
     {
       "name": "LOGIN_ACCOUNT_RATE_LIMITER",
       "namespace_id": "7412086002",
-      "simple": {"limit": 8, "period": 60}
+      "simple": {
+        "limit": 8,
+        "period": 60
+      }
+    },
+    {
+      "name": "API_IP_RATE_LIMITER",
+      "namespace_id": "7412086020",
+      "simple": {
+        "limit": 180,
+        "period": 60
+      }
+    },
+    {
+      "name": "SOCIAL_IP_RATE_LIMITER",
+      "namespace_id": "7412086021",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    },
+    {
+      "name": "WRITE_IP_RATE_LIMITER",
+      "namespace_id": "7412086022",
+      "simple": {
+        "limit": 20,
+        "period": 60
+      }
+    },
+    {
+      "name": "REGISTER_IP_RATE_LIMITER",
+      "namespace_id": "7412086023",
+      "simple": {
+        "limit": 3,
+        "period": 60
+      }
+    },
+    {
+      "name": "SOCIAL_GLOBAL_RATE_LIMITER",
+      "namespace_id": "7412086024",
+      "simple": {
+        "limit": 600,
+        "period": 60
+      }
+    },
+    {
+      "name": "CATALOGUE_IP_RATE_LIMITER",
+      "namespace_id": "7412086025",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
     }
   ],
   "hyperdrive": [
-    {"binding": "HYPERDRIVE", "id": "4cbe52bd629d47c8b2b69a3529691f78"}
+    {
+      "binding": "HYPERDRIVE",
+      "id": "4cbe52bd629d47c8b2b69a3529691f78"
+    }
   ],
   "previews": {
     "unsafe": {
       "bindings": [
-        {"name": "SECRET_KEY", "type": "inherit"},
-        {"name": "TMDB_READ_ACCESS_TOKEN", "type": "inherit"}
+        {
+          "name": "SECRET_KEY",
+          "type": "inherit"
+        },
+        {
+          "name": "TMDB_READ_ACCESS_TOKEN",
+          "type": "inherit"
+        }
       ]
     },
     "observability": {
       "enabled": true,
-      "logs": {"enabled": true, "invocation_logs": true, "persist": true}
+      "logs": {
+        "enabled": true,
+        "invocation_logs": true,
+        "persist": true
+      }
     },
     "vars": {
       "APP_ENV": "pre",
@@ -51,19 +120,80 @@
       {
         "name": "LOGIN_IP_RATE_LIMITER",
         "namespace_id": "7412086011",
-        "simple": {"limit": 30, "period": 60}
+        "simple": {
+          "limit": 30,
+          "period": 60
+        }
       },
       {
         "name": "LOGIN_ACCOUNT_RATE_LIMITER",
         "namespace_id": "7412086012",
-        "simple": {"limit": 8, "period": 60}
+        "simple": {
+          "limit": 8,
+          "period": 60
+        }
+      },
+      {
+        "name": "API_IP_RATE_LIMITER",
+        "namespace_id": "7412086030",
+        "simple": {
+          "limit": 180,
+          "period": 60
+        }
+      },
+      {
+        "name": "SOCIAL_IP_RATE_LIMITER",
+        "namespace_id": "7412086031",
+        "simple": {
+          "limit": 60,
+          "period": 60
+        }
+      },
+      {
+        "name": "WRITE_IP_RATE_LIMITER",
+        "namespace_id": "7412086032",
+        "simple": {
+          "limit": 20,
+          "period": 60
+        }
+      },
+      {
+        "name": "REGISTER_IP_RATE_LIMITER",
+        "namespace_id": "7412086033",
+        "simple": {
+          "limit": 3,
+          "period": 60
+        }
+      },
+      {
+        "name": "SOCIAL_GLOBAL_RATE_LIMITER",
+        "namespace_id": "7412086034",
+        "simple": {
+          "limit": 600,
+          "period": 60
+        }
+      },
+      {
+        "name": "CATALOGUE_IP_RATE_LIMITER",
+        "namespace_id": "7412086035",
+        "simple": {
+          "limit": 120,
+          "period": 60
+        }
       }
     ]
   },
   "assets": {
     "directory": "front/dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api", "/api/*", "/docs", "/docs/*", "/redoc", "/openapi.json"],
+    "run_worker_first": [
+      "/api",
+      "/api/*",
+      "/docs",
+      "/docs/*",
+      "/redoc",
+      "/openapi.json"
+    ],
     "not_found_handling": "single-page-application"
   }
 }

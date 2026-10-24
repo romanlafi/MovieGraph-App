@@ -13,6 +13,10 @@ React + TypeScript + Vite frontend, FastAPI on Cloudflare Python Workers, and
 Neon PostgreSQL through Hyperdrive. TMDB provides catalogue data; MovieGraph
 stores accounts, follows, comments and likes using TMDB IDs.
 
+All API endpoints use Cloudflare admission limits before accessing Hyperdrive or
+TMDB, with tighter registration/write quotas and bounded request sizes. See
+[API protection](docs/API_PROTECTION.md) for thresholds and operational limits.
+
 ## Development
 
 Start Docker Desktop, select **MovieGraph Local** in PyCharm, and press Play.

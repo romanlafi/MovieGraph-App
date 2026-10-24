@@ -1,9 +1,7 @@
 """Account registration, login and private profile routes."""
 
 import hashlib
-import logging
 import os
-import sys
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -12,6 +10,7 @@ from jose import jwt
 from sqlalchemy.orm import Session
 
 from app.db.runtime import binding_value
+from app.core.rate_limits import check_limit
 from app.schemas.auth import RegistrationResult, Token, UserProfile, UserRegistration
 
 from app.social.repositories import accounts as account_repository
@@ -20,7 +19,6 @@ from app.social.errors import DuplicateAccountError
 
 
 router = APIRouter(prefix="/api/v1/users", tags=["MovieGraph accounts"])
-logger = logging.getLogger(__name__)
 INVALID_CREDENTIALS = "Invalid credentials"
 
 
@@ -38,38 +36,14 @@ async def enforce_login_rate_limit(request: Request, account_name: str) -> None:
     if env is None:
         return
 
-    ip_limiter = binding_value(env, "LOGIN_IP_RATE_LIMITER")
-    account_limiter = binding_value(env, "LOGIN_ACCOUNT_RATE_LIMITER")
-    environment = binding_value(env, "APP_ENV", "development")
-    if ip_limiter is None or account_limiter is None:
-        if environment in {"production", "pre"}:
-            raise HTTPException(503, "Login protection is not configured")
-        return
-
     client_ip = request.headers.get("cf-connecting-ip") or "unknown"
     normalized_account = account_name.strip().casefold()
     keys = (
-        (ip_limiter, f"login-ip:{hashlib.sha256(client_ip.encode()).hexdigest()}"),
-        (account_limiter, f"login-account:{hashlib.sha256(normalized_account.encode()).hexdigest()}"),
+        ("LOGIN_IP_RATE_LIMITER", f"login-ip:{hashlib.sha256(client_ip.encode()).hexdigest()}"),
+        ("LOGIN_ACCOUNT_RATE_LIMITER", f"login-account:{hashlib.sha256(normalized_account.encode()).hexdigest()}"),
     )
-    for limiter, key in keys:
-        try:
-            options = {"key": key}
-            if sys.platform == "emscripten":
-                from js import Object
-                from pyodide.ffi import to_js
-
-                options = to_js(options, dict_converter=Object.fromEntries)
-            result = await limiter.limit(options)
-        except Exception as error:
-            logger.warning("Login rate limiter failed (%s)", type(error).__name__)
-            raise HTTPException(503, "Login protection is unavailable") from None
-        if not result.success:
-            raise HTTPException(
-                429,
-                "Too many login attempts. Try again shortly.",
-                headers={"Retry-After": "60"},
-            )
+    for name, key in keys:
+        await check_limit(env, name, key)
 
 
 @router.post("/", status_code=201, response_model=RegistrationResult,

@@ -67,6 +67,11 @@ class SocialWorkerTests(unittest.TestCase):
         self.app = create_app(include_social_api=True,
                               include_account_api=True, include_follows_api=True)
         self.env = {"SECRET_KEY": SECRET, "JWT_ALGORITHM": "HS256"}
+        for name in ("API_IP_RATE_LIMITER", "SOCIAL_IP_RATE_LIMITER", "WRITE_IP_RATE_LIMITER",
+                     "REGISTER_IP_RATE_LIMITER", "SOCIAL_GLOBAL_RATE_LIMITER", "CATALOGUE_IP_RATE_LIMITER"):
+            self.env[name] = SimpleNamespace(limit=unittest.mock.AsyncMock(
+                return_value=SimpleNamespace(success=True),
+            ))
 
         @self.app.middleware("http")
         async def worker_bindings(request, call_next):
@@ -308,7 +313,7 @@ class SocialWorkerTests(unittest.TestCase):
             "APP_ENV": "pre", "LOGIN_IP_RATE_LIMITER": limiter,
             "LOGIN_ACCOUNT_RATE_LIMITER": limiter,
         }})
-        with patch("app.social.accounts.sys.platform", "emscripten"), patch.dict("sys.modules", {
+        with patch("app.core.rate_limits.sys.platform", "emscripten"), patch.dict("sys.modules", {
             "js": javascript, "pyodide.ffi": ffi,
         }):
             asyncio.run(enforce_login_rate_limit(request, "fixture@example.com"))

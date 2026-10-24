@@ -153,6 +153,10 @@ with TestClient(app) as client:
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def diagnostic_client(self, env):
+        async def allow_api(_options):
+            return SimpleNamespace(success=True)
+
+        env = {**env, "API_IP_RATE_LIMITER": SimpleNamespace(limit=allow_api)}
         app = create_app()
         install_diagnostics(app)
         @app.middleware("http")

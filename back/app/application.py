@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse, Response
 
 from app.catalogue.client import TMDBError
 from app.catalogue.routes import router as catalogue_router
+from app.core.rate_limits import APIProtectionMiddleware
 
 
 def _validate_api_options(include_social_api: bool, include_account_api: bool, include_follows_api: bool) -> None:
@@ -21,6 +22,7 @@ def create_app(
 ) -> FastAPI:
     _validate_api_options(include_social_api, include_account_api, include_follows_api)
     app = FastAPI(title="MovieGraph")
+    app.add_middleware(APIProtectionMiddleware)
     app.include_router(catalogue_router)
 
     @app.exception_handler(TMDBError)

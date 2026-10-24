@@ -6,13 +6,11 @@ import os
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import ArgumentError
 
+from app.core.bindings import binding_value
+
 
 class DatabaseConfigurationError(ValueError):
     """Safe failure: messages never contain connection values."""
-
-
-def binding_value(env, name: str, default=None):
-    return env.get(name, default) if isinstance(env, dict) else getattr(env, name, default)
 
 
 @dataclass(frozen=True)
