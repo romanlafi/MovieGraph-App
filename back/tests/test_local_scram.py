@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 import scramp.core
+from scramp import ScramMechanism
 
 from app.db.local_scram import LocalScramHashlib, install_local_scram_compatibility, pbkdf2_hmac
 
@@ -25,9 +26,14 @@ class LocalScramTests(unittest.TestCase):
                 pbkdf2_hmac(hash_name, b"password", b"salt", iterations)
 
     def test_actual_scramp_derivation_retains_saslprep_and_hash(self):
-        expected = scramp.core._make_salted_password(hashlib.sha256, "contraseña", b"salt", 4096)
+        mechanism = ScramMechanism("SCRAM-SHA-256")
+        expected = mechanism.make_auth_info("contraseña", salt=b"salt", iteration_count=4096)
         with patch.object(scramp.core, "hashlib", LocalScramHashlib()):
-            self.assertEqual(scramp.core._make_salted_password(hashlib.sha256, "contraseña", b"salt", 4096), expected)
+            # Soft hyphen is removed by SASLprep. Exercise the public API so a
+            # private helper rename in scramp does not break the CI toolchain.
+            self.assertEqual(mechanism.make_auth_info(
+                "contra\u00adseña", salt=b"salt", iteration_count=4096,
+            ), expected)
 
     def test_supported_native_runtime_is_not_patched(self):
         original = scramp.core.hashlib
