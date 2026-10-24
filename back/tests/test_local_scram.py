@@ -27,12 +27,13 @@ class LocalScramTests(unittest.TestCase):
 
     def test_actual_scramp_derivation_retains_saslprep_and_hash(self):
         mechanism = ScramMechanism("SCRAM-SHA-256")
-        expected = mechanism.make_auth_info("contraseña", salt=b"salt", iteration_count=4096)
+        salt = bytes(range(16))
+        expected = mechanism.make_auth_info("contraseña", salt=salt, iteration_count=4096)
         with patch.object(scramp.core, "hashlib", LocalScramHashlib()):
             # Soft hyphen is removed by SASLprep. Exercise the public API so a
             # private helper rename in scramp does not break the CI toolchain.
             self.assertEqual(mechanism.make_auth_info(
-                "contra\u00adseña", salt=b"salt", iteration_count=4096,
+                "contra\u00adseña", salt=salt, iteration_count=4096,
             ), expected)
 
     def test_supported_native_runtime_is_not_patched(self):
