@@ -56,8 +56,9 @@ async def admit_request(request: Request) -> None:
             await check_limit(env, "WRITE_IP_RATE_LIMITER", f"write:{key}")
         if request.method == "POST" and path.rstrip("/") == "/api/v1/users":
             await check_limit(env, "REGISTER_IP_RATE_LIMITER", f"register:{key}")
+            await check_limit(env, "REGISTER_GLOBAL_RATE_LIMITER", "register:all")
         # Last check: IP-throttled requests do not consume the shared allowance.
-        # A circuit breaker for rotating IPs; approximate per Cloudflare location.
+        # Shared breakers limit rotating IPs; approximate per Cloudflare location.
         await check_limit(env, "SOCIAL_GLOBAL_RATE_LIMITER", "social:all")
     elif path == "/api/tmdb" or path.startswith("/api/tmdb/"):
         await check_limit(env, "CATALOGUE_IP_RATE_LIMITER", f"catalogue:{key}")

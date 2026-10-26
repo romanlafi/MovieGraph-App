@@ -11,7 +11,8 @@ Static assets and React navigation do not consume API quotas.
 | SOCIAL_IP_RATE_LIMITER | 60 | IP across `/api/v1/*` |
 | WRITE_IP_RATE_LIMITER | 20 | IP across social POST/PUT/PATCH/DELETE |
 | REGISTER_IP_RATE_LIMITER | 3 | IP for registration, with or without trailing slash |
-| SOCIAL_GLOBAL_RATE_LIMITER | 600 | Shared social admission circuit breaker |
+| SOCIAL_GLOBAL_RATE_LIMITER | 20 | Shared social admission circuit breaker |
+| REGISTER_GLOBAL_RATE_LIMITER | 2 | Shared registration limit |
 | CATALOGUE_IP_RATE_LIMITER | 120 | IP across `/api/tmdb/*` |
 | LOGIN_IP_RATE_LIMITER | 30 | IP for login (also subject to the write limit) |
 | LOGIN_ACCOUNT_RATE_LIMITER | 8 | Normalized account name for login |
@@ -44,16 +45,17 @@ rates in Workers logs and tune the thresholds against legitimate usage. Shared
 IP networks share quotas, so these defaults are deliberately above ordinary UI
 bursts. Do not exempt authenticated requests from admission control.
 
-The shared social breaker protects against IP rotation, but temporarily rejects
-legitimate social traffic too when its allowance is exhausted. Catalogue and
-assets remain independent of that breaker. It counts requests, not SQL queries:
-some admitted requests perform multiple SQL operations.
+The shared social and registration limits protect against IP rotation, but
+temporarily reject legitimate social traffic too when their allowances are
+exhausted. Catalogue and assets remain independent. These limits count requests,
+not SQL statements; one admitted request can still perform multiple operations.
 
 Cloudflare rate limiting bindings are approximate and local to each Cloudflare
 location. They reduce abuse but do not impose a strict worldwide spending cap or
 stop traffic before the Worker starts. Distributed attacks can exceed these
-thresholds across locations. If strict budget enforcement becomes necessary,
-design that separately rather than treating these counters as billing limits.
+thresholds across locations. They are an admission safeguard, not a strict daily
+query budget; inspect Hyperdrive metrics and consider the Workers Paid plan if
+the 100,000-query daily Free allowance is routinely insufficient.
 See the [official rate limiting reference](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/).
 
 ## Validation
@@ -74,3 +76,7 @@ links, health, TMDB details and public comments returned HTTP 200; unauthenticat
 profile access returned 401; an unknown API GET returned 404. Bounded unknown-route
 POST bursts returned 429 with `Retry-After: 60` and `Cache-Control: no-store` on
 all three environments. No schema or data migration was executed.
+
+The tighter 20/minute social limit and the new 2/minute global registration
+binding are repository changes dated 26 October 2026. They take effect in each
+environment only after that environment is redeployed with its Wrangler bindings.

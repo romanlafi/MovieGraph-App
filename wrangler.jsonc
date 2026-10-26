@@ -65,7 +65,15 @@
       "name": "SOCIAL_GLOBAL_RATE_LIMITER",
       "namespace_id": "7412086024",
       "simple": {
-        "limit": 600,
+        "limit": 20,
+        "period": 60
+      }
+    },
+    {
+      "name": "REGISTER_GLOBAL_RATE_LIMITER",
+      "namespace_id": "7412086026",
+      "simple": {
+        "limit": 2,
         "period": 60
       }
     },
@@ -169,7 +177,15 @@
         "name": "SOCIAL_GLOBAL_RATE_LIMITER",
         "namespace_id": "7412086034",
         "simple": {
-          "limit": 600,
+          "limit": 20,
+          "period": 60
+        }
+      },
+      {
+        "name": "REGISTER_GLOBAL_RATE_LIMITER",
+        "namespace_id": "7412086036",
+        "simple": {
+          "limit": 2,
           "period": 60
         }
       },

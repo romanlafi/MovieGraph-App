@@ -18,7 +18,8 @@ from app.social.dependencies import get_social_session
 BINDINGS = {
     "API_IP_RATE_LIMITER": 180, "SOCIAL_IP_RATE_LIMITER": 60,
     "WRITE_IP_RATE_LIMITER": 20, "REGISTER_IP_RATE_LIMITER": 3,
-    "SOCIAL_GLOBAL_RATE_LIMITER": 600, "CATALOGUE_IP_RATE_LIMITER": 120,
+    "SOCIAL_GLOBAL_RATE_LIMITER": 20, "REGISTER_GLOBAL_RATE_LIMITER": 2,
+    "CATALOGUE_IP_RATE_LIMITER": 120,
 }
 
 
@@ -92,6 +93,7 @@ class RateLimitTests(unittest.TestCase):
 
     def test_registration_write_and_catalogue_limits_are_enforced(self):
         cases = (("REGISTER_IP_RATE_LIMITER", "POST", "/api/v1/users/"),
+                 ("REGISTER_GLOBAL_RATE_LIMITER", "POST", "/api/v1/users/"),
                  ("WRITE_IP_RATE_LIMITER", "DELETE", "/api/v1/movies/550/like"),
                  ("CATALOGUE_IP_RATE_LIMITER", "GET", "/api/tmdb/movie/550"))
         for name, method, path in cases:
